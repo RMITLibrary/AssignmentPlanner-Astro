@@ -1,0 +1,54 @@
+#assignmentDetails {
+    max-width: 47rem;
+
+    .form-group {
+        @include do-space(margin-top, lg); 
+    }
+    
+    label { margin-bottom: 0.5rem; }
+
+    legend { @include type-default; }
+
+    .form-check-inline { 
+        label { margin: 0rem; }
+    }
+
+    .dates {
+        .form-group {
+            @include do-space(margin-top, md);
+            @include do-space(margin-bottom, lg);
+
+            display: flex;
+            align-items: center;
+            width: 15rem;
+
+            label { 
+                flex-shrink: 0; 
+                width: 5.5rem; 
+                margin: 0;
+            }
+
+            input { flex-grow: 1;}
+        }
+
+        @include media-breakpoint-up(md) {
+            display: flex;
+            gap: 4rem;
+
+            .form-group { 
+                width: auto; 
+            
+                label {  
+                    width: 6rem; 
+                }
+            }
+        }
+    }
+}
+
+.req { color: $accent-color; }
+
+// Dark mode
+@include color-mode(dark) {
+    .req { color: $accent-color-dark; }
+}

@@ -1,0 +1,75 @@
+.btn-group-tools, .btn-group-nav {
+    .btn { margin:0; }
+}
+
+.btn-group-tools {
+    @include do-space(margin-top, sm);
+
+    display: flex;
+    gap: 1.5rem;  
+    flex-direction: column; 
+
+    @include media-breakpoint-up(sm) { 
+        flex-direction: row; 
+    }
+}
+
+.btn-group-nav {
+    @include do-space(margin-top, lg);
+    .btn { 
+        margin-right: 1rem;
+
+        @include media-breakpoint-up(sm) { 
+            margin-right: 1.5rem;
+        }
+    }
+}
+
+
+
+
+//calednar button 
+.btn-cal, .btn-pdf, .previousPeriod, .nextPeriod {
+    @extend .btn-icon;
+ }
+ 
+ .btn-cal::before {
+    content: url("data:image/svg+xml,%3C?xml version='1.0' encoding='UTF-8'?%3E %3Csvg version='1.1' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E %3Cdefs%3E %3Cstyle%3E.st0 {         fill: %23e61f2a;       }       .st1 {         fill: none;         stroke: %23e61f2a;         stroke-linecap: round;         stroke-miterlimit: 10;         stroke-width: 1.5px;       }%3C/style%3E %3C/defs%3E %3Crect class='st1' x='7.3' y='7.8' width='17.5' height='16.7' rx='2' ry='2'/%3E %3Crect class='st0' x='10.3' y='10.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='14.5' y='10.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='18.8' y='10.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='10.3' y='14.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='14.5' y='14.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='18.8' y='14.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='10.3' y='18.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='14.5' y='18.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='18.8' y='18.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3C/svg%3E");
+}
+
+// Dark Mode
+@include color-mode(dark) {
+    .btn-cal::before {
+        content: url("data:image/svg+xml,%3C?xml version='1.0' encoding='UTF-8'?%3E %3Csvg version='1.1' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E %3Cdefs%3E %3Cstyle%3E.st0 {         fill: %23E6636A;       }       .st1 {         fill: none;         stroke: %23E6636A;         stroke-linecap: round;         stroke-miterlimit: 10;         stroke-width: 1.5px;       }%3C/style%3E %3C/defs%3E %3Crect class='st1' x='7.3' y='7.8' width='17.5' height='16.7' rx='2' ry='2'/%3E %3Crect class='st0' x='10.3' y='10.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='14.5' y='10.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='18.8' y='10.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='10.3' y='14.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='14.5' y='14.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='18.8' y='14.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='10.3' y='18.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='14.5' y='18.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3Crect class='st0' x='18.8' y='18.5' width='2.9' height='3' rx='.4' ry='.4'/%3E %3C/svg%3E");
+    }
+}
+ 
+ // pdf button
+ .btn-pdf::before {
+    content: url("data:image/svg+xml,%3C?xml version='1.0' encoding='UTF-8'?%3E %3Csvg version='1.1' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E %3Cdefs%3E %3Cstyle%3E.st0 {         fill: none;         stroke: %23e61f2a;         stroke-linecap: round;         stroke-miterlimit: 10;         stroke-width: 1.5px;       }%3C/style%3E %3C/defs%3E %3Cpath class='st0' d='M21.3,24.5h-10.6c-1,0-1.8-.8-1.8-1.8v-13.1c0-1,.8-1.8,1.8-1.8h7.8c.7,0,1.3.3,1.8.7l2.2,2.1c.5.4.7,1,.7,1.7v10.4c0,1-.8,1.8-1.8,1.8Z'/%3E %3Cline class='st0' x1='12' x2='20' y1='13.4' y2='13.4'/%3E %3Cline class='st0' x1='12' x2='20' y1='16.4' y2='16.4'/%3E %3Cline class='st0' x1='12' x2='20' y1='19.4' y2='19.4'/%3E %3C/svg%3E");
+}
+// Dark Mode
+    @include color-mode(dark) {
+    .btn-pdf::before {
+        content: url("data:image/svg+xml,%3C?xml version='1.0' encoding='UTF-8'?%3E %3Csvg version='1.1' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E %3Cdefs%3E %3Cstyle%3E.st0 {         fill: none;         stroke: %23E6636A;         stroke-linecap: round;         stroke-miterlimit: 10;         stroke-width: 1.5px;       }%3C/style%3E %3C/defs%3E %3Cpath class='st0' d='M21.3,24.5h-10.6c-1,0-1.8-.8-1.8-1.8v-13.1c0-1,.8-1.8,1.8-1.8h7.8c.7,0,1.3.3,1.8.7l2.2,2.1c.5.4.7,1,.7,1.7v10.4c0,1-.8,1.8-1.8,1.8Z'/%3E %3Cline class='st0' x1='12' x2='20' y1='13.4' y2='13.4'/%3E %3Cline class='st0' x1='12' x2='20' y1='16.4' y2='16.4'/%3E %3Cline class='st0' x1='12' x2='20' y1='19.4' y2='19.4'/%3E %3C/svg%3E");
+    }
+}
+
+.previousPeriod:before { transform: rotate(90deg); }
+.nextPeriod:before { transform: rotate(-90deg); }
+
+//pre/next buttons for calendar
+.previousPeriod, .nextPeriod {
+    padding: 0 .25rem 0 0.25rem;
+
+    &:before {
+        @include carat;
+        margin: 0;
+    }
+}
+
+@include color-mode(dark) {
+    .previousPeriod:before, .nextPeriod:before {
+        @include carat-dark;
+    }
+}

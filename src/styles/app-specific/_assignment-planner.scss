@@ -1,0 +1,54 @@
+//footer
+.footer-container {
+    margin: 0;
+}
+
+.ask-container {
+    border-top: 0;
+}
+
+//plan detail
+#plan-detail {
+
+    margin-top: 2rem;
+    @include media-breakpoint-up(md) { margin-top: 4rem; }
+
+    h2 {
+        margin-top: 0;
+    }
+
+    .plan-dates {
+        display: flex;
+        justify-content: space-between;
+        max-width: 24rem;
+    
+        p { margin: 0; }
+    
+        @include media-breakpoint-up(md) { 
+            max-width: 26rem;
+        }
+    }
+    
+    .deadline {
+        margin-bottom: 2rem;
+    }
+}
+
+//tables
+#table-steps-table {
+    min-width: 768px;
+    margin-top: 0;
+
+    td:nth-child(2) {
+        width: 9rem;
+        text-wrap: balance;
+        @include media-breakpoint-up(lg) { width: 16rem; }
+    }
+    
+    td:nth-child(3) {
+        width: 6rem;
+        @include media-breakpoint-up(lg) { width: 11rem; }
+    }
+}
+
+

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://learninglab.rmit.edu.au/AssignmentPlanner/sitemap-index.xml

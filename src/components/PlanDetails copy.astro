@@ -1,0 +1,93 @@
+---
+import { isOpenResults, planDetailsStore } from '../store';
+import TabContentCalendar from './TabContentCalendar.astro';
+import TabContentTasks from './TabContentTasks.astro';
+
+const projectDetails = planDetailsStore.get();
+---
+sdf
+{isOpenResults.get() && projectDetails.projectID ? (
+  <div>
+    <h2>Assignment Plan for: {projectDetails.name}</h2>
+    <ul>
+      {projectDetails.tasks.map(task => (
+        <li key={task.id}>{task.description}</li>
+      ))}
+    </ul>
+  </div>
+) : null}
+sdf
+<section id="plan-detail" style="display: none">
+  <h2>Assignment plan: <span id="plan-name">N/A</span></h2>
+  <div class="plan-dates">
+    <p><strong>Start date:</strong> <span id="start-date">N/A</span></p>
+    <p><strong>End date:</strong> <span id="end-date">N/A</span></p>
+  </div>
+  <p class="deadline">
+    You have <strong><span id="day-count">N/A</span></strong> to complete your assignment.
+  </p>
+
+  <ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="task-tab" data-bs-toggle="tab" data-bs-target="#task-tab-pane" type="button" role="tab" aria-controls="task-tab-pane" aria-selected="true"> Task view </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar-tab-pane" type="button" role="tab" aria-controls="calendar-tab-pane" aria-selected="false"> Calendar view </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="myTabContent">
+    <TabContentTasks />
+    <TabContentCalendar />
+  </div>
+</section>
+
+<script>
+  import { isOpenResults, planDetailsStore } from '../store.js';
+
+  planDetailsStore.subscribe((details) => {
+    updatePlanDetails(details);
+  });
+
+  function updatePlanDetails(details) {
+    const titleElement = document.getElementById('plan-name');
+    const startDateElement = document.getElementById('start-date');
+    const endDateElement = document.getElementById('end-date');
+    const dayCountElement = document.getElementById('day-count');
+
+    if (titleElement) titleElement.textContent = details.name || 'N/A';
+    if (startDateElement) startDateElement.textContent = formatDate(details.startDate) || 'N/A';
+    if (endDateElement) endDateElement.textContent = formatDate(details.endDate) || 'N/A';
+    if (dayCountElement) {
+      const days = calculateDaysBetween(details.startDate, details.endDate);
+      dayCountElement.textContent = `${days} ${days === 1 ? 'day' : 'days'}`;
+    }
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  function calculateDaysBetween(start, end) {
+    if (!start || !end) return 'N/A';
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const differenceInTime = endDate.getTime() - startDate.getTime();
+    return Math.ceil(differenceInTime / (1000 * 3600 * 24));
+  }
+
+  console.log('Script loaded and running.');
+
+  isOpenResults.subscribe((open) => {
+    const planDetail = document.getElementById('plan-detail');
+    if (planDetail) {
+      planDetail.style.display = open ? 'block' : 'none';
+      console.log('plan-detail visibility set to:', planDetail.style.display);
+    }
+  });
+</script>

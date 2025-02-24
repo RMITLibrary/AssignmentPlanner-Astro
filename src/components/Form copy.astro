@@ -1,0 +1,185 @@
+---
+import { getCollection } from 'astro:content';
+
+// Fetch project types on the server side
+const projectsWithTasks = Astro.props.projectsWithTasks;
+---
+
+<!-- START form -->
+<a id="form-plan"></a>
+<h2 class="margin-bottom-zero">Enter your assignment details</h2>
+<form id="assignmentDetails" class="needs-validation" novalidate onsubmit="handleSubmit(event)">
+  <div class="form-group">
+    <label for="assignmentName">Assignment name (optional)</label>
+    <input type="text" class="form-control" id="assignmentName" placeholder="Enter assignment name" />
+  </div>
+
+  <div class="form-group">
+    <label for="assignmentType">Assignment type<span class="req">*</span><span class="visually-hidden">Required</span></label>
+    <select class="form-select" id="assignmentType" required>
+      <option value="">Select type</option>
+      {projectsWithTasks.map(project => (
+        <option value={project.id}>{project.name}</option>
+      ))}
+    </select>
+    <div class="invalid-feedback">Please select an assignment type.</div>
+  </div>
+
+  <fieldset class="form-group">
+    <legend>Is this a group assignment?<span class="req">*</span><span class="visually-hidden">Required</span></legend>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="groupAssignment" id="groupYes" value="yes" required />
+      <label class="form-check-label" for="groupYes">Yes</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="groupAssignment" id="groupNo" value="no" checked required />
+      <label class="form-check-label" for="groupNo">No</label>
+    </div>
+    <div class="invalid-feedback">Please select an option.</div>
+  </fieldset>
+
+  <div class="dates">
+    <div class="form-group">
+      <label for="startDate">Start date<span class="req">*</span><span class="visually-hidden">Required</span></label>
+      <input type="date" class="form-control" id="startDate" aria-describedby="startDateFormat" required />
+      <div id="startDateFormat" class="form-text text-muted">
+        <span class="visually-hidden">Date format:</span><span id="startDateFormatDisplay"></span>
+      </div>
+      <div class="invalid-feedback">Please provide a start date.</div>
+    </div>
+
+    <div class="form-group">
+      <label for="endDate">End date<span class="req">*</span><span class="visually-hidden">Required</span></label>
+      <input type="date" class="form-control" id="endDate" aria-describedby="endDateFormat" required />
+      <div id="endDateFormat" class="form-text text-muted">
+        <span class="visually-hidden">Date format:</span><span id="endDateFormatDisplay"></span>
+      </div>
+      <div class="invalid-feedback" id="endDateError">Please provide an end date.</div>
+    </div>
+  </div>
+  
+  <button type="submit" class="btn btn-primary">Create assignment plan</button>
+  <button id="reset" class="btn btn-secondary" type="reset" onclick="handleReset()">Reset</button>
+</form>
+<!-- END form -->
+
+<script >
+  import { isOpenResults, isTesting, planDetailsStore } from '../store.js';
+
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+  const endDateError = document.getElementById('endDateError');
+
+  startDateInput.addEventListener('input', validateDates);
+  endDateInput.addEventListener('input', validateDates);
+
+  function validateDates() {
+    const startDate = new Date(startDateInput.value);
+    const endDate = new Date(endDateInput.value);
+
+    if (!endDateInput.value) {
+      endDateInput.setCustomValidity('End date is required.');
+      endDateError.textContent = 'Please provide an end date.';
+    } else if (startDate && endDate && endDate <= startDate) {
+      endDateInput.setCustomValidity('End date must be after the start date.');
+      endDateError.textContent = 'End date must be after the start date.';
+    } else {
+      endDateInput.setCustomValidity('');
+      endDateError.textContent = '';
+    }
+  }
+
+  function setDateFormat() {
+    const dateFormatter = new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    const parts = dateFormatter.formatToParts(new Date());
+    const dateFormatOrder = parts
+      .map(part => part.type)
+      .filter(type => ['day', 'month', 'year'].includes(type))
+      .map(type => type === 'day' ? 'dd' : type === 'month' ? 'mm' : 'yyyy')
+      .join('/');
+
+    document.getElementById('startDateFormatDisplay').textContent = dateFormatOrder;
+    document.getElementById('endDateFormatDisplay').textContent = dateFormatOrder;
+  }
+
+  window.handleSubmit = (event) => {
+    event.preventDefault();
+
+    const form = document.getElementById('assignmentDetails');
+    const errors = [];
+    
+    const assignmentTypeSelect = document.getElementById('assignmentType');
+const assignmentName = assignmentTypeSelect.options[assignmentTypeSelect.selectedIndex].text || "Unnamed Assignment";   
+
+    const assignmentType = document.getElementById('assignmentType').value;
+    const groupAssignment = document.querySelector('input[name="groupAssignment"]:checked');
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
+    const selectedProject = projectsWithTasks.find(proj => proj.id === assignmentType);
+
+    // Validate assignment type
+    if (!assignmentType) errors.push('Assignment type is required.');
+
+    // Validate group assignment selection
+    if (!groupAssignment) errors.push('Please select if this is a group assignment.');
+
+    // Validate dates (already validated in validateDates)
+    if (!startDate) errors.push('Start date is required.');
+    if (!endDate) errors.push('End date is required.');
+
+    if (form.checkValidity() === false || errors.length > 0) {
+      // Errors will be visible in invalid-feedback sections
+    } else {
+      isOpenResults.set(true);
+
+      // Log selected project details
+    console.log("Selected Project ID:", projectID);
+    console.log("Selected Project Name:", selectedProject.name);
+    console.log("Associated Tasks:", selectedProject.tasks);
+
+      const dayCount = calculateDaysBetween(startDate, endDate);
+
+       // Update the shared store with details
+      planDetailsStore.set({
+        name: assignmentName,
+        projectID: assignmentType,
+        startDate: startDate,
+        endDate: endDate,
+        days: dayCount,
+      });
+      
+      console.log('Form submitted successfully, isOpenResults:', isOpenResults.get());
+    }
+
+    form.classList.add('was-validated');
+  };
+
+   function calculateDaysBetween(start, end) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const differenceInTime = endDate.getTime() - startDate.getTime();
+    return Math.ceil(differenceInTime / (1000 * 3600 * 24));
+  }
+
+  window.handleReset = () => {
+    const form = document.getElementById('assignmentDetails');
+    isOpenResults.set(false);
+    console.log('Form reset, isOpenResults:', isOpenResults.get());
+    form.classList.remove('was-validated');
+  };
+
+  window.addEventListener('DOMContentLoaded', () => {
+    setDateFormat();
+
+    if (isTesting.get()) {
+      document.getElementById('assignmentType').value = 'written-assessment';
+      startDateInput.value = '2025-03-20';
+      endDateInput.value = '2025-03-30';
+      console.log('Default testing values set');
+    }
+  });
+</script>

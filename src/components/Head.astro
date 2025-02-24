@@ -1,0 +1,31 @@
+---
+import Favicon from '../assets/Favicon.astro';
+import { SEO } from 'astro-seo';
+
+// Destructure props and provide default values
+const { title = 'Assignment Planner | RMIT University', description = 'Get a step-by-step plan with tips and advice for completing your presentations and written assignments.', ...props } = Astro.props;
+
+const pageUrl = `${Astro.site}${Astro.url.pathname}`; // Dynamically set the current page URL
+const imageUrl = '/images/share-image.png'; // Your static share image
+---
+
+<SEO
+  title={title}
+  description={description}
+  openGraph={{
+    basic: {
+      title: title,
+      type: 'website',
+      image: imageUrl,
+      url: pageUrl,
+    }
+  }}
+  extend={{
+    link: [{ rel: 'sitemap', href: '/sitemap-index.xml' }],
+    meta: [
+      { name: 'author', content: 'RMIT University' },
+      { name: 'theme-color', content: '#0057B8' },
+    ],
+  }}
+/>
+<Favicon />
