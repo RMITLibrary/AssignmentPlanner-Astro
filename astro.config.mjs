@@ -8,7 +8,6 @@ import preact from '@astrojs/preact';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://learninglab.rmit.edu.au/AssignmentPlanner',
-  base: '/AssignmentPlanner/',
   trailingSlash: 'always',
 
   vite: {
