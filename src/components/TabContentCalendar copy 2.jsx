@@ -37,8 +37,7 @@ const CalendarTabPane = () => {
             useFormPopup: false,
             useDetailPopup: false,
             month: {
-              visibleEventCount: Infinity,
-              grid: { cellHeight: 50 },
+              visibleEventCount: 4,
             },
             calendars: [
               {

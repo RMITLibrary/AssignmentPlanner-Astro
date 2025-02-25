@@ -68,9 +68,18 @@ const PlanDetails = () => {
         <div className={`tab-pane fade ${activeTab === 'task' ? 'show active' : ''}`} id="task-tab-pane" role="tabpanel" aria-labelledby="task-tab" tabIndex="0">
           <TabContentTasks />
         </div>
-        <div className={`tab-pane fade ${activeTab === 'calendar' ? 'show active' : ''}`} id="calendar-tab-pane" role="tabpanel" aria-labelledby="calendar-tab" tabIndex="0">
+        <div className={`tab-pane fade page-break ${activeTab === 'calendar' ? 'show active' : ''}`} id="calendar-tab-pane" role="tabpanel" aria-labelledby="calendar-tab" tabIndex="0">
           <TabContentCalendar />
         </div>
+      </div>
+
+      <div className="btn-group-tools">
+        <button className="btn btn-pdf" onClick={() => window.print()}>
+          Save to PDF
+        </button>
+        <button className="btn btn-cal" onClick={() => console.log('Exporting to calendar...')}>
+          Export to Calendar
+        </button>
       </div>
     </section>
   );

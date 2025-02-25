@@ -1,0 +1,238 @@
+@page {
+  size: A4 portrait;
+  margin: 2cm;
+  @top-left {
+    content: 'Assignment Planner';
+  }
+  @bottom-right {
+    content: 'Page ' counter(page) ' of ' counter(pages);
+  }
+}
+
+@media print {
+
+  .page-break {
+    page-break-before: always;
+    /* For more modern support, you might use:
+    break-before: page;
+    */
+  }
+
+  /* Add URL to links in print */
+  a[href]:after {
+    content: " (" attr(href) ")";
+    visibility: visible;
+    color: #000;
+  }
+
+  #page-content {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  article a {
+    font-weight: bolder;
+    text-decoration: none;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    page-break-after: avoid !important;
+  }
+
+  body {
+    margin: 0;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Museo500', Helvetica, Arial, 'sans-serif' !important;
+    background: #000054;
+    padding: 20px;
+    margin-left: -20px;
+    margin-right: -20px;
+    font-size: 20px;
+    color: #ffffff;
+    display: block;
+    string-set: doctitle content();
+    page-break-after: avoid !important;
+  }
+
+  h2 {
+    font-family: Helvetica, Arial, 'sans-serif';
+    font-size: 24px;
+    color: #000054;
+    page-break-after: avoid !important;
+  }
+
+  h3 {
+    font-family: Helvetica, Arial, 'sans-serif';
+    font-size: 16px;
+    color: #000054;
+    page-break-after: avoid !important;
+  }
+
+  h4 {
+    font-family: Helvetica, Arial, 'sans-serif';
+    font-size: 14px;
+    color: #000054;
+    page-break-after: avoid !important;
+  }
+
+  h5 {
+    font-family: Helvetica, Arial, 'sans-serif';
+    font-size: 13px;
+    color: #000054;
+    page-break-after: avoid !important;
+  }
+
+  p {
+    font-family: Helvetica, Arial, 'sans-serif';
+    font-size: 12px;
+    page-break-inside: avoid;
+    display: block;
+  }
+
+  blockquote p {
+    font-family: Baskerville, 'Palatino Linotype', Palatino, 'Century Schoolbook L', 'Times New Roman', 'serif' !important;
+    margin-left: 20px;
+    font-size: 14px;
+    page-break-inside: avoid;
+    padding: 10px;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  .hanging-indent {
+    padding-left: 3em !important;
+    text-indent: -3em !important;
+    font-family: Baskerville, 'Palatino Linotype', Palatino, 'Century Schoolbook L', 'Times New Roman', 'serif' !important;
+    margin-left: 20px;
+    font-size: 14px;
+    line-height: 2;
+    overflow-wrap: break-word;
+  }
+
+  .footnote-indent {
+    padding-left: -2em !important;
+    text-indent: 2em !important;
+    font-family: Baskerville, 'Palatino Linotype', Palatino, 'Century Schoolbook L', 'Times New Roman', 'serif' !important;
+    font-size: 14px !important;
+    line-height: 2;
+    overflow-wrap: break-word;
+  }
+
+  .centre-align {
+    text-align: center !important;
+  }
+
+  .figure-text {
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  img {
+    width: 80% !important;
+    border: thin #2a2a2a;
+  }
+
+  ul,
+  img {
+    page-break-inside: avoid;
+  }
+
+  table,
+  tr {
+    border: thin solid #dddddd !important;
+    border-collapse: collapse;
+  }
+
+  td,
+  th {
+    text-align: left !important;
+    font-family: Helvetica, Arial, 'sans-serif' !important;
+    font-size: 12px;
+    padding-left: 10px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    padding-right: 15px !important;
+  }
+
+  thead {
+    border-bottom: 2px solid #2b2b2b !important;
+  }
+
+  li {
+    font-family: Helvetica, Arial, 'sans-serif';
+    font-size: 12px;
+  }
+
+  .accordion-button {
+    background-color: #ffffff;
+    border: hidden;
+    font-family: Helvetica, Arial, 'sans-serif';
+    font-size: 16px;
+    font-weight: 600;
+    color: #000054;
+    margin-left: -7px;
+  }
+
+
+
+  /* this code to ensure background colour prints for page title */
+  * {
+    -webkit-print-color-adjust: exact !important; /* Chrome, Safari, Edge */
+    color-adjust: exact !important;                /* Firefox */
+  }
+
+  .tab-content .tab-pane {
+    display: block !important;
+    opacity: 1 !important;
+    height: auto !important;
+  }
+
+  .nav,
+  .btn-group-tools {
+    display: none;
+  }
+
+  .intro {
+    display: none;
+  }
+
+  #assignmentDetails {
+    display: none;
+  }
+
+  .theme-switch {
+    display: none;
+  }
+
+  .footer-container {
+    display: none;
+  }
+
+  .btn-group-nav {
+    display: none;
+  }
+
+  #nav {
+    display: none;
+  }
+
+  .cv-header-nav {
+    display: none;
+  }
+
+  .calendar-container {
+    min-width: 0 !important;
+  }
+
+  #table-steps-table {
+    min-width: 0;
+  }
+}

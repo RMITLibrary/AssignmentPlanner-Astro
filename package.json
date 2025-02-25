@@ -19,6 +19,7 @@
     "astro-bootstrap": "^0.7.0",
     "astro-seo": "^0.8.4",
     "bootstrap": "^5.3.3",
+    "jspdf": "^3.0.0",
     "nanostores": "^0.11.4",
     "preact": "^10.26.2",
     "sass": "^1.85.0",

@@ -33,7 +33,7 @@ const TabContentTasks = () => {
 
   return (
     <div>
-      <div className="hscroll">
+     
         <table className="table-striped" id="table-steps-table">
           <thead>
             <tr>
@@ -55,16 +55,7 @@ const TabContentTasks = () => {
             ))}
           </tbody>
         </table>
-      </div>
-
-      <div className="btn-group-tools">
-        <button className="btn btn-pdf" id="btn-pdf" type="button" onClick={handlePDF}>
-          Save plan to PDF<span className="visually-hidden">&nbsp; (opens new window)</span>
-        </button>
-        <button className="btn btn-cal" id="btn-calendar" type="button" onClick={handleCalendarExport}>
-          Export plan to calendar
-        </button>
-      </div>
+      
 
       <div className="btn-group-nav">
         <a href="#form-plan" className="btn btn-default" role="button">
