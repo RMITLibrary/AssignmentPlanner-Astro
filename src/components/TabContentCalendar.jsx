@@ -90,7 +90,6 @@ const CalendarTabPane = () => {
         calendar.createEvents(events);
         calendar.setDate(initialDate);
         updateDateRange();
-
         console.log('Calendar initialized: Initial Date:', initialDate);
       });
     }
