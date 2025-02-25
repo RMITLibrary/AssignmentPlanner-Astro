@@ -157,7 +157,7 @@ const Form = ({ projectsWithTasks }) => {
   };
 
   return (
-    <form id="assignmentDetails" className={`needs-validation ${formValid ? '' : 'was-validated'}`} onSubmit={handleSubmit}>
+    <form id="assignmentDetails" className={`needs-validation ${formValid ? '' : 'was-validated'}`}  onSubmit={handleSubmit}>
       <div className="form-group">
         <label htmlFor="assignmentName">Assignment name (optional)</label>
         <input type="text" className="form-control" id="assignmentName" value={assignmentName} onChange={(e) => setAssignmentName(e.target.value)} placeholder="Enter assignment name" />

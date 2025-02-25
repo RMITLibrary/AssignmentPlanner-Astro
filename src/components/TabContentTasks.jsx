@@ -18,32 +18,10 @@ const TabContentTasks = () => {
     return () => unsubscribe();
   }, []);
 
-  const distributeRoundedDays = (tasks, totalDays) => {
-    let totalWeight = tasks.reduce((sum, task) => sum + task.weight, 0);
-    return tasks.map((task) => {
-      const fractionDays = (totalDays * task.weight) / totalWeight;
-      const roundedDays = Math.round(fractionDays);
-
-      const displayDays = roundedDays > 1 ? `${roundedDays} days` : roundedDays === 1 ? '1 day' : 'less than one day';
-
-      return { ...task, roundedDays, displayTime: displayDays };
-    });
-  };
-
   const formatDate = (date) => {
     const options = { weekday: 'long', month: 'long', day: 'numeric' };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
+    return new Intl.DateTimeFormat('en-US', options).format(new Date(date));
   };
-
-  const calculateCompletionDates = (tasks, startDate) => {
-    let currentDate = new Date(startDate);
-    return tasks.map((task) => {
-      currentDate.setDate(currentDate.getDate() + task.roundedDays);
-      return { ...task, completeBy: formatDate(new Date(currentDate)) };
-    });
-  };
-
-  const dayAllocations = calculateCompletionDates(distributeRoundedDays(tasks, daysAvailable), startDate);
 
   const handlePDF = () => {
     console.log('Saving plan to PDF...');
@@ -65,13 +43,13 @@ const TabContentTasks = () => {
             </tr>
           </thead>
           <tbody>
-            {dayAllocations.map((task, index) => (
+            {tasks.map((task, index) => (
               <tr key={index}>
                 <td>
                   <h3>{`${index + 1}. ${task.data.description || 'Untitled Task'}`}</h3>
                   <div dangerouslySetInnerHTML={{ __html: task.rendered.html }} />
                 </td>
-                <td>{task.completeBy}</td>
+                <td>{formatDate(task.endDate)}</td>
                 <td>{task.displayTime}</td>
               </tr>
             ))}

@@ -7,7 +7,9 @@ import 'tui-time-picker/dist/tui-time-picker.css';
 
 const CalendarTabPane = () => {
   const [tasks, setTasks] = useState([]);
+  const [currentDate, setCurrentDate] = useState(new Date()); // New state for tracking current date
   const calendarRef = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const unsubscribe = planDetailsStore.subscribe((details) => {
@@ -15,86 +17,141 @@ const CalendarTabPane = () => {
       console.log('Tasks updated:', details.tasks);
     });
 
-    if (typeof window !== 'undefined' && tasks.length > 0) {
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && containerRef.current) {
       import('@toast-ui/calendar').then(({ default: Calendar }) => {
-        const container = document.getElementById('calendar-view-container');
+        const container = containerRef.current;
 
-        const initialDate = new Date(tasks[0].startDate);
-
-        const calendar = new Calendar(container, {
-          defaultView: 'month',
-          usageStatistics: false,
-          isReadOnly: true,
-          useFormPopup: true,
-          useDetailPopup: true,
-          date: initialDate,
-          calendars: [
-            {
-              id: '1',
-              name: 'Tasks',
-              backgroundColor: '#03bd9e',
-              borderColor: '#03bd9e',
+        if (calendarRef.current) {
+          calendarRef.current.clear();
+        } else {
+          const calendar = new Calendar(container, {
+            defaultView: 'month',
+            usageStatistics: false,
+            isReadOnly: true,
+            useFormPopup: false,
+            useDetailPopup: true,
+            month: {
+              visibleEventCount: Infinity,
+              grid: { cellHeight: 50 },
             },
-          ],
-        });
+            calendars: [
+              {
+                id: '1',
+                name: 'Tasks',
+                backgroundColor: '#03bd9e',
+                borderColor: '#03bd9e',
+              },
+            ],
+          });
 
-        const colors = ['#FF5733', '#33FF57', '#3357FF', '#F33FF5', '#F5A623']; // Example color array
-        const events = tasks.map((task, index) => ({
-          id: task.id,
-          calendarId: '1',
-          title: task.name,
-          body: task.body, // Add the task body here for the popup
-          start: task.startDate,
-          end: task.completeBy,
-          category: 'allday',
-          bgColor: colors[index % colors.length],
-          dragBackgroundColor: colors[index % colors.length],
-          borderColor: colors[index % colors.length],
-        }));
+          calendarRef.current = calendar;
+        }
+
+        const calendar = calendarRef.current;
+
+        const colors = [
+          { textColor: '#000000', bgColor: '#fac800' },
+          { textColor: '#000000', bgColor: '#70cfff' },
+          { textColor: '#000000', bgColor: '#81e996' },
+          { textColor: '#000000', bgColor: '#eb7ab6' },
+          { textColor: '#000000', bgColor: '#f5904d' },
+          { textColor: '#000000', bgColor: '#e66cef' },
+          { textColor: '#000000', bgColor: '#00F2B6' },
+          { textColor: '#000000', bgColor: '#99AFFF' },
+          { textColor: '#000000', bgColor: '#CEF218' },
+        ];
+
+        const events = tasks.map((task, index) => {
+          const color = colors[index % colors.length];
+          return {
+            id: task.id,
+            calendarId: '1',
+            title: task.data.description || 'No Description',
+            body: task.body || 'No Details',
+            start: new Date(task.startDate),
+            end: new Date(task.endDate),
+            category: 'allday',
+            backgroundColor: color.bgColor,
+            borderColor: color.bgColor,
+            color: color.textColor,
+          };
+        });
 
         calendar.createEvents(events);
 
-        calendarRef.current = calendar;
-
-        return () => {
-          calendar.destroy();
-          calendarRef.current = null;
-        };
+        if (tasks.length > 0) {
+          const initialTaskDate = new Date(tasks[0].startDate);
+          calendar.setDate(initialTaskDate);
+          setCurrentDate(initialTaskDate); // Set state to match initial calendar date
+        }
       });
     }
 
-    return () => unsubscribe();
+    return () => {
+      if (calendarRef.current) {
+        calendarRef.current.destroy();
+        calendarRef.current = null;
+      }
+    };
   }, [tasks]);
 
   const handlePreviousMonth = () => {
-    if (calendarRef.current) calendarRef.current.prev();
+    if (calendarRef.current) {
+      calendarRef.current.prev();
+      updateCurrentDate();
+    }
   };
 
   const handleCurrentMonth = () => {
-    if (calendarRef.current) calendarRef.current.today();
+    if (calendarRef.current) {
+      calendarRef.current.today();
+      updateCurrentDate();
+    }
   };
 
   const handleNextMonth = () => {
-    if (calendarRef.current) calendarRef.current.next();
+    if (calendarRef.current) {
+      calendarRef.current.next();
+      updateCurrentDate();
+    }
+  };
+
+  const updateCurrentDate = () => {
+    if (calendarRef.current) {
+      setCurrentDate(calendarRef.current.getDate());
+    }
+  };
+
+  const formatMonthYear = (date) => {
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
   };
 
   return (
     <div>
       <div className="cv-header">
+        <h3 className="periodLabel">{formatMonthYear(currentDate)}</h3>
         <div className="cv-header-nav">
           <button className="btn btn-sm previousPeriod" onClick={handlePreviousMonth}>
-            Previous
+            <span className="visually-hidden">Previous month</span>
           </button>
           <button className="btn btn-sm currentPeriod" onClick={handleCurrentMonth}>
             Today
           </button>
           <button className="btn btn-sm nextPeriod" onClick={handleNextMonth}>
-            Next
+            <span className="visually-hidden">Next month</span>
           </button>
         </div>
       </div>
+
       <div className="hscroll">
-        <div id="calendar-view-container" style={{ height: '600px' }} className="calendar-container"></div>
+        <div ref={containerRef} style={{ height: '800px' }} className="calendar-container"></div>
       </div>
       <div className="btn-group-tools">
         <button className="btn btn-pdf" onClick={() => console.log('Saving plan to PDF...')}>
