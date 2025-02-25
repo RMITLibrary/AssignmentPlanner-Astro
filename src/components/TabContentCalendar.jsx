@@ -7,7 +7,7 @@ import 'tui-time-picker/dist/tui-time-picker.css';
 
 const CalendarTabPane = () => {
   const [tasks, setTasks] = useState([]);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [dateRange, setDateRange] = useState({ start: new Date(), end: new Date() });
   const calendarRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -89,15 +89,22 @@ const CalendarTabPane = () => {
 
         calendar.createEvents(events);
         calendar.setDate(initialDate);
-        setCurrentDate(initialDate);
+        updateDateRange();
 
         console.log('Calendar initialized: Initial Date:', initialDate);
       });
     }
   };
 
+  const updateDateRange = () => {
+    if (calendarRef.current) {
+      const start = calendarRef.current.getDateRangeStart().toDate();
+      const end = calendarRef.current.getDateRangeEnd().toDate();
+      setDateRange({ start, end });
+    }
+  };
+
   useEffect(() => {
-    // Initialize calendar when tasks update and on active tab
     activeTabStore.subscribe((activeTab) => {
       if (activeTab === 'calendar') {
         console.log('Calendar tab is active, initializing calendar.');
@@ -105,7 +112,6 @@ const CalendarTabPane = () => {
       }
     });
 
-    // Cleanup function
     return () => {
       if (calendarRef.current) {
         calendarRef.current.destroy();
@@ -117,39 +123,44 @@ const CalendarTabPane = () => {
   const handlePreviousMonth = () => {
     if (calendarRef.current) {
       calendarRef.current.prev();
-      updateCurrentDate();
+      updateDateRange();
     }
   };
 
   const handleCurrentMonth = () => {
     if (calendarRef.current) {
       calendarRef.current.today();
-      updateCurrentDate();
+      updateDateRange();
     }
   };
 
   const handleNextMonth = () => {
     if (calendarRef.current) {
       calendarRef.current.next();
-      updateCurrentDate();
+      updateDateRange();
     }
   };
 
-  const updateCurrentDate = () => {
-    if (calendarRef.current) {
-      setCurrentDate(calendarRef.current.getDate());
-    }
-  };
-
-  const formatMonthYear = (date) => {
+  const formatMonthYearRange = (start, end) => {
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    return `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+    const startMonth = monthNames[start.getMonth()];
+    const startYear = start.getFullYear();
+    const endMonth = monthNames[end.getMonth()];
+    const endYear = end.getFullYear();
+
+    if (startYear === endYear) {
+      if (startMonth === endMonth) {
+        return `${startMonth} ${startYear}`;
+      }
+      return `${startMonth} - ${endMonth} ${endYear}`;
+    }
+    return `${startMonth} ${startYear} - ${endMonth} ${endYear}`;
   };
 
   return (
     <div>
       <div className="cv-header">
-        <h3 className="periodLabel">{formatMonthYear(currentDate)}</h3>
+        <h3 className="periodLabel">{formatMonthYearRange(dateRange.start, dateRange.end)}</h3>
         <div className="cv-header-nav">
           <button className="btn btn-sm previousPeriod" onClick={handlePreviousMonth}>
             <span className="visually-hidden">Previous month</span>

@@ -27,25 +27,6 @@ const PlanDetails = () => {
     activeTabStore.set(tab);
   };
 
-  const formatTaskBody = (html) => {
-    // Replace <a> elements with their text content and capture URLs for resources
-    const resourceLinks = [];
-    const withLinks = html.replace(/<a href="(.*?)">(.*?)<\/a>/g, (_, link, text) => {
-      resourceLinks.push(`[${text}](${link})`);
-      return text;
-    });
-
-    // Remove all remaining HTML tags and insert newlines
-    const plainText = withLinks.replace(/<[^>]+>/g, '').replace(/<\/li>/g, '\n');
-
-    // Add resource links at the end
-    if (resourceLinks.length > 0) {
-      return `${plainText.trim()}\n\nResources:\n${resourceLinks.join('\n')}`;
-    }
-
-    return plainText.trim();
-  };
-
   const exportToCalendar = (viewType) => {
     const tasks = details.tasks;
     console.log('Tasks:', tasks);
@@ -74,9 +55,8 @@ const PlanDetails = () => {
 
         const taskStart = taskStartDate.toISOString().replace(/-/g, '').replace(/:/g, '').split('.')[0] + 'Z';
         const taskEnd = taskEndDate.toISOString().replace(/-/g, '').replace(/:/g, '').split('.')[0] + 'Z';
-        const formattedBody = formatTaskBody(task.body);
 
-        let icsEvent = `BEGIN:VEVENT\nSUMMARY:[Assignment Planner] ${task.data.description}\nDESCRIPTION:${formattedBody.replace(/\n/g, '\\n')}\n`;
+        let icsEvent = `BEGIN:VEVENT\nSUMMARY:[Assignment Planner] ${task.data.description}\nDESCRIPTION:${task.body.replace(/\n/g, '\\n')}\n`;
 
         if (viewType === 'Multiday') {
           icsEvent += `DTSTART:${taskStart}\nDTEND:${taskEnd}\n`;

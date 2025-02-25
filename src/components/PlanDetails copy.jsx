@@ -9,9 +9,20 @@ const PlanDetails = () => {
   const [activeTab, setActiveTab] = useState(activeTabStore.get());
 
   useEffect(() => {
-    const unsubscribeDetails = planDetailsStore.subscribe(setDetails);
-    const unsubscribeOpen = isOpenResults.subscribe(setIsOpen);
-    const unsubscribeActiveTab = activeTabStore.subscribe(setActiveTab);
+    const unsubscribeDetails = planDetailsStore.subscribe((newDetails) => {
+      setDetails(newDetails);
+      console.log('Details updated:', newDetails);
+    });
+
+    const unsubscribeOpen = isOpenResults.subscribe((newOpenState) => {
+      setIsOpen(newOpenState);
+      console.log('isOpenResults updated:', newOpenState);
+    });
+
+    const unsubscribeActiveTab = activeTabStore.subscribe((newActiveTab) => {
+      setActiveTab(newActiveTab);
+      console.log('Active tab updated:', newActiveTab);
+    });
 
     console.log('PlanDetails component mounted.');
 
@@ -25,84 +36,6 @@ const PlanDetails = () => {
 
   const changeTab = (tab) => {
     activeTabStore.set(tab);
-  };
-
-  const formatTaskBody = (html) => {
-    // Replace <a> elements with their text content and capture URLs for resources
-    const resourceLinks = [];
-    const withLinks = html.replace(/<a href="(.*?)">(.*?)<\/a>/g, (_, link, text) => {
-      resourceLinks.push(`[${text}](${link})`);
-      return text;
-    });
-
-    // Remove all remaining HTML tags and insert newlines
-    const plainText = withLinks.replace(/<[^>]+>/g, '').replace(/<\/li>/g, '\n');
-
-    // Add resource links at the end
-    if (resourceLinks.length > 0) {
-      return `${plainText.trim()}\n\nResources:\n${resourceLinks.join('\n')}`;
-    }
-
-    return plainText.trim();
-  };
-
-  const exportToCalendar = (viewType) => {
-    const tasks = details.tasks;
-    console.log('Tasks:', tasks);
-
-    if (!Array.isArray(tasks) || tasks.length === 0) {
-      console.warn('No tasks available for export.');
-      return;
-    }
-
-    let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\n';
-
-    tasks.forEach((task) => {
-      try {
-        if (!task.startDate || !task.endDate) {
-          console.warn(`Missing start or end date for task: ${task.data.description}`);
-          return;
-        }
-
-        const taskStartDate = new Date(`${task.startDate}T09:00:00`);
-        const taskEndDate = new Date(`${task.endDate}T21:00:00`);
-
-        if (isNaN(taskStartDate.getTime()) || isNaN(taskEndDate.getTime())) {
-          console.warn(`Invalid dates for task: ${task.data.description}`);
-          return;
-        }
-
-        const taskStart = taskStartDate.toISOString().replace(/-/g, '').replace(/:/g, '').split('.')[0] + 'Z';
-        const taskEnd = taskEndDate.toISOString().replace(/-/g, '').replace(/:/g, '').split('.')[0] + 'Z';
-        const formattedBody = formatTaskBody(task.body);
-
-        let icsEvent = `BEGIN:VEVENT\nSUMMARY:[Assignment Planner] ${task.data.description}\nDESCRIPTION:${formattedBody.replace(/\n/g, '\\n')}\n`;
-
-        if (viewType === 'Multiday') {
-          icsEvent += `DTSTART:${taskStart}\nDTEND:${taskEnd}\n`;
-        } else if (viewType === 'Milestone') {
-          icsEvent += `DTSTART:${taskStart}\nDTEND:${taskStart}\n`;
-        }
-
-        icsEvent += 'END:VEVENT\n';
-        icsContent += icsEvent;
-      } catch (error) {
-        console.error('Error processing task:', task, error);
-      }
-    });
-
-    icsContent += 'END:VCALENDAR';
-
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `assignment_tasks.ics`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    console.log('Exported to calendar...');
   };
 
   if (!isOpen || !details.projectID) return null;
@@ -154,11 +87,8 @@ const PlanDetails = () => {
         <button className="btn btn-pdf" onClick={() => window.print()}>
           Save to PDF
         </button>
-        <button className="btn btn-cal" onClick={() => exportToCalendar('Multiday')}>
-          Export to Calendar (Multiday)
-        </button>
-        <button className="btn btn-cal" onClick={() => exportToCalendar('Milestone')}>
-          Export to Calendar (Milestone)
+        <button className="btn btn-cal" onClick={() => console.log('Exporting to calendar...')}>
+          Export to Calendar
         </button>
       </div>
     </section>
