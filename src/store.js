@@ -10,3 +10,4 @@ export const planDetailsStore = atom({
   days: '',
   tasks: [],
 });
+export const activeTabStore = atom('task'); // Default to 'task'

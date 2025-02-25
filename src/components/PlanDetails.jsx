@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'preact/hooks';
-import { planDetailsStore, isOpenResults } from '../store';
+import { planDetailsStore, isOpenResults, activeTabStore } from '../store';
 import TabContentTasks from './TabContentTasks';
 import TabContentCalendar from './TabContentCalendar';
 
 const PlanDetails = () => {
   const [details, setDetails] = useState(planDetailsStore.get());
   const [isOpen, setIsOpen] = useState(isOpenResults.get());
-  const [activeTab, setActiveTab] = useState('task');
+  const [activeTab, setActiveTab] = useState(activeTabStore.get());
 
   useEffect(() => {
     const unsubscribeDetails = planDetailsStore.subscribe((newDetails) => {
@@ -19,14 +19,24 @@ const PlanDetails = () => {
       console.log('isOpenResults updated:', newOpenState);
     });
 
+    const unsubscribeActiveTab = activeTabStore.subscribe((newActiveTab) => {
+      setActiveTab(newActiveTab);
+      console.log('Active tab updated:', newActiveTab);
+    });
+
     console.log('PlanDetails component mounted.');
 
     return () => {
       unsubscribeDetails();
       unsubscribeOpen();
+      unsubscribeActiveTab();
       console.log('PlanDetails component unmounted.');
     };
   }, []);
+
+  const changeTab = (tab) => {
+    activeTabStore.set(tab);
+  };
 
   if (!isOpen || !details.projectID) return null;
 
@@ -53,12 +63,12 @@ const PlanDetails = () => {
 
       <ul className="nav nav-tabs" role="tablist">
         <li className="nav-item" role="presentation">
-          <button className={`nav-link ${activeTab === 'task' ? 'active' : ''}`} id="task-tab" role="tab" onClick={() => setActiveTab('task')}>
+          <button className={`nav-link ${activeTab === 'task' ? 'active' : ''}`} id="task-tab" role="tab" onClick={() => changeTab('task')}>
             Task view
           </button>
         </li>
         <li className="nav-item" role="presentation">
-          <button className={`nav-link ${activeTab === 'calendar' ? 'active' : ''}`} id="calendar-tab" role="tab" onClick={() => setActiveTab('calendar')}>
+          <button className={`nav-link ${activeTab === 'calendar' ? 'active' : ''}`} id="calendar-tab" role="tab" onClick={() => changeTab('calendar')}>
             Calendar view
           </button>
         </li>

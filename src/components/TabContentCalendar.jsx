@@ -1,13 +1,13 @@
 import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { planDetailsStore } from '../store';
+import { planDetailsStore, activeTabStore } from '../store';
 import '@toast-ui/calendar/dist/toastui-calendar.min.css';
 import 'tui-date-picker/dist/tui-date-picker.css';
 import 'tui-time-picker/dist/tui-time-picker.css';
 
 const CalendarTabPane = () => {
   const [tasks, setTasks] = useState([]);
-  const [currentDate, setCurrentDate] = useState(new Date()); // New state for tracking current date
+  const [currentDate, setCurrentDate] = useState(new Date());
   const calendarRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -22,39 +22,42 @@ const CalendarTabPane = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && containerRef.current) {
+  // Function to initialize the calendar
+  const initializeCalendar = () => {
+    if (typeof window !== 'undefined' && containerRef.current && tasks.length > 0) {
       import('@toast-ui/calendar').then(({ default: Calendar }) => {
-        const container = containerRef.current;
-
         if (calendarRef.current) {
-          calendarRef.current.clear();
-        } else {
-          const calendar = new Calendar(container, {
-            defaultView: 'month',
-            usageStatistics: false,
-            isReadOnly: true,
-            useFormPopup: false,
-            useDetailPopup: false,
-            month: {
-              visibleEventCount: Infinity,
-              grid: { cellHeight: 50 },
-            },
-            calendars: [
-              {
-                id: '1',
-                name: 'Tasks',
-                backgroundColor: '#03bd9e',
-                borderColor: '#03bd9e',
-              },
-            ],
-            
-          });
-
-          calendarRef.current = calendar;
+          calendarRef.current.destroy();
         }
 
-        const calendar = calendarRef.current;
+        const startDates = tasks.map((task) => new Date(task.startDate));
+        const endDates = tasks.map((task) => new Date(task.endDate));
+        const initialDate = startDates.reduce((earliest, date) => (date < earliest ? date : earliest), new Date());
+        const lastDate = endDates.reduce((latest, date) => (date > latest ? date : latest), new Date());
+        const weeksDiff = Math.ceil((lastDate - initialDate) / (1000 * 3600 * 24 * 7));
+        const visibleWeeksCount = Math.min(Math.max(weeksDiff, 1), 6);
+
+        const calendar = new Calendar(containerRef.current, {
+          defaultView: 'month',
+          usageStatistics: false,
+          isReadOnly: true,
+          useFormPopup: false,
+          useDetailPopup: false,
+          calendars: [
+            {
+              id: '1',
+              name: 'Tasks',
+              backgroundColor: '#03bd9e',
+              borderColor: '#03bd9e',
+            },
+          ],
+          month: {
+            visibleWeeksCount,
+            grid: { cellHeight: 50 },
+          },
+        });
+
+        calendarRef.current = calendar;
 
         const colors = [
           { textColor: '#000000', bgColor: '#fac800' },
@@ -85,15 +88,24 @@ const CalendarTabPane = () => {
         });
 
         calendar.createEvents(events);
+        calendar.setDate(initialDate);
+        setCurrentDate(initialDate);
 
-        if (tasks.length > 0) {
-          const initialTaskDate = new Date(tasks[0].startDate);
-          calendar.setDate(initialTaskDate);
-          setCurrentDate(initialTaskDate); // Set state to match initial calendar date
-        }
+        console.log('Calendar initialized: Initial Date:', initialDate);
       });
     }
+  };
 
+  useEffect(() => {
+    // Initialize calendar when tasks update and on active tab
+    activeTabStore.subscribe((activeTab) => {
+      if (activeTab === 'calendar') {
+        console.log('Calendar tab is active, initializing calendar.');
+        requestAnimationFrame(initializeCalendar);
+      }
+    });
+
+    // Cleanup function
     return () => {
       if (calendarRef.current) {
         calendarRef.current.destroy();
@@ -151,17 +163,14 @@ const CalendarTabPane = () => {
         </div>
       </div>
 
-      
-        <div ref={containerRef} style={{ height: '800px' }} className="calendar-container"></div>
-    
+      <div ref={containerRef} style={{ height: '800px' }} className="calendar-container"></div>
 
-      <div class="btn-group-nav">
-        <a href="#form-plan" class="btn btn-default" role="button" tabindex="0">
+      <div className="btn-group-nav">
+        <a href="#form-plan" className="btn btn-default" role="button" tabIndex="0">
           Refine plan
         </a>
-        <button class="btn btn-default" data-bs-target="#task-tab-pane" id="btn-task-view" type="button" tabindex="0">
-          {' '}
-          Task view{' '}
+        <button className="btn btn-default" data-bs-target="#task-tab-pane" id="btn-task-view" type="button" tabIndex="0">
+          Task view
         </button>
       </div>
     </div>
