@@ -1,19 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Intro from '../components/Intro.astro';
-//import Form from '../components/Form.astro';
 import Form from '../components/Form';
-//import PlanDetails from '../components/PlanDetails.jsx';
 import PlanDetails from '../components/PlanDetails';
 import ThemeSwitcher from '../components/ThemeSwitcher.astro';
 import { getCollection } from 'astro:content';
-import { isOpenResults } from '../store.js';
 
 const pageTitle = 'Assignment Planner | RMIT University';
 const projectTypes = await getCollection('projectTypes');
 const tasksCollection = await getCollection('tasks');
 
-// Combine projects and tasks based on task id
 // Combine projects and tasks based on task ID
 const projectsWithTasks = projectTypes.map((project) => {
   const tasks = project.data.tasks
@@ -36,7 +32,7 @@ const projectsWithTasks = projectTypes.map((project) => {
     <div id="page-columns" class="col-xl-12">
       <Intro />
       <Form projectsWithTasks={projectsWithTasks} client:load />
-      <PlanDetails  client:load projectsWithTasks={projectsWithTasks} />
+      <PlanDetails client:load  />
       <ThemeSwitcher />
     </div>
     <!-- END page-columns -->

@@ -5,6 +5,8 @@ import '@toast-ui/calendar/dist/toastui-calendar.min.css';
 import 'tui-date-picker/dist/tui-date-picker.css';
 import 'tui-time-picker/dist/tui-time-picker.css';
 
+let Calendar; // Move the Calendar variable outside
+
 const CalendarTabPane = () => {
   const [tasks, setTasks] = useState([]);
   const [dateRange, setDateRange] = useState({ start: new Date(), end: new Date() });
@@ -22,76 +24,92 @@ const CalendarTabPane = () => {
     };
   }, []);
 
+  const switchToTaskView = () => {
+    const taskTab = document.querySelector('#task-tab');
+    const navTabs = document.querySelector('.nav-tabs');
+    console.log(taskTab);
+    if (taskTab) {
+      taskTab.click();
+      if (navTabs) {
+        navTabs.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
   // Function to initialize the calendar
-  const initializeCalendar = () => {
+  const initializeCalendar = async () => {
     if (typeof window !== 'undefined' && containerRef.current && tasks.length > 0) {
-      import('@toast-ui/calendar').then(({ default: Calendar }) => {
-        if (calendarRef.current) {
-          calendarRef.current.destroy();
-        }
+      if (!Calendar) {
+        const { default: importedCalendar } = await import('@toast-ui/calendar');
+        Calendar = importedCalendar;
+      }
 
-        const startDates = tasks.map((task) => new Date(task.startDate));
-        const endDates = tasks.map((task) => new Date(task.endDate));
-        const initialDate = startDates.reduce((earliest, date) => (date < earliest ? date : earliest), new Date());
-        const lastDate = endDates.reduce((latest, date) => (date > latest ? date : latest), new Date());
-        const weeksDiff = Math.ceil((lastDate - initialDate) / (1000 * 3600 * 24 * 7));
-        const visibleWeeksCount = Math.min(Math.max(weeksDiff, 1), 6);
+      if (calendarRef.current) {
+        calendarRef.current.destroy();
+        calendarRef.current = null;
+      }
 
-        const calendar = new Calendar(containerRef.current, {
-          defaultView: 'month',
-          usageStatistics: false,
-          isReadOnly: true,
-          useFormPopup: false,
-          useDetailPopup: false,
-          calendars: [
-            {
-              id: '1',
-              name: 'Tasks',
-              backgroundColor: '#03bd9e',
-              borderColor: '#03bd9e',
-            },
-          ],
-          month: {
-            visibleWeeksCount,
-            grid: { cellHeight: 50 },
+      const startDates = tasks.map((task) => new Date(task.startDate));
+      const endDates = tasks.map((task) => new Date(task.endDate));
+      const initialDate = startDates.reduce((earliest, date) => (date < earliest ? date : earliest), new Date());
+      const lastDate = endDates.reduce((latest, date) => (date > latest ? date : latest), new Date());
+      const weeksDiff = Math.ceil((lastDate - initialDate) / (1000 * 3600 * 24 * 7));
+      const visibleWeeksCount = Math.min(Math.max(weeksDiff, 1), 6);
+
+      const calendar = new Calendar(containerRef.current, {
+        defaultView: 'month',
+        usageStatistics: false,
+        isReadOnly: true,
+        useFormPopup: false,
+        useDetailPopup: false,
+        calendars: [
+          {
+            id: '1',
+            name: 'Tasks',
+            backgroundColor: '#03bd9e',
+            borderColor: '#03bd9e',
           },
-        });
-
-        calendarRef.current = calendar;
-
-        const colors = [
-          { textColor: '#000000', bgColor: '#fac800' },
-          { textColor: '#000000', bgColor: '#70cfff' },
-          { textColor: '#000000', bgColor: '#81e996' },
-          { textColor: '#000000', bgColor: '#eb7ab6' },
-          { textColor: '#000000', bgColor: '#f5904d' },
-          { textColor: '#000000', bgColor: '#e66cef' },
-          { textColor: '#000000', bgColor: '#00F2B6' },
-          { textColor: '#000000', bgColor: '#99AFFF' },
-          { textColor: '#000000', bgColor: '#CEF218' },
-        ];
-
-        const events = tasks.map((task, index) => {
-          const color = colors[index % colors.length];
-          return {
-            id: task.id,
-            calendarId: '1',
-            title: task.data.description || 'No Description',
-            body: task.body || 'No Details',
-            start: new Date(task.startDate),
-            end: new Date(task.endDate),
-            category: 'allday',
-            backgroundColor: color.bgColor,
-            borderColor: color.bgColor,
-            color: color.textColor,
-          };
-        });
-
-        calendar.createEvents(events);
-        calendar.setDate(initialDate);
-        updateDateRange();
-        console.log('Calendar initialized: Initial Date:', initialDate);
+        ],
+        month: {
+          visibleWeeksCount,
+          grid: { cellHeight: 50 },
+        },
       });
+
+      calendarRef.current = calendar;
+
+      const colors = [
+        { textColor: '#000000', bgColor: '#fac800' },
+        { textColor: '#000000', bgColor: '#70cfff' },
+        { textColor: '#000000', bgColor: '#81e996' },
+        { textColor: '#000000', bgColor: '#eb7ab6' },
+        { textColor: '#000000', bgColor: '#f5904d' },
+        { textColor: '#000000', bgColor: '#e66cef' },
+        { textColor: '#000000', bgColor: '#00F2B6' },
+        { textColor: '#000000', bgColor: '#99AFFF' },
+        { textColor: '#000000', bgColor: '#CEF218' },
+      ];
+
+      calendar.clear();
+      const events = tasks.map((task, index) => {
+        const color = colors[index % colors.length];
+        return {
+          id: task.id,
+          calendarId: '1',
+          title: task.data.description || 'No Description',
+          body: task.body || 'No Details',
+          start: new Date(task.startDate),
+          end: new Date(task.endDate),
+          category: 'allday',
+          backgroundColor: color.bgColor,
+          borderColor: color.bgColor,
+          color: color.textColor,
+        };
+      });
+
+      calendar.createEvents(events);
+      calendar.setDate(initialDate);
+      updateDateRange();
+      console.log('Calendar initialized: Initial Date:', initialDate);
     }
   };
 
@@ -107,10 +125,9 @@ const CalendarTabPane = () => {
     activeTabStore.subscribe((activeTab) => {
       if (activeTab === 'calendar') {
         console.log('Calendar tab is active, initializing calendar.');
-        requestAnimationFrame(initializeCalendar);
+        initializeCalendar();
       }
     });
-
     return () => {
       if (calendarRef.current) {
         calendarRef.current.destroy();
@@ -176,10 +193,10 @@ const CalendarTabPane = () => {
       <div ref={containerRef} style={{ height: '800px' }} className="calendar-container"></div>
 
       <div className="btn-group-nav">
-        <a href="#form-plan" className="btn btn-default" role="button" tabIndex="0">
+        <a href="#planner-details" className="btn btn-default" role="button" tabIndex="0">
           Refine plan
         </a>
-        <button className="btn btn-default" data-bs-target="#task-tab-pane" id="btn-task-view" type="button" tabIndex="0">
+        <button className="btn btn-default" onClick={switchToTaskView} type="button" tabIndex="0">
           Task view
         </button>
       </div>

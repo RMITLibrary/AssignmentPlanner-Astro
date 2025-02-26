@@ -145,9 +145,12 @@ const PlanDetails = () => {
         <div className={`tab-pane fade ${activeTab === 'task' ? 'show active' : ''}`} id="task-tab-pane" role="tabpanel" aria-labelledby="task-tab" tabIndex="0">
           <TabContentTasks />
         </div>
-        <div className={`tab-pane fade page-break ${activeTab === 'calendar' ? 'show active' : ''}`} id="calendar-tab-pane" role="tabpanel" aria-labelledby="calendar-tab" tabIndex="0">
-          <TabContentCalendar />
-        </div>
+        {/* Added conditional rendering here */}
+        {activeTab === 'calendar' && (
+          <div className={`tab-pane fade show active page-break`} id="calendar-tab-pane" role="tabpanel" aria-labelledby="calendar-tab" tabIndex="0">
+            <TabContentCalendar />
+          </div>
+        )}
       </div>
 
       <div className="btn-group-tools">
@@ -178,7 +181,7 @@ const PlanDetails = () => {
     const startDate = new Date(start);
     const endDate = new Date(end);
     const differenceInTime = endDate - startDate;
-    return Math.ceil(differenceInTime / (1000 * 3600 * 24));
+    return Math.ceil(differenceInTime / (1000 * 3600 * 24)) + 1;
   }
 
   function formatDays(days) {
