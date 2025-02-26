@@ -18,6 +18,15 @@ const CalendarTabPane = () => {
     const unsubscribeTasks = planDetailsStore.subscribe((details) => {
       setTasks(details.tasks || []);
       console.log('Tasks updated:', details.tasks);
+      if (details.tasks && details.tasks.length > 0) {
+        const startDates = details.tasks.map((task) => new Date(task.startDate));
+        const endDates = details.tasks.map((task) => new Date(task.endDate));
+        const initialDate = startDates.reduce((earliest, date) => (date < earliest ? date : earliest), new Date());
+        const lastDate = endDates.reduce((latest, date) => (date > latest ? date : latest), new Date());
+        setDateRange({ start: initialDate, end: lastDate });
+      } else {
+        setDateRange({ start: new Date(), end: new Date() });
+      }
     });
 
     const unsubscribeActiveTab = activeTabStore.subscribe(setActiveTab);
