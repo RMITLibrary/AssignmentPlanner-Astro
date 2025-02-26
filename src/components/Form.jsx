@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { isOpenResults, isTesting, planDetailsStore } from '../store';
 
+let Calendar; // Declare Calendar outside the component
 const Form = ({ projectsWithTasks }) => {
   const [assignmentName, setAssignmentName] = useState('');
   const [assignmentType, setAssignmentType] = useState('');
@@ -26,6 +27,21 @@ const Form = ({ projectsWithTasks }) => {
   useEffect(() => {
     if (formValid) {
       document.getElementById('plan-detail').scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [formValid]);
+
+  useEffect(() => {
+    const preloadCalendar = async () => {
+      if (!Calendar) {
+        console.log('Preloading calendar library');
+        const { default: importedCalendar } = await import('@toast-ui/calendar');
+        Calendar = importedCalendar;
+        console.log('Calendar library preloaded');
+      }
+    };
+
+    if (formValid) {
+      preloadCalendar();
     }
   }, [formValid]);
 
