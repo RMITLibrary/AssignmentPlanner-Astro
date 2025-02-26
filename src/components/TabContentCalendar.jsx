@@ -12,6 +12,7 @@ const CalendarTabPane = () => {
   const [dateRange, setDateRange] = useState({ start: new Date(), end: new Date() });
   const calendarRef = useRef(null);
   const containerRef = useRef(null);
+  const [isCalendarLoaded, setIsCalendarLoaded] = useState(false);
 
   useEffect(() => {
     const unsubscribe = planDetailsStore.subscribe((details) => {
@@ -22,6 +23,20 @@ const CalendarTabPane = () => {
     return () => {
       unsubscribe();
     };
+  }, []);
+
+  useEffect(() => {
+    const preloadCalendar = async () => {
+      if (!Calendar) {
+        console.log('Preloading calendar library');
+        const { default: importedCalendar } = await import('@toast-ui/calendar');
+        Calendar = importedCalendar;
+        setIsCalendarLoaded(true);
+        console.log('Calendar library preloaded');
+      }
+    };
+
+    preloadCalendar();
   }, []);
 
   const switchToTaskView = () => {
@@ -39,6 +54,7 @@ const CalendarTabPane = () => {
   const initializeCalendar = async () => {
     if (typeof window !== 'undefined' && containerRef.current && tasks.length > 0) {
       if (!Calendar) {
+        console.log('Calendar not preloaded, loading now');
         const { default: importedCalendar } = await import('@toast-ui/calendar');
         Calendar = importedCalendar;
       }
@@ -122,13 +138,15 @@ const CalendarTabPane = () => {
   };
 
   useEffect(() => {
-    activeTabStore.subscribe((activeTab) => {
+    const unsubscribeActiveTab = activeTabStore.subscribe((activeTab) => {
       if (activeTab === 'calendar') {
         console.log('Calendar tab is active, initializing calendar.');
         initializeCalendar();
       }
     });
+
     return () => {
+      unsubscribeActiveTab();
       if (calendarRef.current) {
         calendarRef.current.destroy();
         calendarRef.current = null;
