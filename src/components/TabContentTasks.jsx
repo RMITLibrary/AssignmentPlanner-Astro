@@ -18,7 +18,6 @@ const TabContentTasks = () => {
     return () => unsubscribe();
   }, []);
 
-
   const switchToCalendarView = () => {
     const calendarTab = document.querySelector('#calendar-tab');
     const navTabs = document.querySelector('.nav-tabs');
@@ -31,7 +30,6 @@ const TabContentTasks = () => {
     }
   };
 
-
   const formatDate = (date) => {
     const options = { weekday: 'long', month: 'long', day: 'numeric' };
     return new Intl.DateTimeFormat('en-US', options).format(new Date(date));
@@ -39,28 +37,29 @@ const TabContentTasks = () => {
 
   return (
     <div>
-      <table className="table-striped" id="table-steps-table">
-        <thead>
-          <tr>
-            <th>Task</th>
-            <th>Complete by</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map((task, index) => (
-            <tr key={index}>
-              <td>
-                <h3>{`${index + 1}. ${task.data.description || 'Untitled Task'}`}</h3>
-                <div dangerouslySetInnerHTML={{ __html: task.rendered.html }} />
-              </td>
-              <td>{formatDate(task.endDate)}</td>
-              <td>{task.displayTime}</td>
+      <div class="hscroll">
+        <table className="table-striped" id="table-steps-table">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Complete by</th>
+              <th>Time</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
+          </thead>
+          <tbody>
+            {tasks.map((task, index) => (
+              <tr key={index}>
+                <td>
+                  <h3>{`${index + 1}. ${task.data.description || 'Untitled Task'}`}</h3>
+                  <div dangerouslySetInnerHTML={{ __html: task.rendered.html }} />
+                </td>
+                <td>{formatDate(task.endDate)}</td>
+                <td>{task.displayTime}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <div className="btn-group-nav">
         <a href="#planner-details" className="btn btn-default" role="button">
           Refine plan
