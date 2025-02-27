@@ -1,6 +1,7 @@
 # Assignment Planner
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 The Assignment Planner is a web application designed to help students effectively manage their assignments. It allows users to break down assignments into smaller, manageable tasks and schedule them within a specified timeframe. This tool enhances productivity and time management skills, providing a clear roadmap for completing complex academic projects.
 
