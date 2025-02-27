@@ -1,7 +1,7 @@
 import { atom } from 'nanostores';
 
 export const isOpenResults = atom(false);
-export const isTesting = atom(true);
+export const isTesting = atom(false);
 export const planDetailsStore = atom({
   name: '',
   projectID: '',
