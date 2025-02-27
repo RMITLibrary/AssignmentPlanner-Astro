@@ -12,6 +12,7 @@ const Form = ({ projectsWithTasks }) => {
   const [startDateValid, setStartDateValid] = useState(false);
   const [endDateValid, setEndDateValid] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isCalendarPreloaded, setIsCalendarPreloaded] = useState(false);
 
   useEffect(() => {
     setDateFormat();
@@ -19,7 +20,7 @@ const Form = ({ projectsWithTasks }) => {
     if (isTesting.get()) {
       setAssignmentType('literature-review-project');
       setStartDate('2025-03-20');
-      setEndDate('2025-03-30');
+      setEndDate('2025-04-06');
       console.log('Default testing values set:', { assignmentType, startDate, endDate });
     }
   }, []);
@@ -32,10 +33,11 @@ const Form = ({ projectsWithTasks }) => {
 
   useEffect(() => {
     const preloadCalendar = async () => {
-      if (!Calendar) {
+      if (!Calendar && !isCalendarPreloaded) {
         console.log('Preloading calendar library');
         const { default: importedCalendar } = await import('@toast-ui/calendar');
         Calendar = importedCalendar;
+        setIsCalendarPreloaded(true);
         console.log('Calendar library preloaded');
       }
     };
@@ -43,7 +45,22 @@ const Form = ({ projectsWithTasks }) => {
     if (formValid) {
       preloadCalendar();
     }
-  }, [formValid]);
+  }, [formValid, isCalendarPreloaded]);
+
+  const calculateWeeksToDisplay = (startDate, endDate) => {
+    // Calculate the number of days between the start and end dates.
+    const totalDays = Math.ceil((endDate - startDate) / (1000 * 3600 * 24)) + 1; //+1 to ensure the last day is included
+    // Calculate the number of full weeks.
+    const visibleWeeksCount = Math.ceil(totalDays / 7);
+    // Ensure we always show at least one week or 4 weeks
+    const weeksToDisplay = Math.max(visibleWeeksCount, 1); //Minimum is 1 week not 4
+    console.log({
+      totalDays,
+      visibleWeeksCount,
+      weeksToDisplay,
+    });
+    return weeksToDisplay;
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -69,6 +86,8 @@ const Form = ({ projectsWithTasks }) => {
 
     const dayCount = calculateDaysBetween(startDate, endDate);
     const tasksWithDates = distributeTaskDates(selectedProject.tasks, dayCount, startDate);
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
 
     planDetailsStore.set({
       name: selectedProject.name || 'Unnamed Assignment',
@@ -77,6 +96,7 @@ const Form = ({ projectsWithTasks }) => {
       endDate,
       days: dayCount,
       tasks: tasksWithDates,
+      weeksToDisplay: calculateWeeksToDisplay(startDateObj, endDateObj), // pass in the Date objects.
     });
 
     console.log('Form submitted successfully:', { assignmentType, startDate, endDate, dayCount });

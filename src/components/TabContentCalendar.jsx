@@ -13,20 +13,17 @@ const CalendarTabPane = () => {
   const calendarRef = useRef(null);
   const containerRef = useRef(null);
   const [activeTab, setActiveTab] = useState(activeTabStore.get());
+  const [weeksToDisplay, setWeeksToDisplay] = useState(5); // Default to 5 weeks
 
   useEffect(() => {
     const unsubscribeTasks = planDetailsStore.subscribe((details) => {
       setTasks(details.tasks || []);
       console.log('Tasks updated:', details.tasks);
-      if (details.tasks && details.tasks.length > 0) {
-        const startDates = details.tasks.map((task) => new Date(task.startDate));
-        const endDates = details.tasks.map((task) => new Date(task.endDate));
-        const initialDate = startDates.reduce((earliest, date) => (date < earliest ? date : earliest), new Date());
-        const lastDate = endDates.reduce((latest, date) => (date > latest ? date : latest), new Date());
-        setDateRange({ start: initialDate, end: lastDate });
-      } else {
-        setDateRange({ start: new Date(), end: new Date() });
-      }
+      // Calculate weeks based on the project start and end dates
+      const startDate = new Date(details.startDate);
+      const endDate = new Date(details.endDate);
+      calculateWeeksToDisplay(startDate, endDate);
+      setDateRange({ start: startDate, end: endDate });
     });
 
     const unsubscribeActiveTab = activeTabStore.subscribe(setActiveTab);
@@ -36,6 +33,26 @@ const CalendarTabPane = () => {
       unsubscribeActiveTab();
     };
   }, []);
+
+  const calculateWeeksToDisplay = (startDate, endDate) => {
+    // Calculate the number of days between the start and end dates.
+    const totalDays = Math.ceil((endDate - startDate) / (1000 * 3600 * 24)) + 1; //+1 to ensure the last day is included
+    // Calculate the number of full weeks.
+    let visibleWeeksCount = Math.ceil(totalDays / 7);
+
+    // Add an extra week if the project ends mid week
+    if (endDate.getDay() !== 6) {
+      visibleWeeksCount += 1;
+    }
+    // Ensure we always show at least one week or 4 weeks
+    const weeksToDisplay = Math.max(visibleWeeksCount, 1); //Minimum is 1 week not 4
+    console.log({
+      totalDays,
+      visibleWeeksCount,
+      weeksToDisplay,
+    });
+    setWeeksToDisplay(weeksToDisplay);
+  };
 
   const switchToTaskView = () => {
     const taskTab = document.querySelector('#task-tab');
@@ -50,10 +67,9 @@ const CalendarTabPane = () => {
   };
 
   const initializeCalendar = async () => {
-    if (typeof window === 'undefined' || !containerRef.current || tasks.length === 0) return;
+    if (typeof window === 'undefined' || !containerRef.current) return;
 
     if (!Calendar) {
-      console.log('Calendar not preloaded, loading now');
       const { default: importedCalendar } = await import('@toast-ui/calendar');
       Calendar = importedCalendar;
     }
@@ -63,12 +79,15 @@ const CalendarTabPane = () => {
       calendarRef.current = null;
     }
 
-    const startDates = tasks.map((task) => new Date(task.startDate));
-    const endDates = tasks.map((task) => new Date(task.endDate));
-    const initialDate = startDates.reduce((earliest, date) => (date < earliest ? date : earliest), new Date());
-    const lastDate = endDates.reduce((latest, date) => (date > latest ? date : latest), new Date());
-    const weeksDiff = Math.ceil((lastDate - initialDate) / (1000 * 3600 * 24 * 7));
-    const visibleWeeksCount = Math.min(Math.max(weeksDiff, 1), 6);
+    const details = planDetailsStore.get(); // Get the details from the store
+    const projectStartDate = new Date(details.startDate); // get the project start date
+    const projectEndDate = new Date(details.endDate);
+
+    // Calculate the preceding Sunday
+    const precedingSunday = new Date(projectStartDate);
+    precedingSunday.setDate(projectStartDate.getDate() - projectStartDate.getDay()); // Set to the preceding Sunday
+
+    const startDateForView = precedingSunday;
 
     const calendar = new Calendar(containerRef.current, {
       defaultView: 'month',
@@ -85,8 +104,7 @@ const CalendarTabPane = () => {
         },
       ],
       month: {
-        visibleWeeksCount,
-        grid: { cellHeight: 50 },
+        visibleWeeksCount: weeksToDisplay, // Use the calculated weeks here
       },
     });
 
@@ -105,26 +123,28 @@ const CalendarTabPane = () => {
     ];
 
     calendar.clear();
-    const events = tasks.map((task, index) => {
-      const color = colors[index % colors.length];
-      return {
-        id: task.id,
-        calendarId: '1',
-        title: task.data.description || 'No Description',
-        body: task.body || 'No Details',
-        start: new Date(task.startDate),
-        end: new Date(task.endDate),
-        category: 'allday',
-        backgroundColor: color.bgColor,
-        borderColor: color.bgColor,
-        color: color.textColor,
-      };
-    });
+    if (tasks.length > 0) {
+      const events = tasks.map((task, index) => {
+        const color = colors[index % colors.length];
+        return {
+          id: task.id,
+          calendarId: '1',
+          title: task.data.description || 'No Description',
+          body: task.body || 'No Details',
+          start: new Date(task.startDate),
+          end: new Date(task.endDate),
+          category: 'allday',
+          backgroundColor: color.bgColor,
+          borderColor: color.bgColor,
+          color: color.textColor,
+        };
+      });
+      calendar.createEvents(events);
+    }
 
-    calendar.createEvents(events);
-    calendar.setDate(initialDate);
+    calendar.setDate(startDateForView);
     updateDateRange();
-    console.log('Calendar initialized: Initial Date:', initialDate);
+    console.log('Calendar initialized: Initial Date:', startDateForView, 'End date: ', projectEndDate);
   };
 
   const updateDateRange = () => {
@@ -139,18 +159,15 @@ const CalendarTabPane = () => {
     if (activeTab === 'calendar') {
       initializeCalendar();
     }
-
-    return () => {
-      if (calendarRef.current) {
-        calendarRef.current.destroy();
-        calendarRef.current = null;
-      }
-    };
-  }, [tasks, activeTab]);
+  }, [tasks, activeTab, weeksToDisplay]); // Re-initialize on weeksToDisplay change
 
   const handlePreviousMonth = () => {
     if (calendarRef.current) {
       calendarRef.current.prev();
+      const details = planDetailsStore.get(); // Get the details from the store
+      const projectStartDate = new Date(details.startDate); // get the project start date
+      const projectEndDate = new Date(details.endDate);
+      calculateWeeksToDisplay(projectStartDate, projectEndDate);
       updateDateRange();
     }
   };
@@ -158,6 +175,10 @@ const CalendarTabPane = () => {
   const handleCurrentMonth = () => {
     if (calendarRef.current) {
       calendarRef.current.today();
+      const details = planDetailsStore.get(); // Get the details from the store
+      const projectStartDate = new Date(details.startDate); // get the project start date
+      const projectEndDate = new Date(details.endDate);
+      calculateWeeksToDisplay(projectStartDate, projectEndDate);
       updateDateRange();
     }
   };
@@ -165,6 +186,10 @@ const CalendarTabPane = () => {
   const handleNextMonth = () => {
     if (calendarRef.current) {
       calendarRef.current.next();
+      const details = planDetailsStore.get(); // Get the details from the store
+      const projectStartDate = new Date(details.startDate); // get the project start date
+      const projectEndDate = new Date(details.endDate);
+      calculateWeeksToDisplay(projectStartDate, projectEndDate);
       updateDateRange();
     }
   };
@@ -185,6 +210,20 @@ const CalendarTabPane = () => {
     return `${startMonth} ${startYear} - ${endMonth} ${endYear}`;
   };
 
+  const calculateContainerHeight = () => {
+    // Base height for 5 weeks
+    let height = 800;
+    // Add 100px for each additional week above 5
+    if (weeksToDisplay > 5) {
+      height += (weeksToDisplay - 5) * 100;
+    } else if (weeksToDisplay < 5) {
+      height -= (5 - weeksToDisplay) * 100;
+    }
+    return height;
+  };
+
+  const containerHeight = calculateContainerHeight();
+
   return (
     <div>
       <div className="cv-header">
@@ -202,7 +241,7 @@ const CalendarTabPane = () => {
         </div>
       </div>
 
-      <div ref={containerRef} style={{ height: '800px' }} className="calendar-container"></div>
+      <div ref={containerRef} style={{ height: `${containerHeight}px` }} className="calendar-container"></div>
 
       <div className="btn-group-nav">
         <a href="#planner-details" className="btn btn-default" role="button" tabIndex="0">

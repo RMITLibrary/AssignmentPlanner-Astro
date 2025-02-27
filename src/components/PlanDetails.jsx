@@ -9,7 +9,12 @@ const PlanDetails = () => {
   const [activeTab, setActiveTab] = useState(activeTabStore.get());
 
   useEffect(() => {
-    const unsubscribeDetails = planDetailsStore.subscribe(setDetails);
+    const unsubscribeDetails = planDetailsStore.subscribe((newDetails) => {
+      setDetails(newDetails);
+      if (newDetails.weeksToDisplay) {
+        console.log('Weeks to display updated:', newDetails.weeksToDisplay);
+      }
+    });
     const unsubscribeOpen = isOpenResults.subscribe(setIsOpen);
     const unsubscribeActiveTab = activeTabStore.subscribe(setActiveTab);
 
@@ -145,7 +150,6 @@ const PlanDetails = () => {
         <div className={`tab-pane fade ${activeTab === 'task' ? 'show active' : ''}`} id="task-tab-pane" role="tabpanel" aria-labelledby="task-tab" tabIndex="0">
           <TabContentTasks />
         </div>
-        {/* Added conditional rendering here */}
         {activeTab === 'calendar' && (
           <div className={`tab-pane fade show active page-break`} id="calendar-tab-pane" role="tabpanel" aria-labelledby="calendar-tab" tabIndex="0">
             <TabContentCalendar />
