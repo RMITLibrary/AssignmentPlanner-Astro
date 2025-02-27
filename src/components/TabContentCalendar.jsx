@@ -240,9 +240,9 @@ const CalendarTabPane = () => {
           </button>
         </div>
       </div>
-
-      <div ref={containerRef} style={{ height: `${containerHeight}px` }} className="calendar-container"></div>
-
+      <div class="hscroll">
+        <div ref={containerRef} style={{ height: `${containerHeight}px` }} className="calendar-container"></div>
+      </div>
       <div className="btn-group-nav">
         <a href="#planner-details" className="btn btn-default" role="button" tabIndex="0">
           Refine plan
