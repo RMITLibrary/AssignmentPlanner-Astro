@@ -18,22 +18,26 @@ const TabContentTasks = () => {
     return () => unsubscribe();
   }, []);
 
+  const switchToCalendarView = () => {
+    const calendarTab = document.querySelector('#calendar-tab');
+    const navTabs = document.querySelector('.nav-tabs');
+    console.log(calendarTab);
+    if (calendarTab) {
+      calendarTab.click();
+      if (navTabs) {
+        navTabs.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   const formatDate = (date) => {
     const options = { weekday: 'long', month: 'long', day: 'numeric' };
     return new Intl.DateTimeFormat('en-US', options).format(new Date(date));
   };
 
-  const handlePDF = () => {
-    console.log('Saving plan to PDF...');
-  };
-
-  const handleCalendarExport = () => {
-    console.log('Exporting plan to calendar...');
-  };
-
   return (
     <div>
-     
+      <div class="hscroll">
         <table className="table-striped" id="table-steps-table">
           <thead>
             <tr>
@@ -55,13 +59,12 @@ const TabContentTasks = () => {
             ))}
           </tbody>
         </table>
-      
-
+      </div>
       <div className="btn-group-nav">
-        <a href="#form-plan" className="btn btn-default" role="button">
+        <a href="#planner-details" className="btn btn-default" role="button">
           Refine plan
         </a>
-        <button className="btn btn-default" type="button">
+        <button className="btn btn-default" type="button" onClick={switchToCalendarView}>
           Calendar view
         </button>
       </div>

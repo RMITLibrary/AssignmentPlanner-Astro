@@ -5,95 +5,146 @@ import '@toast-ui/calendar/dist/toastui-calendar.min.css';
 import 'tui-date-picker/dist/tui-date-picker.css';
 import 'tui-time-picker/dist/tui-time-picker.css';
 
+let Calendar; // Keep this outside for pre-loading
+
 const CalendarTabPane = () => {
   const [tasks, setTasks] = useState([]);
   const [dateRange, setDateRange] = useState({ start: new Date(), end: new Date() });
   const calendarRef = useRef(null);
   const containerRef = useRef(null);
+  const [activeTab, setActiveTab] = useState(activeTabStore.get());
+  const [weeksToDisplay, setWeeksToDisplay] = useState(5); // Default to 5 weeks
 
   useEffect(() => {
-    const unsubscribe = planDetailsStore.subscribe((details) => {
+    const unsubscribeTasks = planDetailsStore.subscribe((details) => {
       setTasks(details.tasks || []);
       console.log('Tasks updated:', details.tasks);
+      // Calculate weeks based on the project start and end dates
+      const startDate = new Date(details.startDate);
+      const endDate = new Date(details.endDate);
+      calculateWeeksToDisplay(startDate, endDate);
+      setDateRange({ start: startDate, end: endDate });
     });
 
+    const unsubscribeActiveTab = activeTabStore.subscribe(setActiveTab);
+
     return () => {
-      unsubscribe();
+      unsubscribeTasks();
+      unsubscribeActiveTab();
     };
   }, []);
 
-  // Function to initialize the calendar
-  const initializeCalendar = () => {
-    if (typeof window !== 'undefined' && containerRef.current && tasks.length > 0) {
-      import('@toast-ui/calendar').then(({ default: Calendar }) => {
-        if (calendarRef.current) {
-          calendarRef.current.destroy();
-        }
+  const calculateWeeksToDisplay = (startDate, endDate) => {
+    // Calculate the number of days between the start and end dates.
+    const totalDays = Math.ceil((endDate - startDate) / (1000 * 3600 * 24)) + 1; //+1 to ensure the last day is included
+    // Calculate the number of full weeks.
+    let visibleWeeksCount = Math.ceil(totalDays / 7);
 
-        const startDates = tasks.map((task) => new Date(task.startDate));
-        const endDates = tasks.map((task) => new Date(task.endDate));
-        const initialDate = startDates.reduce((earliest, date) => (date < earliest ? date : earliest), new Date());
-        const lastDate = endDates.reduce((latest, date) => (date > latest ? date : latest), new Date());
-        const weeksDiff = Math.ceil((lastDate - initialDate) / (1000 * 3600 * 24 * 7));
-        const visibleWeeksCount = Math.min(Math.max(weeksDiff, 1), 6);
-
-        const calendar = new Calendar(containerRef.current, {
-          defaultView: 'month',
-          usageStatistics: false,
-          isReadOnly: true,
-          useFormPopup: false,
-          useDetailPopup: false,
-          calendars: [
-            {
-              id: '1',
-              name: 'Tasks',
-              backgroundColor: '#03bd9e',
-              borderColor: '#03bd9e',
-            },
-          ],
-          month: {
-            visibleWeeksCount,
-            grid: { cellHeight: 50 },
-          },
-        });
-
-        calendarRef.current = calendar;
-
-        const colors = [
-          { textColor: '#000000', bgColor: '#fac800' },
-          { textColor: '#000000', bgColor: '#70cfff' },
-          { textColor: '#000000', bgColor: '#81e996' },
-          { textColor: '#000000', bgColor: '#eb7ab6' },
-          { textColor: '#000000', bgColor: '#f5904d' },
-          { textColor: '#000000', bgColor: '#e66cef' },
-          { textColor: '#000000', bgColor: '#00F2B6' },
-          { textColor: '#000000', bgColor: '#99AFFF' },
-          { textColor: '#000000', bgColor: '#CEF218' },
-        ];
-
-        const events = tasks.map((task, index) => {
-          const color = colors[index % colors.length];
-          return {
-            id: task.id,
-            calendarId: '1',
-            title: task.data.description || 'No Description',
-            body: task.body || 'No Details',
-            start: new Date(task.startDate),
-            end: new Date(task.endDate),
-            category: 'allday',
-            backgroundColor: color.bgColor,
-            borderColor: color.bgColor,
-            color: color.textColor,
-          };
-        });
-
-        calendar.createEvents(events);
-        calendar.setDate(initialDate);
-        updateDateRange();
-
-        console.log('Calendar initialized: Initial Date:', initialDate);
-      });
+    // Add an extra week if the project ends mid week
+    if (endDate.getDay() !== 6) {
+      visibleWeeksCount += 1;
     }
+    // Ensure we always show at least one week or 4 weeks
+    const weeksToDisplay = Math.max(visibleWeeksCount, 1); //Minimum is 1 week not 4
+    console.log({
+      totalDays,
+      visibleWeeksCount,
+      weeksToDisplay,
+    });
+    setWeeksToDisplay(weeksToDisplay);
+  };
+
+  const switchToTaskView = () => {
+    const taskTab = document.querySelector('#task-tab');
+    const navTabs = document.querySelector('.nav-tabs');
+    console.log(taskTab);
+    if (taskTab) {
+      taskTab.click();
+      if (navTabs) {
+        navTabs.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const initializeCalendar = async () => {
+    if (typeof window === 'undefined' || !containerRef.current) return;
+
+    if (!Calendar) {
+      const { default: importedCalendar } = await import('@toast-ui/calendar');
+      Calendar = importedCalendar;
+    }
+
+    if (calendarRef.current) {
+      calendarRef.current.destroy();
+      calendarRef.current = null;
+    }
+
+    const details = planDetailsStore.get(); // Get the details from the store
+    const projectStartDate = new Date(details.startDate); // get the project start date
+    const projectEndDate = new Date(details.endDate);
+
+    // Calculate the preceding Sunday
+    const precedingSunday = new Date(projectStartDate);
+    precedingSunday.setDate(projectStartDate.getDate() - projectStartDate.getDay()); // Set to the preceding Sunday
+
+    const startDateForView = precedingSunday;
+
+    const calendar = new Calendar(containerRef.current, {
+      defaultView: 'month',
+      usageStatistics: false,
+      isReadOnly: true,
+      useFormPopup: false,
+      useDetailPopup: false,
+      calendars: [
+        {
+          id: '1',
+          name: 'Tasks',
+          backgroundColor: '#03bd9e',
+          borderColor: '#03bd9e',
+        },
+      ],
+      month: {
+        visibleWeeksCount: weeksToDisplay, // Use the calculated weeks here
+      },
+    });
+
+    calendarRef.current = calendar;
+
+    const colors = [
+      { textColor: '#000000', bgColor: '#fac800' },
+      { textColor: '#000000', bgColor: '#70cfff' },
+      { textColor: '#000000', bgColor: '#81e996' },
+      { textColor: '#000000', bgColor: '#eb7ab6' },
+      { textColor: '#000000', bgColor: '#f5904d' },
+      { textColor: '#000000', bgColor: '#e66cef' },
+      { textColor: '#000000', bgColor: '#00F2B6' },
+      { textColor: '#000000', bgColor: '#99AFFF' },
+      { textColor: '#000000', bgColor: '#CEF218' },
+    ];
+
+    calendar.clear();
+    if (tasks.length > 0) {
+      const events = tasks.map((task, index) => {
+        const color = colors[index % colors.length];
+        return {
+          id: task.id,
+          calendarId: '1',
+          title: task.data.description || 'No Description',
+          body: task.body || 'No Details',
+          start: new Date(task.startDate),
+          end: new Date(task.endDate),
+          category: 'allday',
+          backgroundColor: color.bgColor,
+          borderColor: color.bgColor,
+          color: color.textColor,
+        };
+      });
+      calendar.createEvents(events);
+    }
+
+    calendar.setDate(startDateForView);
+    updateDateRange();
+    console.log('Calendar initialized: Initial Date:', startDateForView, 'End date: ', projectEndDate);
   };
 
   const updateDateRange = () => {
@@ -105,24 +156,18 @@ const CalendarTabPane = () => {
   };
 
   useEffect(() => {
-    activeTabStore.subscribe((activeTab) => {
-      if (activeTab === 'calendar') {
-        console.log('Calendar tab is active, initializing calendar.');
-        requestAnimationFrame(initializeCalendar);
-      }
-    });
-
-    return () => {
-      if (calendarRef.current) {
-        calendarRef.current.destroy();
-        calendarRef.current = null;
-      }
-    };
-  }, [tasks]);
+    if (activeTab === 'calendar') {
+      initializeCalendar();
+    }
+  }, [tasks, activeTab, weeksToDisplay]); // Re-initialize on weeksToDisplay change
 
   const handlePreviousMonth = () => {
     if (calendarRef.current) {
       calendarRef.current.prev();
+      const details = planDetailsStore.get(); // Get the details from the store
+      const projectStartDate = new Date(details.startDate); // get the project start date
+      const projectEndDate = new Date(details.endDate);
+      calculateWeeksToDisplay(projectStartDate, projectEndDate);
       updateDateRange();
     }
   };
@@ -130,6 +175,10 @@ const CalendarTabPane = () => {
   const handleCurrentMonth = () => {
     if (calendarRef.current) {
       calendarRef.current.today();
+      const details = planDetailsStore.get(); // Get the details from the store
+      const projectStartDate = new Date(details.startDate); // get the project start date
+      const projectEndDate = new Date(details.endDate);
+      calculateWeeksToDisplay(projectStartDate, projectEndDate);
       updateDateRange();
     }
   };
@@ -137,6 +186,10 @@ const CalendarTabPane = () => {
   const handleNextMonth = () => {
     if (calendarRef.current) {
       calendarRef.current.next();
+      const details = planDetailsStore.get(); // Get the details from the store
+      const projectStartDate = new Date(details.startDate); // get the project start date
+      const projectEndDate = new Date(details.endDate);
+      calculateWeeksToDisplay(projectStartDate, projectEndDate);
       updateDateRange();
     }
   };
@@ -157,6 +210,20 @@ const CalendarTabPane = () => {
     return `${startMonth} ${startYear} - ${endMonth} ${endYear}`;
   };
 
+  const calculateContainerHeight = () => {
+    // Base height for 5 weeks
+    let height = 800;
+    // Add 100px for each additional week above 5
+    if (weeksToDisplay > 5) {
+      height += (weeksToDisplay - 5) * 100;
+    } else if (weeksToDisplay < 5) {
+      height -= (5 - weeksToDisplay) * 100;
+    }
+    return height;
+  };
+
+  const containerHeight = calculateContainerHeight();
+
   return (
     <div>
       <div className="cv-header">
@@ -173,14 +240,14 @@ const CalendarTabPane = () => {
           </button>
         </div>
       </div>
-
-      <div ref={containerRef} style={{ height: '800px' }} className="calendar-container"></div>
-
+      <div class="hscroll">
+        <div ref={containerRef} style={{ height: `${containerHeight}px` }} className="calendar-container"></div>
+      </div>
       <div className="btn-group-nav">
-        <a href="#form-plan" className="btn btn-default" role="button" tabIndex="0">
+        <a href="#planner-details" className="btn btn-default" role="button" tabIndex="0">
           Refine plan
         </a>
-        <button className="btn btn-default" data-bs-target="#task-tab-pane" id="btn-task-view" type="button" tabIndex="0">
+        <button className="btn btn-default" onClick={switchToTaskView} type="button" tabIndex="0">
           Task view
         </button>
       </div>

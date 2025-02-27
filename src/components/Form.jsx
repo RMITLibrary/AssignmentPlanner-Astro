@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { isOpenResults, isTesting, planDetailsStore } from '../store';
 
+let Calendar; // Declare Calendar outside the component
 const Form = ({ projectsWithTasks }) => {
   const [assignmentName, setAssignmentName] = useState('');
   const [assignmentType, setAssignmentType] = useState('');
@@ -10,20 +11,60 @@ const Form = ({ projectsWithTasks }) => {
   const [formValid, setFormValid] = useState(false);
   const [startDateValid, setStartDateValid] = useState(false);
   const [endDateValid, setEndDateValid] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [isCalendarPreloaded, setIsCalendarPreloaded] = useState(false);
 
   useEffect(() => {
     setDateFormat();
 
     if (isTesting.get()) {
-      setAssignmentType('written-assessment');
+      setAssignmentType('literature-review-project');
       setStartDate('2025-03-20');
-      setEndDate('2025-03-30');
+      setEndDate('2025-04-06');
       console.log('Default testing values set:', { assignmentType, startDate, endDate });
     }
   }, []);
 
+  useEffect(() => {
+    if (formValid) {
+      document.getElementById('plan-detail').scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [formValid]);
+
+  useEffect(() => {
+    const preloadCalendar = async () => {
+      if (!Calendar && !isCalendarPreloaded) {
+        console.log('Preloading calendar library');
+        const { default: importedCalendar } = await import('@toast-ui/calendar');
+        Calendar = importedCalendar;
+        setIsCalendarPreloaded(true);
+        console.log('Calendar library preloaded');
+      }
+    };
+
+    if (formValid) {
+      preloadCalendar();
+    }
+  }, [formValid, isCalendarPreloaded]);
+
+  const calculateWeeksToDisplay = (startDate, endDate) => {
+    // Calculate the number of days between the start and end dates.
+    const totalDays = Math.ceil((endDate - startDate) / (1000 * 3600 * 24)) + 1; //+1 to ensure the last day is included
+    // Calculate the number of full weeks.
+    const visibleWeeksCount = Math.ceil(totalDays / 7);
+    // Ensure we always show at least one week or 4 weeks
+    const weeksToDisplay = Math.max(visibleWeeksCount, 1); //Minimum is 1 week not 4
+    console.log({
+      totalDays,
+      visibleWeeksCount,
+      weeksToDisplay,
+    });
+    return weeksToDisplay;
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
+    setSubmitted(true);
     console.log('Form submission attempt:', { assignmentType, startDate, endDate });
 
     if (!validateDates() || !assignmentType || !groupAssignment || !startDate || !endDate) {
@@ -45,14 +86,18 @@ const Form = ({ projectsWithTasks }) => {
 
     const dayCount = calculateDaysBetween(startDate, endDate);
     const tasksWithDates = distributeTaskDates(selectedProject.tasks, dayCount, startDate);
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
 
     planDetailsStore.set({
       name: selectedProject.name || 'Unnamed Assignment',
+      assignmentName: assignmentName, // Add this line
       projectID: assignmentType,
       startDate,
       endDate,
       days: dayCount,
       tasks: tasksWithDates,
+      weeksToDisplay: calculateWeeksToDisplay(startDateObj, endDateObj), // pass in the Date objects.
     });
 
     console.log('Form submitted successfully:', { assignmentType, startDate, endDate, dayCount });
@@ -61,24 +106,30 @@ const Form = ({ projectsWithTasks }) => {
   const distributeTaskDates = (tasks, totalDays, startDate) => {
     const totalWeight = tasks.reduce((sum, task) => sum + task.weight, 0);
     let currentStartDate = new Date(startDate);
+    let remainingDays = totalDays; // Keep track of remaining days
 
-    return tasks.map((task) => {
-      const fractionDays = (totalDays * task.weight) / totalWeight;
+    return tasks.map((task, index) => {
+      // Last task gets all remaining days
+      const fractionDays = index === tasks.length - 1 ? remainingDays : (totalDays * task.weight) / totalWeight;
       const roundedDays = Math.round(fractionDays);
 
-      const displayTime = roundedDays > 1 ? `${roundedDays} days` : roundedDays === 1 ? '1 day' : 'less than one day';
+      // Ensure we don't use more days than available.
+      const daysToUse = Math.min(roundedDays, remainingDays);
+
+      const displayTime = daysToUse > 1 ? `${daysToUse} days` : daysToUse === 1 ? '1 day' : 'less than one day';
 
       const taskStartDate = new Date(currentStartDate);
       const taskEndDate = new Date(currentStartDate);
-      taskEndDate.setDate(taskEndDate.getDate() + Math.max(roundedDays - 1, 0));
+      taskEndDate.setDate(taskEndDate.getDate() + Math.max(daysToUse - 1, 0));
 
-      currentStartDate.setDate(currentStartDate.getDate() + roundedDays);
+      currentStartDate.setDate(currentStartDate.getDate() + daysToUse);
+      remainingDays -= daysToUse; // Update remaining days.
 
       console.log(`Distributing task: ${task.name}`, { taskStartDate, taskEndDate });
 
       return {
         ...task,
-        roundedDays,
+        roundedDays: daysToUse,
         displayTime,
         startDate: taskStartDate.toISOString().split('T')[0],
         endDate: taskEndDate.toISOString().split('T')[0],
@@ -96,6 +147,7 @@ const Form = ({ projectsWithTasks }) => {
     setStartDateValid(false);
     setEndDateValid(false);
     isOpenResults.set(false);
+    setSubmitted(false);
 
     document.getElementById('endDateError').textContent = '';
 
@@ -156,8 +208,44 @@ const Form = ({ projectsWithTasks }) => {
     return days;
   };
 
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+    if (submitted) {
+      validateDates();
+    }
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
+    if (submitted) {
+      const endDateObj = new Date(e.target.value);
+      const startDateObj = new Date(startDate);
+
+      if (!e.target.value || endDateObj <= startDateObj || isNaN(endDateObj)) {
+        setEndDateValid(false);
+        document.getElementById('endDateError').textContent = endDateObj <= startDateObj ? 'End date must be after the start date.' : 'Please provide an end date.';
+      } else {
+        setEndDateValid(true);
+        document.getElementById('endDateError').textContent = '';
+      }
+    }
+  };
+  const getSelectClass = () => {
+    if (!submitted) {
+      return 'form-select';
+    }
+    return `form-select ${assignmentType ? 'is-valid' : 'is-invalid'}`;
+  };
+
+  const getInputClass = (isValid) => {
+    if (!submitted) {
+      return 'form-control';
+    }
+    return `form-control ${isValid ? 'is-valid' : 'is-invalid'}`;
+  };
+
   return (
-    <form id="assignmentDetails" className={`needs-validation ${formValid ? '' : 'was-validated'}`} onSubmit={handleSubmit}>
+    <form id="assignmentDetails" className={`${formValid || submitted ? 'was-validated' : ''}`} onSubmit={handleSubmit} noValidate>
       <div className="form-group">
         <label htmlFor="assignmentName">Assignment name (optional)</label>
         <input type="text" className="form-control" id="assignmentName" value={assignmentName} onChange={(e) => setAssignmentName(e.target.value)} placeholder="Enter assignment name" />
@@ -167,7 +255,7 @@ const Form = ({ projectsWithTasks }) => {
         <label htmlFor="assignmentType">
           Assignment type<span className="req">*</span>
         </label>
-        <select className={`form-select ${assignmentType ? 'is-valid' : 'is-invalid'}`} id="assignmentType" required value={assignmentType} onChange={(e) => setAssignmentType(e.target.value)}>
+        <select className={getSelectClass()} id="assignmentType" required value={assignmentType} onChange={(e) => setAssignmentType(e.target.value)}>
           <option value="">Select type</option>
           {projectsWithTasks.map((project) => (
             <option key={project.id} value={project.id}>
@@ -202,18 +290,7 @@ const Form = ({ projectsWithTasks }) => {
           <label htmlFor="startDate">
             Start date<span className="req">*</span>
           </label>
-          <input
-            type="date"
-            className={`form-control ${startDateValid ? 'is-valid' : 'is-invalid'}`}
-            id="startDate"
-            aria-describedby="startDateFormat"
-            value={startDate}
-            onChange={(e) => {
-              setStartDate(e.target.value);
-              validateDates();
-            }}
-            required
-          />
+          <input type="date" className={getInputClass(startDateValid)} id="startDate" aria-describedby="startDateFormat" value={startDate} onChange={handleStartDateChange} required />
           <div id="startDateFormat" className="form-text text-muted">
             <span className="visually-hidden">Date format:</span>
             <span id="startDateFormatDisplay"></span>
@@ -225,27 +302,7 @@ const Form = ({ projectsWithTasks }) => {
           <label htmlFor="endDate">
             End date<span className="req">*</span>
           </label>
-          <input
-            type="date"
-            className={`form-control ${endDateValid ? 'is-valid' : 'is-invalid'}`}
-            id="endDate"
-            aria-describedby="endDateFormat"
-            value={endDate}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-              const endDateObj = new Date(e.target.value);
-              const startDateObj = new Date(startDate);
-
-              if (!e.target.value || endDateObj <= startDateObj || isNaN(endDateObj)) {
-                setEndDateValid(false);
-                document.getElementById('endDateError').textContent = endDateObj <= startDateObj ? 'End date must be after the start date.' : 'Please provide an end date.';
-              } else {
-                setEndDateValid(true);
-                document.getElementById('endDateError').textContent = '';
-              }
-            }}
-            required
-          />
+          <input type="date" className={getInputClass(endDateValid)} id="endDate" aria-describedby="endDateFormat" value={endDate} onChange={handleEndDateChange} required />
           <div id="endDateFormat" className="form-text text-muted">
             <span className="visually-hidden">Date format:</span>
             <span id="endDateFormatDisplay"></span>
@@ -263,6 +320,8 @@ const Form = ({ projectsWithTasks }) => {
         Reset
       </button>
     </form>
+
+    
   );
 };
 

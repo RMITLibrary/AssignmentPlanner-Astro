@@ -1,41 +1,98 @@
 ---
 ---
-          <!-- Start theme switcher -->
-          <form class="theme-switch theme-compact">
-            <fieldset>
-              <legend>Theme</legend>
-              <div class="bg">
-                <div class="form-check form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    name="themeOptions"
-                    data-bs-theme-value="auto"
-                    aria-label="System"
-                  />
-                  <span class="form-check-label">System</span>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    name="themeOptions"
-                    data-bs-theme-value="light"
-                    aria-label="Light"
-                  />
-                  <span class="form-check-label">Light</span>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    name="themeOptions"
-                    data-bs-theme-value="dark"
-                    aria-label="Dark"
-                  />
-                  <span class="form-check-label">Dark</span>
-                </div>
-              </div>
-            </fieldset>
-          </form>
-          <!-- End theme switcher -->
+<!-- Start theme switcher -->
+<form class="theme-switch theme-compact">
+  <fieldset>
+    <legend>Theme</legend>
+    <div class="bg">
+      <div class="form-check form-check-inline">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="themeOptions"
+          data-bs-theme-value="auto"
+          aria-label="System"
+        />
+        <span class="form-check-label">System</span>
+      </div>
+      <div class="form-check form-check-inline">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="themeOptions"
+          data-bs-theme-value="light"
+          aria-label="Light"
+        />
+        <span class="form-check-label">Light</span>
+      </div>
+      <div class="form-check form-check-inline">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="themeOptions"
+          data-bs-theme-value="dark"
+          aria-label="Dark"
+        />
+        <span class="form-check-label">Dark</span>
+      </div>
+    </div>
+  </fieldset>
+</form>
+<!-- End theme switcher -->
+
+<script is:inline>
+
+  // Function to get the stored theme from localStorage
+  const getStoredTheme = () => localStorage.getItem("theme");
+
+  // Function to set the stored theme in localStorage
+  const setStoredTheme = (theme) => localStorage.setItem("theme", theme);
+
+  // Function to determine the preferred theme
+  const getPreferredTheme = () => {
+    const storedTheme = getStoredTheme();
+    if (storedTheme) {
+      return storedTheme;
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  // Function to set the theme on the document
+  const setTheme = (theme) => {
+    const themeToSet = theme === 'auto' ? getPreferredTheme() : theme;
+    document.documentElement.setAttribute('data-bs-theme', themeToSet);
+  };
+
+  // Function to show the active theme in the UI
+  const showActiveTheme = (theme) => {
+    document.querySelectorAll('input[name="themeOptions"]').forEach((option) => {
+      option.checked = option.getAttribute('data-bs-theme-value') === theme;
+    });
+  };
+
+  // Listen for changes in system theme preference
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    const storedTheme = getStoredTheme();
+    if (storedTheme !== 'light' && storedTheme !== 'dark') {
+      setTheme(getPreferredTheme());
+      showActiveTheme(getPreferredTheme());
+    }
+  });
+
+  // Set the initial theme
+  setTheme(getPreferredTheme());
+  showActiveTheme(getPreferredTheme());
+
+  // Add event listeners to theme options for changing themes
+  const themeOptions = document.querySelectorAll('input[name="themeOptions"]');
+  themeOptions.forEach(option => {
+    option.addEventListener('change', () => {
+      const selectedTheme = option.getAttribute('data-bs-theme-value');
+      setStoredTheme(selectedTheme);
+      setTheme(selectedTheme);
+      showActiveTheme(selectedTheme);
+    });
+  });
+
+</script>
+
