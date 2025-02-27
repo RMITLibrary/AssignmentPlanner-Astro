@@ -91,6 +91,7 @@ const Form = ({ projectsWithTasks }) => {
 
     planDetailsStore.set({
       name: selectedProject.name || 'Unnamed Assignment',
+      assignmentName: assignmentName, // Add this line
       projectID: assignmentType,
       startDate,
       endDate,
@@ -319,6 +320,8 @@ const Form = ({ projectsWithTasks }) => {
         Reset
       </button>
     </form>
+
+    
   );
 };
 

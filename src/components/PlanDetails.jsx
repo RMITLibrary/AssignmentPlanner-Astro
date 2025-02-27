@@ -2,11 +2,16 @@ import { useState, useEffect } from 'preact/hooks';
 import { planDetailsStore, isOpenResults, activeTabStore } from '../store';
 import TabContentTasks from './TabContentTasks';
 import TabContentCalendar from './TabContentCalendar';
+import clock from '../assets/clock.svg'; // Import the clock image
+
 
 const PlanDetails = () => {
   const [details, setDetails] = useState(planDetailsStore.get());
   const [isOpen, setIsOpen] = useState(isOpenResults.get());
   const [activeTab, setActiveTab] = useState(activeTabStore.get());
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [selectedViewType, setSelectedViewType] = useState('Multiday');
+  const [showSpecialConsideration, setShowSpecialConsideration] = useState(false);
 
   useEffect(() => {
     const unsubscribeDetails = planDetailsStore.subscribe((newDetails) => {
@@ -14,6 +19,14 @@ const PlanDetails = () => {
       if (newDetails.weeksToDisplay) {
         console.log('Weeks to display updated:', newDetails.weeksToDisplay);
       }
+      // Check if the start and end date are less than 2 weeks apart
+      const startDate = new Date(newDetails.startDate);
+      const endDate = new Date(newDetails.endDate);
+      const differenceInTime = endDate.getTime() - startDate.getTime();
+      const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
+
+      // if start and end date less than 2 weeks
+      setShowSpecialConsideration(differenceInDays <= 14);
     });
     const unsubscribeOpen = isOpenResults.subscribe(setIsOpen);
     const unsubscribeActiveTab = activeTabStore.subscribe(setActiveTab);
@@ -102,18 +115,126 @@ const PlanDetails = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `assignment_tasks.ics`;
+
+    // Generate the filename based on assignment details
+    const assignmentName = details.assignmentName
+      ? details.assignmentName
+          .replace(/[^a-zA-Z0-9-]/g, '-')
+          .replace(/--+/g, '-')
+          .trim('-')
+      : null;
+    const assignmentType = details.name
+      .replace(/[^a-zA-Z0-9-]/g, '-')
+      .replace(/--+/g, '-')
+      .trim('-');
+    const startDate = details.startDate.replace(/-/g, '');
+    const endDate = details.endDate.replace(/-/g, '');
+    const filename = assignmentName ? `${assignmentName}-${startDate}-${endDate}.ics` : `${assignmentType}-${startDate}-${endDate}.ics`;
+
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    console.log('Exported to calendar...');
+    console.log(`Exported to calendar with filename: ${filename}`);
+  };
+
+  const handleExportModal = () => {
+    //update state
+    setShowExportModal(true);
+  };
+
+  const closeModal = () => {
+    //update state
+    setShowExportModal(false);
+  };
+  const handleExport = () => {
+    exportToCalendar(selectedViewType);
+    closeModal();
+  };
+  const handleRadioChange = (event) => {
+    setSelectedViewType(event.target.value);
   };
 
   if (!isOpen || !details.projectID) return null;
 
   return (
     <section id="plan-detail">
+      {/* Modal */}
+      <div className="modal fade" id="exportModal" tabIndex="-1" aria-modal="true" role="dialog" aria-labelledby="exportModalLabel" aria-hidden={!showExportModal}>
+        <div className="modal-dialog modal-dialog-centered" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title mt-0 mb-0" id="exportModalLabel">
+                Export to calendar file (.ics)
+              </h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              {/* Form Group */}
+              <div className="mb-3">
+                <label htmlFor="calendar-setup-options" className="form-label">
+                  Calendar export options:
+                </label>
+                {/* Radio Group */}
+                <div className="form-check d-flex align-items-top mb-3">
+                  {/* Added d-flex and align-items-center */}
+                  <input className="form-check-input" type="radio" name="calendar-setup-options" id="multiday-radio" value="Multiday" checked={selectedViewType === 'Multiday'} onChange={handleRadioChange} />
+                  <label className="form-check-label" htmlFor="multiday-radio">
+                    <strong>Multiday view</strong>
+                    <br />
+                    Each assignment step will span across several days in your calendar.
+                  </label>
+                </div>
+                <div className="form-check d-flex align-items-top">
+                  {/* Added d-flex and align-items-center */}
+                  <input className="form-check-input" type="radio" name="calendar-setup-options" id="milestone-radio" value="Milestone" checked={selectedViewType === 'Milestone'} onChange={handleRadioChange} />
+                  <label className="form-check-label" htmlFor="milestone-radio">
+                    <strong>Milestone view</strong>
+                    <br />
+                    Each assignment step will only appear on the day that the task begins in your calendar.
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" onClick={handleExport}>
+                Export
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {showSpecialConsideration && (
+        <div class="container pt-0 pb-5 px-0">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card assignment-card p-3">
+                <div class="row">
+                  <div class="col-md-2 pb-3 pb-md-0 d-flex align-items-center justify-content-center">
+                    <img src={clock.src} alt="Clock Icon" class="img-fluid" />
+                  </div>
+                  <div class="col-md-10">
+                    <div class="card-body  p-0 ">
+                      <p class="card-text">If something unexpected affects your ability to submit an assignment on time, you might qualify for an extension.</p>
+                      <p class="card-text">
+                        Check out RMIT's{' '}
+                        <a href="https://www.rmit.edu.au/students/student-essentials/assessment-and-results/special-consideration" class="text-primary">
+                          Special consideration
+                        </a>{' '}
+                        page to learn more.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <h2>
         Assignment plan: <span>{details.name || 'N/A'}</span>
       </h2>
@@ -148,6 +269,7 @@ const PlanDetails = () => {
 
       <div className="tab-content">
         <div className={`tab-pane fade ${activeTab === 'task' ? 'show active' : ''}`} id="task-tab-pane" role="tabpanel" aria-labelledby="task-tab" tabIndex="0">
+          
           <TabContentTasks />
         </div>
         {activeTab === 'calendar' && (
@@ -161,11 +283,8 @@ const PlanDetails = () => {
         <button className="btn btn-pdf" onClick={() => window.print()}>
           Save to PDF
         </button>
-        <button className="btn btn-cal" onClick={() => exportToCalendar('Multiday')}>
-          Export to Calendar (Multiday)
-        </button>
-        <button className="btn btn-cal" onClick={() => exportToCalendar('Milestone')}>
-          Export to Calendar (Milestone)
+        <button className="btn btn-cal" data-bs-toggle="modal" data-bs-target="#exportModal" onClick={handleExportModal}>
+          Export plan to calendar
         </button>
       </div>
     </section>
