@@ -7,5 +7,5 @@ description: 'Proofread and Format'
 - Identify and correct [spelling, punctuation and grammatical errors](https://learninglab.rmit.edu.au/assessments/getting-started-with-assignments/revising-organising-accessibility/). 
 - Use the [report checklist](https://learninglab.rmit.edu.au/assessments/reports/report-checklist/) to make sure you haven't missed anything important.
 [[conditional]]
-- Organise information so that it is shareable and accessible to everyone in your group.
+- It’s a good idea for each group member to revise another member’s work. 
 [[/conditional]]

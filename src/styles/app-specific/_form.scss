@@ -51,6 +51,9 @@
 // Dark mode
 @include color-mode(dark) {
     .req { color: $accent-color-dark; }
+    input{
+        color-scheme: dark;
+    }
 }
 
 

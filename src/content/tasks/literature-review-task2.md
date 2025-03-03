@@ -7,6 +7,9 @@ description: "Research"
 - Read, take notes, and collect information. Make sure you are using [reliable sources](https://learninglab.rmit.edu.au/assessments/getting-started-with-assignments/choose-valid-sources/).
 - Consult the [Subject Guide](https://rmit.libguides.com/) for your subject area to help with this.
 - [Organise the information](https://learninglab.rmit.edu.au/assessments/literature-reviews/organising-information-2/) you find logically.
+[[conditional]]
+- Organise information so that it is shareable and accessible to everyone in your group. 
+[[/conditional]]
 
 *Possible links:*
 - [reading](https://learninglab.rmit.edu.au/university-essentials/study-essentials/reading-skills/)
