@@ -53,6 +53,25 @@ The Assignment Planner is a web application designed to help students effectivel
     npm install
     ```
 
+## Deployment
+
+This application is designed to be flexible and can be deployed to either:
+
+1.  **The root of a domain** (e.g., `https://assignmentplanner.netlify.app/`)
+2.  **A subdirectory** (e.g., `https://learninglab.rmit.edu.au/AssignmentPlanner/`)
+
+To accommodate these different deployment scenarios, we use a conditional `base` configuration in the `astro.config.mjs` file.
+
+### Conditional `base` Configuration
+
+The `base` setting in `astro.config.mjs` controls:
+
+*   **Asset Paths:** The paths to your CSS, JavaScript, images, etc.
+*   **Sitemap URLs:** The URLs generated in your sitemap.
+
+We use an environment variable to determine the correct `base` at build time.
+
+
 ### Running the Application
 
 1.  Start the development server:

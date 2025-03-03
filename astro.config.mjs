@@ -15,6 +15,6 @@ export default defineConfig({
   trailingSlash: 'always',
   vite: {
     logLevel: 'error',
-  },
+  }, 
   integrations: [sitemap(), preact()],
 });
