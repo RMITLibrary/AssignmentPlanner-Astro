@@ -1,6 +1,6 @@
 ---
 id: "report-project"
-name: "Reports"
+name: "Report"
 type: "assignment"
 tasks:
   - id: "report-task1"

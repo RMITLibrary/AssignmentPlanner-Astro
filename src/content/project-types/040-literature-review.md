@@ -1,6 +1,6 @@
 ---
 id: "literature-review-project"
-name: "Literature Reviews"
+name: "Literature Review"
 type: "assignment"
 tasks:
   - id: "literature-review-task1"

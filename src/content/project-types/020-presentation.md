@@ -1,6 +1,6 @@
 ---
 id: "presentation-project"
-name: "Presentations"
+name: "Presentation"
 type: "assignment"
 tasks:
   - id: "presentation-task1"
