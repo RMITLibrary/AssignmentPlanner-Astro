@@ -1,4 +1,0 @@
-[build]
-    base = "AssignmentPlanner/"
-    publish = "dist/"
-    command = "npm run build"
