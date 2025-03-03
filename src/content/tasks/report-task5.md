@@ -1,8 +1,11 @@
 ---
-id: "report-task5"
-description: "Proofread and Format"
+id: 'report-task5'
+description: 'Proofread and Format'
 ---
 
-- Check that you have met all the assignment criteria from the assignment instructions and rubric.
-- Identify and correct spelling, punctuation, and grammatical errors.
-- Use the report checklist to make sure you haven’t missed anything important.
+- Check that you have met all the assignment criteria from the assignment instructions and rubric. 
+- Identify and correct [spelling, punctuation and grammatical errors](https://learninglab.rmit.edu.au/assessments/getting-started-with-assignments/revising-organising-accessibility/). 
+- Use the [report checklist](https://learninglab.rmit.edu.au/assessments/reports/report-checklist/) to make sure you haven't missed anything important.
+[[conditional]]
+- Organise information so that it is shareable and accessible to everyone in your group.
+[[/conditional]]

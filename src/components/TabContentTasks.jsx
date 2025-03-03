@@ -1,27 +1,80 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { planDetailsStore } from '../store';
+import { planDetailsStore, isGroupAssignment } from '../store'; // Import isGroupAssignment
+import ConditionalContent from './ConditionalContent';
+import { marked } from 'marked'; // Import marked
+import { useStore } from '@nanostores/preact'; // Import useStore
 
 const TabContentTasks = () => {
   const [tasks, setTasks] = useState([]);
-  const [daysAvailable, setDaysAvailable] = useState(planDetailsStore.get().days || 0);
-  const [startDate, setStartDate] = useState(planDetailsStore.get().startDate || '');
+  const groupAssignment = useStore(isGroupAssignment); //add this line to get the updated store
+  const details = useStore(planDetailsStore);
 
   useEffect(() => {
-    const unsubscribe = planDetailsStore.subscribe((details) => {
-      setTasks(details.tasks || []);
-      setDaysAvailable(details.days || 0);
-      setStartDate(details.startDate || '');
-      console.log('Tasks updated:', details.tasks);
-    });
+    console.log('TabContentTasks useEffect called');
+    if (details && details.tasks) {
+      const updatedTasks = details.tasks.map((task) => {
+        const displayTime = task.roundedDays > 1 ? `${task.roundedDays} days` : task.roundedDays === 1 ? '1 day' : 'less than one day';
+        // Create a new object to ensure React detects the change
+        return {
+          ...task,
+          roundedDays: task.roundedDays, //add this line
+          displayTime: displayTime, //update this value
+          processedContent: processTaskContent(task.rendered.html),
+        };
+      });
+      // Create a new array to ensure React detects the change
+      setTasks([...updatedTasks]);
+    }
+  }, [details]);
 
-    return () => unsubscribe();
-  }, []);
+  // Process the task content, replacing the <ConditionalContent> with rendered content
+  const processTaskContent = (html) => {
+    if (!html) return [];
+
+    const conditionalContentRegex = /\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs;
+    const parts = html.split(conditionalContentRegex);
+    return parts
+      .map((part, index) => {
+        if (index % 2 !== 0) {
+          return {
+            type: 'conditional',
+            content: part.trim(),
+          };
+        } else if (part.trim() !== '') {
+          return {
+            type: 'regular',
+            content: part.replace(/\[\[conditional\]\]|\[\[\/conditional\]\]/g, '').trim(),
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  };
+
+  const renderContentParts = (parts) => {
+    return parts.map((part, index) => {
+      if (part.type === 'conditional') {
+        return (
+          <ConditionalContent key={`conditional-${index}`}>
+            {marked
+              .parse(part.content)
+              .split('\n')
+              .map((item, index) => {
+                if (item.trim() === '') return null;
+                return <p key={index} dangerouslySetInnerHTML={{ __html: item }} />;
+              })}
+          </ConditionalContent>
+        );
+      } else {
+        return <div key={`regular-${index}`} dangerouslySetInnerHTML={{ __html: marked.parse(part.content) }} />;
+      }
+    });
+  };
 
   const switchToCalendarView = () => {
     const calendarTab = document.querySelector('#calendar-tab');
     const navTabs = document.querySelector('.nav-tabs');
-    console.log(calendarTab);
     if (calendarTab) {
       calendarTab.click();
       if (navTabs) {
@@ -51,7 +104,7 @@ const TabContentTasks = () => {
               <tr key={index}>
                 <td>
                   <h3>{`${index + 1}. ${task.data.description || 'Untitled Task'}`}</h3>
-                  <div dangerouslySetInnerHTML={{ __html: task.rendered.html }} />
+                  {renderContentParts(task.processedContent)}
                 </td>
                 <td>{formatDate(task.endDate)}</td>
                 <td>{task.displayTime}</td>

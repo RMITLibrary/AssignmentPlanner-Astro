@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { isOpenResults, isTesting, planDetailsStore } from '../store';
+import { isOpenResults, isTesting, planDetailsStore, isGroupAssignment } from '../store';
 
 let Calendar; // Declare Calendar outside the component
 const Form = ({ projectsWithTasks }) => {
@@ -30,6 +30,37 @@ const Form = ({ projectsWithTasks }) => {
       document.getElementById('plan-detail').scrollIntoView({ behavior: 'smooth' });
     }
   }, [formValid]);
+
+  useEffect(() => {
+    isGroupAssignment.set(groupAssignment === 'yes');
+    console.log('isGroupAssignment updated in form:', groupAssignment === 'yes');
+  }, [groupAssignment]);
+
+  useEffect(() => {
+    //new useEffect
+    const recalculateTaskDates = () => {
+      const currentPlan = planDetailsStore.get();
+
+      if (currentPlan && currentPlan.projectID) {
+        const selectedProject = projectsWithTasks.find((proj) => proj.id === currentPlan.projectID);
+
+        if (selectedProject) {
+          const isGroup = groupAssignment === 'yes';
+          const dayCount = calculateDaysBetween(currentPlan.startDate, currentPlan.endDate);
+          const tasksWithDates = distributeTaskDates(selectedProject.tasks, dayCount, currentPlan.startDate, isGroup);
+          console.log('tasksWithDates after distributeTaskDates:', tasksWithDates);
+          planDetailsStore.set({
+            ...currentPlan,
+            tasks: tasksWithDates,
+          });
+        }
+      }
+    };
+
+    if (submitted) {
+      recalculateTaskDates();
+    }
+  }, [groupAssignment, submitted]);
 
   useEffect(() => {
     const preloadCalendar = async () => {
@@ -64,7 +95,7 @@ const Form = ({ projectsWithTasks }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setSubmitted(true);
+    setSubmitted(true); //set here
     console.log('Form submission attempt:', { assignmentType, startDate, endDate });
 
     if (!validateDates() || !assignmentType || !groupAssignment || !startDate || !endDate) {
@@ -84,12 +115,17 @@ const Form = ({ projectsWithTasks }) => {
     setFormValid(true);
     isOpenResults.set(true);
 
+    //this will get the current group status
+    const isGroup = isGroupAssignment.get();
     const dayCount = calculateDaysBetween(startDate, endDate);
-    const tasksWithDates = distributeTaskDates(selectedProject.tasks, dayCount, startDate);
+    const tasksWithDates = distributeTaskDates(selectedProject.tasks, dayCount, startDate, isGroup); // pass the group status to this function
+    console.log('tasksWithDates after distributeTaskDates:', tasksWithDates);
+
     const startDateObj = new Date(startDate);
     const endDateObj = new Date(endDate);
-
+    const currentPlan = planDetailsStore.get();
     planDetailsStore.set({
+      ...currentPlan,
       name: selectedProject.name || 'Unnamed Assignment',
       assignmentName: assignmentName, // Add this line
       projectID: assignmentType,
@@ -99,38 +135,32 @@ const Form = ({ projectsWithTasks }) => {
       tasks: tasksWithDates,
       weeksToDisplay: calculateWeeksToDisplay(startDateObj, endDateObj), // pass in the Date objects.
     });
-
-    console.log('Form submitted successfully:', { assignmentType, startDate, endDate, dayCount });
   };
 
-  const distributeTaskDates = (tasks, totalDays, startDate) => {
-    const totalWeight = tasks.reduce((sum, task) => sum + task.weight, 0);
+  //updated to take isGroup as an argument
+  const distributeTaskDates = (tasks, totalDays, startDate, isGroup) => {
+    console.log('distributeTaskDates called with isGroup:', isGroup);
+    const totalWeight = tasks.reduce((sum, task) => sum + (isGroup && task.groupWeight !== undefined ? task.groupWeight : task.weight), 0);
+    console.log('totalWeight:', totalWeight);
     let currentStartDate = new Date(startDate);
-    let remainingDays = totalDays; // Keep track of remaining days
 
-    return tasks.map((task, index) => {
-      // Last task gets all remaining days
-      const fractionDays = index === tasks.length - 1 ? remainingDays : (totalDays * task.weight) / totalWeight;
-      const roundedDays = Math.round(fractionDays);
+    return tasks.map((originalTask, index) => {
+      const currentWeight = originalTask.groupWeight !== undefined && isGroup ? originalTask.groupWeight : originalTask.weight;
+      console.log(`Task ${index + 1} - currentWeight:`, currentWeight, '- groupWeight:', originalTask.groupWeight, '- weight:', originalTask.weight);
+      const roundedDays = Math.round((totalDays * currentWeight) / totalWeight);
+      console.log(`Task ${index + 1} - roundedDays:`, roundedDays);
 
-      // Ensure we don't use more days than available.
-      const daysToUse = Math.min(roundedDays, remainingDays);
-
-      const displayTime = daysToUse > 1 ? `${daysToUse} days` : daysToUse === 1 ? '1 day' : 'less than one day';
+      const displayTime = roundedDays > 1 ? `${roundedDays} days` : roundedDays === 1 ? '1 day' : 'less than one day';
+      console.log(`Task ${index + 1} - displayTime:`, displayTime);
 
       const taskStartDate = new Date(currentStartDate);
-      const taskEndDate = new Date(currentStartDate);
-      taskEndDate.setDate(taskEndDate.getDate() + Math.max(daysToUse - 1, 0));
-
-      currentStartDate.setDate(currentStartDate.getDate() + daysToUse);
-      remainingDays -= daysToUse; // Update remaining days.
-
-      console.log(`Distributing task: ${task.name}`, { taskStartDate, taskEndDate });
+      const taskEndDate = new Date(currentStartDate.getTime() + (roundedDays - 1) * (1000 * 60 * 60 * 24));
+      currentStartDate.setDate(currentStartDate.getDate() + roundedDays);
 
       return {
-        ...task,
-        roundedDays: daysToUse,
-        displayTime,
+        ...originalTask, //keep the original task
+        roundedDays: roundedDays,
+        displayTime: displayTime,
         startDate: taskStartDate.toISOString().split('T')[0],
         endDate: taskEndDate.toISOString().split('T')[0],
       };
@@ -320,8 +350,6 @@ const Form = ({ projectsWithTasks }) => {
         Reset
       </button>
     </form>
-
-    
   );
 };
 

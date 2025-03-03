@@ -2,7 +2,9 @@
 id: "presentation-task5"
 description: "Before Your Presentation"
 ---
-
+[[conditional]]
+- Meet your group in person or online before the presentation to talk about any last-minute issues. 
+[[/conditional]]
 - If you are presenting face-to-face:
   - Visit the room where you will present to understand the layout and the technology available. If possible, test the technology to avoid surprises.
   - Arrive early.
