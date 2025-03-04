@@ -65,14 +65,13 @@ const Form = ({ projectsWithTasks }) => {
 
     const isFormValid = validateForm(); // Validate first
     setFormValid(isFormValid);
+    setSubmitted(true); // Always set submitted to indicate the user attempted to submit
 
     if (!isFormValid) {
-      setSubmitted(false);
       console.log('Form validation failed - other values.');
       return;
     }
 
-    setSubmitted(true);
     setNeedsRevalidation(true);
 
     const selectedProject = projectsWithTasks.find((proj) => proj.id === assignmentType);
@@ -97,7 +96,7 @@ const Form = ({ projectsWithTasks }) => {
     planDetailsStore.set({
       ...currentPlan,
       name: selectedProject.name || 'Unnamed Assignment',
-      assignmentName,
+      assignmentName, // Include the assignment name
       projectID: assignmentType,
       startDate,
       endDate,
@@ -203,7 +202,7 @@ const Form = ({ projectsWithTasks }) => {
 
   const validateForm = () => {
     const isValidDates = validateDates();
-    return isValidDates && assignmentType && groupAssignment !== '' && startDate && endDate;
+    return isValidDates && assignmentType !== '' && groupAssignment !== '' && startDate && endDate;
   };
 
   const setDateFormat = () => {
@@ -275,7 +274,7 @@ const Form = ({ projectsWithTasks }) => {
   };
 
   return (
-    <form id="assignmentDetails" className={`${formValid || submitted ? 'was-validated' : ''}`} onSubmit={handleSubmit} noValidate>
+    <form id="assignmentDetails" className={`${submitted ? 'was-validated' : ''}`} onSubmit={handleSubmit} noValidate>
       <div className="form-group">
         <label htmlFor="assignmentName">Assignment name (optional)</label>
         <input type="text" className="form-control" id="assignmentName" value={assignmentName} onChange={(e) => setAssignmentName(e.target.value)} placeholder="Enter assignment name" />
