@@ -127,11 +127,12 @@ const PlanDetails = () => {
       .replace(/[^a-zA-Z0-9-]/g, '-')
       .replace(/--+/g, '-')
       .trim('-');
-    const startDate = details.startDate.replace(/-/g, '');
-    const endDate = details.endDate.replace(/-/g, '');
-    const filename = assignmentName ? `${assignmentName}-${startDate}-${endDate}.ics` : `${assignmentType}-${startDate}-${endDate}.ics`;
+ const nameToUse = assignmentName ? assignmentName : assignmentType; // if assignmetnName, use it, otherwise assignment type.
+ const startDate = details.startDate.replace(/-/g, '');
+ const endDate = details.endDate.replace(/-/g, '');
+ const filename = `${nameToUse}-${startDate}-${endDate}.ics`;
 
-    link.download = filename;
+ link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -159,7 +160,7 @@ const PlanDetails = () => {
   if (!isOpen || !details.projectID) return null;
 
   return (
-    <section id="plan-detail">
+    <section id="plan-detail" class="pt-4">
       {/* Modal */}
       <div className="modal fade" id="exportModal" tabIndex="-1" aria-modal="true" role="dialog" aria-labelledby="exportModalLabel" aria-hidden={!showExportModal}>
         <div className="modal-dialog modal-dialog-centered" role="document">
@@ -236,7 +237,7 @@ const PlanDetails = () => {
         </div>
       )}
       <h2>
-        Assignment plan: <span>{details.name || 'N/A'}</span>
+        Assignment plan: <span>{details.assignmentName || details.name || 'N/A'}</span>
       </h2>
       <div className="plan-dates">
         <p>
@@ -269,7 +270,6 @@ const PlanDetails = () => {
 
       <div className="tab-content">
         <div className={`tab-pane fade ${activeTab === 'task' ? 'show active' : ''}`} id="task-tab-pane" role="tabpanel" aria-labelledby="task-tab" tabIndex="0">
-          
           <TabContentTasks />
         </div>
         {activeTab === 'calendar' && (

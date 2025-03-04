@@ -13,6 +13,7 @@ const Form = ({ projectsWithTasks }) => {
   const [endDateValid, setEndDateValid] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isCalendarPreloaded, setIsCalendarPreloaded] = useState(false);
+  const [needsRevalidation, setNeedsRevalidation] = useState(false);
 
   useEffect(() => {
     setDateFormat();
@@ -26,16 +27,11 @@ const Form = ({ projectsWithTasks }) => {
   }, []);
 
   useEffect(() => {
-    if (formValid) {
+    if (submitted && formValid) {
+      console.log('Form submitted and valid, scrolling to plan detail');
       document.getElementById('plan-detail').scrollIntoView({ behavior: 'smooth' });
     }
-  }, [formValid]);
-
-  // DELETE THIS ENTIRE USE EFFECT - THIS IS NO LONGER NEEDED
-  // useEffect(() => {
-  //   isGroupAssignment.set(groupAssignment === 'yes');
-  //   console.log('isGroupAssignment updated in form:', groupAssignment === 'yes');
-  // }, [groupAssignment]);
+  }, [submitted, formValid]);
 
   useEffect(() => {
     const preloadCalendar = async () => {
@@ -48,10 +44,8 @@ const Form = ({ projectsWithTasks }) => {
       }
     };
 
-    if (formValid) {
-      preloadCalendar();
-    }
-  }, [formValid, isCalendarPreloaded]);
+    preloadCalendar();
+  }, [isCalendarPreloaded]);
 
   const calculateWeeksToDisplay = (startDate, endDate) => {
     const totalDays = Math.ceil((endDate - startDate) / (1000 * 3600 * 24)) + 1;
@@ -65,30 +59,32 @@ const Form = ({ projectsWithTasks }) => {
     return weeksToDisplay;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setSubmitted(true);
-    console.log('Form submission attempt:', { assignmentType, startDate, endDate });
+    console.log('Form submission attempt:', { assignmentType, startDate, endDate, formValid });
 
-    if (!validateDates() || !assignmentType || !groupAssignment || !startDate || !endDate) {
-      setFormValid(false);
-      console.log('Form validation failed.');
+    const isFormValid = validateForm(); // Validate first
+    setFormValid(isFormValid);
+
+    if (!isFormValid) {
+      setSubmitted(false);
+      console.log('Form validation failed - other values.');
       return;
     }
+
+    setSubmitted(true);
+    setNeedsRevalidation(true);
 
     const selectedProject = projectsWithTasks.find((proj) => proj.id === assignmentType);
 
     if (!selectedProject) {
-      setFormValid(false);
       console.log('No selected project found, validation failed.');
       return;
     }
-    // MOVE THE `isGroupAssignment.set()` HERE
+
+    isOpenResults.set(true);
     isGroupAssignment.set(groupAssignment === 'yes');
     console.log('isGroupAssignment updated in form:', groupAssignment === 'yes');
-
-    setFormValid(true);
-    isOpenResults.set(true);
 
     const isGroup = groupAssignment === 'yes';
     const dayCount = calculateDaysBetween(startDate, endDate);
@@ -101,7 +97,7 @@ const Form = ({ projectsWithTasks }) => {
     planDetailsStore.set({
       ...currentPlan,
       name: selectedProject.name || 'Unnamed Assignment',
-      assignmentName: assignmentName,
+      assignmentName,
       projectID: assignmentType,
       startDate,
       endDate,
@@ -109,6 +105,14 @@ const Form = ({ projectsWithTasks }) => {
       tasks: tasksWithDates,
       weeksToDisplay: calculateWeeksToDisplay(startDateObj, endDateObj),
     });
+
+    if (!Calendar && !isCalendarPreloaded) {
+      console.log('Preloading calendar library');
+      const { default: importedCalendar } = await import('@toast-ui/calendar');
+      Calendar = importedCalendar;
+      setIsCalendarPreloaded(true);
+      console.log('Calendar library preloaded');
+    }
   };
 
   const distributeTaskDates = (tasks, totalDays, startDate, isGroup) => {
@@ -146,8 +150,8 @@ const Form = ({ projectsWithTasks }) => {
 
       return {
         ...task,
-        roundedDays: roundedDays,
-        displayTime: displayTime,
+        roundedDays,
+        displayTime,
         startDate: taskStartDate.toISOString().split('T')[0],
         endDate: taskEndDate.toISOString().split('T')[0],
       };
@@ -165,6 +169,8 @@ const Form = ({ projectsWithTasks }) => {
     setEndDateValid(false);
     isOpenResults.set(false);
     setSubmitted(false);
+    setIsCalendarPreloaded(false);
+    setNeedsRevalidation(false);
     document.getElementById('endDateError').textContent = '';
     console.log('Form reset.');
   };
@@ -173,7 +179,6 @@ const Form = ({ projectsWithTasks }) => {
     const startDateObj = new Date(startDate);
     const endDateObj = new Date(endDate);
     const dateErrorElement = document.getElementById('endDateError');
-
     console.log('Validating dates:', { startDateObj, endDateObj });
 
     let isValid = true;
@@ -193,8 +198,12 @@ const Form = ({ projectsWithTasks }) => {
       dateErrorElement.textContent = '';
       setEndDateValid(true);
     }
-
     return isValid;
+  };
+
+  const validateForm = () => {
+    const isValidDates = validateDates();
+    return isValidDates && assignmentType && groupAssignment !== '' && startDate && endDate;
   };
 
   const setDateFormat = () => {
@@ -225,26 +234,32 @@ const Form = ({ projectsWithTasks }) => {
 
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
-    if (submitted) {
-      validateDates();
+    if (needsRevalidation) {
+      setFormValid(false);
     }
   };
 
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
-    if (submitted) {
-      const endDateObj = new Date(e.target.value);
-      const startDateObj = new Date(startDate);
-
-      if (!e.target.value || endDateObj <= startDateObj || isNaN(endDateObj)) {
-        setEndDateValid(false);
-        document.getElementById('endDateError').textContent = endDateObj <= startDateObj ? 'End date must be after the start date.' : 'Please provide an end date.';
-      } else {
-        setEndDateValid(true);
-        document.getElementById('endDateError').textContent = '';
-      }
+    if (needsRevalidation) {
+      setFormValid(false);
     }
   };
+
+  const handleGroupChange = (e) => {
+    setGroupAssignment(e.target.value);
+    if (needsRevalidation) {
+      setFormValid(false);
+    }
+  };
+
+  const handleAssignmentChange = (e) => {
+    setAssignmentType(e.target.value);
+    if (needsRevalidation) {
+      setFormValid(false);
+    }
+  };
+
   const getSelectClass = () => {
     if (!submitted) {
       return 'form-select';
@@ -270,7 +285,7 @@ const Form = ({ projectsWithTasks }) => {
         <label htmlFor="assignmentType">
           Assignment type<span className="req">*</span>
         </label>
-        <select className={getSelectClass()} id="assignmentType" required value={assignmentType} onChange={(e) => setAssignmentType(e.target.value)}>
+        <select className={getSelectClass()} id="assignmentType" required value={assignmentType} onChange={handleAssignmentChange}>
           <option value="">Select type</option>
           {projectsWithTasks.map((project) => (
             <option key={project.id} value={project.id}>
@@ -286,13 +301,13 @@ const Form = ({ projectsWithTasks }) => {
           Is this a group assignment?<span className="req">*</span>
         </legend>
         <div className="form-check form-check-inline">
-          <input className="form-check-input" type="radio" name="groupAssignment" id="groupYes" value="yes" checked={groupAssignment === 'yes'} onChange={() => setGroupAssignment('yes')} required />
+          <input className="form-check-input" type="radio" name="groupAssignment" id="groupYes" value="yes" checked={groupAssignment === 'yes'} onChange={handleGroupChange} required />
           <label className="form-check-label" htmlFor="groupYes">
             Yes
           </label>
         </div>
         <div className="form-check form-check-inline">
-          <input className="form-check-input" type="radio" name="groupAssignment" id="groupNo" value="no" checked={groupAssignment === 'no'} onChange={() => setGroupAssignment('no')} required />
+          <input className="form-check-input" type="radio" name="groupAssignment" id="groupNo" value="no" checked={groupAssignment === 'no'} onChange={handleGroupChange} required />
           <label className="form-check-label" htmlFor="groupNo">
             No
           </label>
@@ -311,11 +326,10 @@ const Form = ({ projectsWithTasks }) => {
               Date format: <span id="startDateFormatDisplay"></span>
             </span>
           </div>
-
           <div className="invalid-feedback">Please provide a start date.</div>
         </div>
 
-        <div className="form-group ">
+        <div className="form-group">
           <label htmlFor="endDate">
             End date<span className="req">*</span>
           </label>
