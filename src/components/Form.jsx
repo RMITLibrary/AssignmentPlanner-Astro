@@ -31,36 +31,11 @@ const Form = ({ projectsWithTasks }) => {
     }
   }, [formValid]);
 
-  useEffect(() => {
-    isGroupAssignment.set(groupAssignment === 'yes');
-    console.log('isGroupAssignment updated in form:', groupAssignment === 'yes');
-  }, [groupAssignment]);
-
-  useEffect(() => {
-    //new useEffect
-    const recalculateTaskDates = () => {
-      const currentPlan = planDetailsStore.get();
-
-      if (currentPlan && currentPlan.projectID) {
-        const selectedProject = projectsWithTasks.find((proj) => proj.id === currentPlan.projectID);
-
-        if (selectedProject) {
-          const isGroup = groupAssignment === 'yes';
-          const dayCount = calculateDaysBetween(currentPlan.startDate, currentPlan.endDate);
-          const tasksWithDates = distributeTaskDates(selectedProject.tasks, dayCount, currentPlan.startDate, isGroup);
-          console.log('tasksWithDates after distributeTaskDates:', tasksWithDates);
-          planDetailsStore.set({
-            ...currentPlan,
-            tasks: tasksWithDates,
-          });
-        }
-      }
-    };
-
-    if (submitted) {
-      recalculateTaskDates();
-    }
-  }, [groupAssignment, submitted]);
+  // DELETE THIS ENTIRE USE EFFECT - THIS IS NO LONGER NEEDED
+  // useEffect(() => {
+  //   isGroupAssignment.set(groupAssignment === 'yes');
+  //   console.log('isGroupAssignment updated in form:', groupAssignment === 'yes');
+  // }, [groupAssignment]);
 
   useEffect(() => {
     const preloadCalendar = async () => {
@@ -79,12 +54,9 @@ const Form = ({ projectsWithTasks }) => {
   }, [formValid, isCalendarPreloaded]);
 
   const calculateWeeksToDisplay = (startDate, endDate) => {
-    // Calculate the number of days between the start and end dates.
-    const totalDays = Math.ceil((endDate - startDate) / (1000 * 3600 * 24)) + 1; //+1 to ensure the last day is included
-    // Calculate the number of full weeks.
+    const totalDays = Math.ceil((endDate - startDate) / (1000 * 3600 * 24)) + 1;
     const visibleWeeksCount = Math.ceil(totalDays / 7);
-    // Ensure we always show at least one week or 4 weeks
-    const weeksToDisplay = Math.max(visibleWeeksCount, 1); //Minimum is 1 week not 4
+    const weeksToDisplay = Math.max(visibleWeeksCount, 1);
     console.log({
       totalDays,
       visibleWeeksCount,
@@ -95,7 +67,7 @@ const Form = ({ projectsWithTasks }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setSubmitted(true); //set here
+    setSubmitted(true);
     console.log('Form submission attempt:', { assignmentType, startDate, endDate });
 
     if (!validateDates() || !assignmentType || !groupAssignment || !startDate || !endDate) {
@@ -111,14 +83,16 @@ const Form = ({ projectsWithTasks }) => {
       console.log('No selected project found, validation failed.');
       return;
     }
+    // MOVE THE `isGroupAssignment.set()` HERE
+    isGroupAssignment.set(groupAssignment === 'yes');
+    console.log('isGroupAssignment updated in form:', groupAssignment === 'yes');
 
     setFormValid(true);
     isOpenResults.set(true);
 
-    //this will get the current group status
-    const isGroup = isGroupAssignment.get();
+    const isGroup = groupAssignment === 'yes';
     const dayCount = calculateDaysBetween(startDate, endDate);
-    const tasksWithDates = distributeTaskDates(selectedProject.tasks, dayCount, startDate, isGroup); // pass the group status to this function
+    const tasksWithDates = distributeTaskDates(selectedProject.tasks, dayCount, startDate, isGroup);
     console.log('tasksWithDates after distributeTaskDates:', tasksWithDates);
 
     const startDateObj = new Date(startDate);
@@ -127,13 +101,13 @@ const Form = ({ projectsWithTasks }) => {
     planDetailsStore.set({
       ...currentPlan,
       name: selectedProject.name || 'Unnamed Assignment',
-      assignmentName: assignmentName, // Add this line
+      assignmentName: assignmentName,
       projectID: assignmentType,
       startDate,
       endDate,
       days: dayCount,
       tasks: tasksWithDates,
-      weeksToDisplay: calculateWeeksToDisplay(startDateObj, endDateObj), // pass in the Date objects.
+      weeksToDisplay: calculateWeeksToDisplay(startDateObj, endDateObj),
     });
   };
 
@@ -150,10 +124,10 @@ const Form = ({ projectsWithTasks }) => {
 
       let roundedDays;
       if (index === tasks.length - 1) {
-        roundedDays = remainingDays; // Last task gets all remaining days
+        roundedDays = remainingDays;
       } else {
         roundedDays = Math.round(fractionOfDays);
-        roundedDays = Math.max(roundedDays, 1); // add this line to ensure we dont go below 1
+        roundedDays = Math.max(roundedDays, 1);
       }
 
       roundedDays = Math.min(roundedDays, remainingDays);
@@ -163,7 +137,7 @@ const Form = ({ projectsWithTasks }) => {
       console.log(`Task ${index + 1} - roundedDays:`, roundedDays);
 
       const taskStartDate = new Date(currentStartDate);
-      let taskEndDate = new Date(taskStartDate); // Default to start date if roundedDays is 1 or less
+      let taskEndDate = new Date(taskStartDate);
 
       if (roundedDays > 1) {
         taskEndDate = new Date(taskStartDate.getTime() + (roundedDays - 1) * (1000 * 60 * 60 * 24));
@@ -180,7 +154,6 @@ const Form = ({ projectsWithTasks }) => {
     });
   };
 
-
   const handleReset = () => {
     setAssignmentName('');
     setAssignmentType('');
@@ -192,9 +165,7 @@ const Form = ({ projectsWithTasks }) => {
     setEndDateValid(false);
     isOpenResults.set(false);
     setSubmitted(false);
-
     document.getElementById('endDateError').textContent = '';
-
     console.log('Form reset.');
   };
 
