@@ -19,8 +19,8 @@ const Form = ({ projectsWithTasks }) => {
 
     if (isTesting.get()) {
       setAssignmentType('literature-review-project');
-      setStartDate('2025-03-20');
-      setEndDate('2025-04-06');
+      setStartDate('2025-03-05');
+      setEndDate('2025-03-15');
       console.log('Default testing values set:', { assignmentType, startDate, endDate });
     }
   }, []);
@@ -137,28 +137,41 @@ const Form = ({ projectsWithTasks }) => {
     });
   };
 
-  //updated to take isGroup as an argument
   const distributeTaskDates = (tasks, totalDays, startDate, isGroup) => {
     console.log('distributeTaskDates called with isGroup:', isGroup);
     const totalWeight = tasks.reduce((sum, task) => sum + (isGroup && task.groupWeight !== undefined ? task.groupWeight : task.weight), 0);
     console.log('totalWeight:', totalWeight);
     let currentStartDate = new Date(startDate);
+    let remainingDays = totalDays;
 
-    return tasks.map((originalTask, index) => {
-      const currentWeight = originalTask.groupWeight !== undefined && isGroup ? originalTask.groupWeight : originalTask.weight;
-      console.log(`Task ${index + 1} - currentWeight:`, currentWeight, '- groupWeight:', originalTask.groupWeight, '- weight:', originalTask.weight);
-      const roundedDays = Math.round((totalDays * currentWeight) / totalWeight);
-      console.log(`Task ${index + 1} - roundedDays:`, roundedDays);
+    return tasks.map((task, index) => {
+      const currentWeight = task.groupWeight !== undefined && isGroup ? task.groupWeight : task.weight;
+      const fractionOfDays = (totalDays * currentWeight) / totalWeight;
+
+      let roundedDays;
+      if (index === tasks.length - 1) {
+        roundedDays = remainingDays; // Last task gets all remaining days
+      } else {
+        roundedDays = Math.round(fractionOfDays);
+        roundedDays = Math.max(roundedDays, 1); // add this line to ensure we dont go below 1
+      }
+
+      roundedDays = Math.min(roundedDays, remainingDays);
+      remainingDays -= roundedDays;
 
       const displayTime = roundedDays > 1 ? `${roundedDays} days` : roundedDays === 1 ? '1 day' : 'less than one day';
-      console.log(`Task ${index + 1} - displayTime:`, displayTime);
+      console.log(`Task ${index + 1} - roundedDays:`, roundedDays);
 
       const taskStartDate = new Date(currentStartDate);
-      const taskEndDate = new Date(currentStartDate.getTime() + (roundedDays - 1) * (1000 * 60 * 60 * 24));
+      let taskEndDate = new Date(taskStartDate); // Default to start date if roundedDays is 1 or less
+
+      if (roundedDays > 1) {
+        taskEndDate = new Date(taskStartDate.getTime() + (roundedDays - 1) * (1000 * 60 * 60 * 24));
+      }
       currentStartDate.setDate(currentStartDate.getDate() + roundedDays);
 
       return {
-        ...originalTask, //keep the original task
+        ...task,
         roundedDays: roundedDays,
         displayTime: displayTime,
         startDate: taskStartDate.toISOString().split('T')[0],
@@ -166,6 +179,7 @@ const Form = ({ projectsWithTasks }) => {
       };
     });
   };
+
 
   const handleReset = () => {
     setAssignmentName('');
