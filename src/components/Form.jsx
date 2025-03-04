@@ -322,20 +322,23 @@ const Form = ({ projectsWithTasks }) => {
           </label>
           <input type="date" className={getInputClass(startDateValid)} id="startDate" aria-describedby="startDateFormat" value={startDate} onChange={handleStartDateChange} required />
           <div id="startDateFormat" className="form-text text-muted">
-            <span className="visually-hidden">Date format:</span>
-            <span id="startDateFormatDisplay"></span>
+            <span className="visually-hidden">
+              Date format: <span id="startDateFormatDisplay"></span>
+            </span>
           </div>
+
           <div className="invalid-feedback">Please provide a start date.</div>
         </div>
 
-        <div className="form-group">
+        <div className="form-group ">
           <label htmlFor="endDate">
             End date<span className="req">*</span>
           </label>
           <input type="date" className={getInputClass(endDateValid)} id="endDate" aria-describedby="endDateFormat" value={endDate} onChange={handleEndDateChange} required />
           <div id="endDateFormat" className="form-text text-muted">
-            <span className="visually-hidden">Date format:</span>
-            <span id="endDateFormatDisplay"></span>
+            <span className="visually-hidden">
+              Date format: <span id="endDateFormatDisplay"></span>
+            </span>
           </div>
           <div className="invalid-feedback" id="endDateError">
             Please provide an end date.
