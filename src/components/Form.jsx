@@ -15,6 +15,9 @@ const Form = ({ projectsWithTasks }) => {
   const [isCalendarPreloaded, setIsCalendarPreloaded] = useState(false);
   const [needsRevalidation, setNeedsRevalidation] = useState(false);
 
+  // Sort projects by name alphabetically
+  const sortedProjects = [...projectsWithTasks].sort((a, b) => a.name.localeCompare(b.name));
+
   useEffect(() => {
     setDateFormat();
 
@@ -286,7 +289,7 @@ const Form = ({ projectsWithTasks }) => {
         </label>
         <select className={getSelectClass()} id="assignmentType" required value={assignmentType} onChange={handleAssignmentChange}>
           <option value="">Select type</option>
-          {projectsWithTasks.map((project) => (
+          {sortedProjects.map((project) => (
             <option key={project.id} value={project.id}>
               {project.name}
             </option>
