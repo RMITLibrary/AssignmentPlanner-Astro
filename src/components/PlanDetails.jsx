@@ -25,8 +25,8 @@ const PlanDetails = () => {
       const differenceInTime = endDate.getTime() - startDate.getTime();
       const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
 
-      // if start and end date less than 2 weeks
-      setShowSpecialConsideration(differenceInDays <= 14);
+      // if start and end date less than 1 week
+      setShowSpecialConsideration(differenceInDays <= 7);
     });
     const unsubscribeOpen = isOpenResults.subscribe(setIsOpen);
     const unsubscribeActiveTab = activeTabStore.subscribe(setActiveTab);
