@@ -11,6 +11,7 @@ description: "Analyse the assignment instructions and brainstorm"
 [[/conditional]]
 
 Not sure where to start? Contact [Study Support](https://www.rmit.edu.au/students/support-services/study-support).
+
 [[conditional]]
 Check out some strategies for effective [group work](https://learninglab.rmit.edu.au/university-essentials/group-work/).
 [[/conditional]]
