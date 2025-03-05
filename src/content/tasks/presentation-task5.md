@@ -12,7 +12,3 @@ description: "Before Your Presentation"
 - If you are presenting online, ensure you're familiar with the platform being used for the presentation.
   - Test your camera and microphone.
   - Check your internet connection.
-
-*Possible links:*
-- [face-to-face presentations](https://learninglab.rmit.edu.au/assessments/presentations/delivery/)
-- [online presentations](https://learninglab.rmit.edu.au/assessments/presentations/online-presentations/)

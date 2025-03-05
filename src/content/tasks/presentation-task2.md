@@ -9,7 +9,3 @@ description: "Research"
 [[conditional]]
 - Organise information so that it is shareable and accessible to everyone in your group. 
 [[/conditional]]
-
-*Possible links:*
-- [reading](https://learninglab.rmit.edu.au/university-essentials/study-essentials/reading-skills/)
-- [taking notes](https://learninglab.rmit.edu.au/university-essentials/study-essentials/note-taking/)
