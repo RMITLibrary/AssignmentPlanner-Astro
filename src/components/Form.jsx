@@ -124,7 +124,19 @@ const Form = ({ projectsWithTasks }) => {
       tasks: tasksWithDates,
       weeksToDisplay: calculateWeeksToDisplay(startDateObj, endDateObj),
     });
-
+    // Data Layer Push (AFTER successful form submission)
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer.push({
+        event: 'form_submission',
+        formType: 'assignment_planner',
+        assignmentType: selectedProject.name, // or assignmentType - use the name rather than ID
+        isGroupWork: groupAssignment === 'yes',
+        daysToComplete: dayCount,
+        startDate: startDate,
+        endDate: endDate,
+      });
+      console.log('dataLayer pushed');
+    }
     if (!Calendar && !isCalendarPreloaded) {
       console.log('Preloading calendar library');
       const { default: importedCalendar } = await import('@toast-ui/calendar');
