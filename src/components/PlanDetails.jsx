@@ -11,6 +11,7 @@ const PlanDetails = () => {
   const [showExportModal, setShowExportModal] = useState(false);
   const [selectedViewType, setSelectedViewType] = useState('Multiday');
   const [showSpecialConsideration, setShowSpecialConsideration] = useState(false);
+  const [dialog, setDialog] = useState(null); // New state for the dialog object
 
   // Refs for focus management
   const modalRef = useRef(null);
@@ -147,15 +148,21 @@ const PlanDetails = () => {
   const handleExportModal = (event) => {
     setShowExportModal(true);
     previousActiveElement.current = document.activeElement; // Store the previously active element
-    setTimeout(() => {
-      firstFocusableElement.current.focus({ preventScroll: true }); // focus on first element
-    });
+
+    // Initialize the ARIA dialog when the modal opens
+    const newDialog = new aria.Dialog('exportModal', previousActiveElement.current, firstFocusableElement.current);
+    setDialog(newDialog); // Store the dialog object in state
     event.preventDefault();
   };
 
   const closeModal = (event) => {
     setShowExportModal(false);
-    previousActiveElement.current.focus({ preventScroll: true }); // Return focus to the previously active element, prevent scroll
+
+    //close the ARIA modal too, by calling the close method.
+    if (dialog) {
+      dialog.close();
+      setDialog(null); // remove it from the state.
+    }
     previousActiveElement.current = null; // Clear the reference
     event.preventDefault();
   };
