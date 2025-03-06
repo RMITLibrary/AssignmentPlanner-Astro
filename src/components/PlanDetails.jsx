@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { planDetailsStore, isOpenResults, activeTabStore } from '../store';
 import TabContentTasks from './TabContentTasks';
 import TabContentCalendar from './TabContentCalendar';
 import clock from '../assets/clock.svg'; // Import the clock image
-
 
 const PlanDetails = () => {
   const [details, setDetails] = useState(planDetailsStore.get());
@@ -12,6 +11,11 @@ const PlanDetails = () => {
   const [showExportModal, setShowExportModal] = useState(false);
   const [selectedViewType, setSelectedViewType] = useState('Multiday');
   const [showSpecialConsideration, setShowSpecialConsideration] = useState(false);
+
+  // Refs for focus management
+  const modalRef = useRef(null);
+  const previousActiveElement = useRef(null);
+  const firstFocusableElement = useRef(null);
 
   useEffect(() => {
     const unsubscribeDetails = planDetailsStore.subscribe((newDetails) => {
@@ -127,12 +131,12 @@ const PlanDetails = () => {
       .replace(/[^a-zA-Z0-9-]/g, '-')
       .replace(/--+/g, '-')
       .trim('-');
- const nameToUse = assignmentName ? assignmentName : assignmentType; // if assignmetnName, use it, otherwise assignment type.
- const startDate = details.startDate.replace(/-/g, '');
- const endDate = details.endDate.replace(/-/g, '');
- const filename = `${nameToUse}-${startDate}-${endDate}.ics`;
+    const nameToUse = assignmentName ? assignmentName : assignmentType; // if assignmetnName, use it, otherwise assignment type.
+    const startDate = details.startDate.replace(/-/g, '');
+    const endDate = details.endDate.replace(/-/g, '');
+    const filename = `${nameToUse}-${startDate}-${endDate}.ics`;
 
- link.download = filename;
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -140,19 +144,27 @@ const PlanDetails = () => {
     console.log(`Exported to calendar with filename: ${filename}`);
   };
 
-  const handleExportModal = () => {
-    //update state
+  const handleExportModal = (event) => {
     setShowExportModal(true);
+    previousActiveElement.current = document.activeElement; // Store the previously active element
+    setTimeout(() => {
+      firstFocusableElement.current.focus({ preventScroll: true }); // focus on first element
+    });
+    event.preventDefault();
   };
 
-  const closeModal = () => {
-    //update state
+  const closeModal = (event) => {
     setShowExportModal(false);
+    previousActiveElement.current.focus({ preventScroll: true }); // Return focus to the previously active element, prevent scroll
+    previousActiveElement.current = null; // Clear the reference
+    event.preventDefault();
   };
-  const handleExport = () => {
+
+  const handleExport = (event) => {
     exportToCalendar(selectedViewType);
-    closeModal();
+    closeModal(event);
   };
+
   const handleRadioChange = (event) => {
     setSelectedViewType(event.target.value);
   };
@@ -160,16 +172,16 @@ const PlanDetails = () => {
   if (!isOpen || !details.projectID) return null;
 
   return (
-    <section id="plan-detail" class="pt-4">
+    <section id="plan-detail" className="pt-4">
       {/* Modal */}
-      <div className="modal fade" id="exportModal" tabIndex="-1" aria-modal="true" role="dialog" aria-labelledby="exportModalLabel" aria-hidden={!showExportModal}>
-        <div className="modal-dialog modal-dialog-centered" role="document">
+      <div className={`modal ${showExportModal ? 'show d-block' : 'fade'}`} id="exportModal" tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="exportModalLabel">
+        <div className="modal-dialog modal-dialog-centered" role="document" ref={modalRef}>
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title mt-0 mb-0" id="exportModalLabel">
                 Export to calendar file (.ics)
               </h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={closeModal}></button>
             </div>
             <div className="modal-body">
               {/* Form Group */}
@@ -179,8 +191,7 @@ const PlanDetails = () => {
                 </label>
                 {/* Radio Group */}
                 <div className="form-check d-flex align-items-top mb-3">
-                  {/* Added d-flex and align-items-center */}
-                  <input className="form-check-input" type="radio" name="calendar-setup-options" id="multiday-radio" value="Multiday" checked={selectedViewType === 'Multiday'} onChange={handleRadioChange} />
+                  <input className="form-check-input" type="radio" name="calendar-setup-options" id="multiday-radio" value="Multiday" checked={selectedViewType === 'Multiday'} onChange={handleRadioChange} ref={firstFocusableElement} />
                   <label className="form-check-label" htmlFor="multiday-radio">
                     <strong>Multiday view</strong>
                     <br />
@@ -188,7 +199,6 @@ const PlanDetails = () => {
                   </label>
                 </div>
                 <div className="form-check d-flex align-items-top">
-                  {/* Added d-flex and align-items-center */}
                   <input className="form-check-input" type="radio" name="calendar-setup-options" id="milestone-radio" value="Milestone" checked={selectedViewType === 'Milestone'} onChange={handleRadioChange} />
                   <label className="form-check-label" htmlFor="milestone-radio">
                     <strong>Milestone view</strong>
@@ -199,7 +209,7 @@ const PlanDetails = () => {
               </div>
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
+              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={closeModal}>
                 Cancel
               </button>
               <button type="button" className="btn btn-primary" onClick={handleExport}>
@@ -210,20 +220,20 @@ const PlanDetails = () => {
         </div>
       </div>
       {showSpecialConsideration && (
-        <div class="container pt-0 pb-5 px-0">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="card assignment-card p-3">
-                <div class="row">
-                  <div class="col-md-2 pb-3 pb-md-0 d-flex align-items-center justify-content-center">
-                    <img src={clock.src} alt="Clock Icon" class="img-fluid" />
+        <div className="container pt-0 pb-5 px-0">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="card assignment-card p-3">
+                <div className="row">
+                  <div className="col-md-2 pb-3 pb-md-0 d-flex align-items-center justify-content-center">
+                    <img src={clock.src} alt="Clock Icon" className="img-fluid" />
                   </div>
-                  <div class="col-md-10">
-                    <div class="card-body  p-0 ">
-                      <p class="card-text">If something unexpected affects your ability to submit an assignment on time, you might qualify for an extension.</p>
-                      <p class="card-text">
+                  <div className="col-md-10">
+                    <div className="card-body  p-0 ">
+                      <p className="card-text">If something unexpected affects your ability to submit an assignment on time, you might qualify for an extension.</p>
+                      <p className="card-text">
                         Check out RMIT's{' '}
-                        <a href="https://www.rmit.edu.au/students/student-essentials/assessment-and-results/special-consideration" class="text-primary">
+                        <a href="https://www.rmit.edu.au/students/student-essentials/assessment-and-results/special-consideration" className="text-primary">
                           Special consideration
                         </a>{' '}
                         page to learn more.
@@ -280,10 +290,10 @@ const PlanDetails = () => {
       </div>
 
       <div className="btn-group-tools">
-        <button className="btn btn-pdf" onClick={() => window.print()}>
+        <button className="btn btn-pdf" onClick={() => window.print()} type="button">
           Save to PDF
         </button>
-        <button className="btn btn-cal" data-bs-toggle="modal" data-bs-target="#exportModal" onClick={handleExportModal}>
+        <button className="btn btn-cal" data-bs-toggle="modal" data-bs-target="#exportModal" onClick={handleExportModal} type="button">
           Export plan to calendar
         </button>
       </div>

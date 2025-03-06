@@ -32,7 +32,17 @@ const Form = ({ projectsWithTasks }) => {
   useEffect(() => {
     if (submitted && formValid) {
       console.log('Form submitted and valid, scrolling to plan detail');
-      document.getElementById('plan-detail').scrollIntoView({ behavior: 'smooth' });
+      const planDetailElement = document.getElementById('plan-detail');
+      const liveRegion = document.getElementById('form-submission-message');
+      planDetailElement.scrollIntoView({ behavior: 'smooth' });
+      // Set focus to #plan-detail after scrolling is complete
+      setTimeout(() => {
+        planDetailElement.focus({ preventScroll: true });
+      }, 0);
+      // Update the live region text
+      if (liveRegion) {
+        liveRegion.textContent = 'Assignment plan generated. Please review the details below.';
+      }
     }
   }, [submitted, formValid]);
 
@@ -277,83 +287,86 @@ const Form = ({ projectsWithTasks }) => {
   };
 
   return (
-    <form id="assignmentDetails" className={`${submitted ? 'was-validated' : ''}`} onSubmit={handleSubmit} noValidate>
-      <div className="form-group">
-        <label htmlFor="assignmentName">Assignment name (optional)</label>
-        <input type="text" className="form-control" id="assignmentName" value={assignmentName} onChange={(e) => setAssignmentName(e.target.value)} placeholder="Enter assignment name" />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="assignmentType">
-          Assignment type<span className="req">*</span>
-        </label>
-        <select className={getSelectClass()} id="assignmentType" required value={assignmentType} onChange={handleAssignmentChange}>
-          <option value="">Select type</option>
-          {sortedProjects.map((project) => (
-            <option key={project.id} value={project.id}>
-              {project.name}
-            </option>
-          ))}
-        </select>
-        <div className="invalid-feedback">Please select an assignment type.</div>
-      </div>
-
-      <fieldset className="form-group">
-        <legend>
-          Is this a group assignment?<span className="req">*</span>
-        </legend>
-        <div className="form-check form-check-inline">
-          <input className="form-check-input" type="radio" name="groupAssignment" id="groupYes" value="yes" checked={groupAssignment === 'yes'} onChange={handleGroupChange} required />
-          <label className="form-check-label" htmlFor="groupYes">
-            Yes
-          </label>
-        </div>
-        <div className="form-check form-check-inline">
-          <input className="form-check-input" type="radio" name="groupAssignment" id="groupNo" value="no" checked={groupAssignment === 'no'} onChange={handleGroupChange} required />
-          <label className="form-check-label" htmlFor="groupNo">
-            No
-          </label>
-        </div>
-        <div className="invalid-feedback">Please select an option.</div>
-      </fieldset>
-
-      <div className="dates">
+    <div>
+      <form id="assignmentDetails" className={`${submitted ? 'was-validated' : ''}`} onSubmit={handleSubmit} noValidate>
         <div className="form-group">
-          <label htmlFor="startDate">
-            Start date<span className="req">*</span>
-          </label>
-          <input type="date" className={getInputClass(startDateValid)} id="startDate" aria-describedby="startDateFormat" value={startDate} onChange={handleStartDateChange} required />
-          <div id="startDateFormat" className="form-text text-muted">
-            <span className="visually-hidden">
-              Date format: <span id="startDateFormatDisplay"></span>
-            </span>
-          </div>
-          <div className="invalid-feedback">Please provide a start date.</div>
+          <label htmlFor="assignmentName">Assignment name (optional)</label>
+          <input type="text" className="form-control" id="assignmentName" value={assignmentName} onChange={(e) => setAssignmentName(e.target.value)} placeholder="Enter assignment name" />
         </div>
 
         <div className="form-group">
-          <label htmlFor="endDate">
-            End date<span className="req">*</span>
+          <label htmlFor="assignmentType">
+            Assignment type<span className="req">*</span>
           </label>
-          <input type="date" className={getInputClass(endDateValid)} id="endDate" aria-describedby="endDateFormat" value={endDate} onChange={handleEndDateChange} required />
-          <div id="endDateFormat" className="form-text text-muted">
-            <span className="visually-hidden">
-              Date format: <span id="endDateFormatDisplay"></span>
-            </span>
+          <select className={getSelectClass()} id="assignmentType" required value={assignmentType} onChange={handleAssignmentChange}>
+            <option value="">Select type</option>
+            {sortedProjects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+          <div className="invalid-feedback">Please select an assignment type.</div>
+        </div>
+
+        <fieldset className="form-group">
+          <legend>
+            Is this a group assignment?<span className="req">*</span>
+          </legend>
+          <div className="form-check form-check-inline">
+            <input className="form-check-input" type="radio" name="groupAssignment" id="groupYes" value="yes" checked={groupAssignment === 'yes'} onChange={handleGroupChange} required />
+            <label className="form-check-label" htmlFor="groupYes">
+              Yes
+            </label>
           </div>
-          <div className="invalid-feedback" id="endDateError">
-            Please provide an end date.
+          <div className="form-check form-check-inline">
+            <input className="form-check-input" type="radio" name="groupAssignment" id="groupNo" value="no" checked={groupAssignment === 'no'} onChange={handleGroupChange} required />
+            <label className="form-check-label" htmlFor="groupNo">
+              No
+            </label>
+          </div>
+          <div className="invalid-feedback">Please select an option.</div>
+        </fieldset>
+
+        <div className="dates">
+          <div className="form-group">
+            <label htmlFor="startDate">
+              Start date<span className="req">*</span>
+            </label>
+            <input type="date" className={getInputClass(startDateValid)} id="startDate" aria-describedby="startDateFormat" value={startDate} onChange={handleStartDateChange} required />
+            <div id="startDateFormat" className="form-text text-muted">
+              <span className="visually-hidden">
+                Date format: <span id="startDateFormatDisplay"></span>
+              </span>
+            </div>
+            <div className="invalid-feedback">Please provide a start date.</div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="endDate">
+              End date<span className="req">*</span>
+            </label>
+            <input type="date" className={getInputClass(endDateValid)} id="endDate" aria-describedby="endDateFormat" value={endDate} onChange={handleEndDateChange} required />
+            <div id="endDateFormat" className="form-text text-muted">
+              <span className="visually-hidden">
+                Date format: <span id="endDateFormatDisplay"></span>
+              </span>
+            </div>
+            <div className="invalid-feedback" id="endDateError">
+              Please provide an end date.
+            </div>
           </div>
         </div>
-      </div>
 
-      <button type="submit" className="btn btn-primary">
-        Create assignment plan
-      </button>
-      <button type="reset" className="btn btn-secondary" onClick={handleReset}>
-        Reset
-      </button>
-    </form>
+        <button type="submit" className="btn btn-primary">
+          Create assignment plan
+        </button>
+        <button type="reset" className="btn btn-default" onClick={handleReset}>
+          Reset
+        </button>
+      </form>
+      <div id="form-submission-message" class="visually-hidden" aria-live="polite" aria-atomic="false"></div>
+    </div>
   );
 };
 
