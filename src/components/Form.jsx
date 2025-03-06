@@ -14,6 +14,7 @@ const Form = ({ projectsWithTasks }) => {
   const [submitted, setSubmitted] = useState(false);
   const [isCalendarPreloaded, setIsCalendarPreloaded] = useState(false);
   const [needsRevalidation, setNeedsRevalidation] = useState(false);
+  const [endDateEmpty, setEndDateEmpty] = useState(false);
 
   // Sort projects by name alphabetically
   const sortedProjects = [...projectsWithTasks].sort((a, b) => a.name.localeCompare(b.name));
@@ -37,7 +38,13 @@ const Form = ({ projectsWithTasks }) => {
       planDetailElement.scrollIntoView({ behavior: 'smooth' });
       // Set focus to #plan-detail after scrolling is complete
       setTimeout(() => {
-        planDetailElement.focus({ preventScroll: true });
+        // Find first element that is tabbable within the plan details, and focus on that.
+        const firstFocusableElement = planDetailElement.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (firstFocusableElement) {
+          firstFocusableElement.focus({ preventScroll: true });
+        } else {
+          planDetailElement.focus({ preventScroll: true });
+        }
       }, 0);
       // Update the live region text
       if (liveRegion) {
@@ -183,6 +190,7 @@ const Form = ({ projectsWithTasks }) => {
     setSubmitted(false);
     setIsCalendarPreloaded(false);
     setNeedsRevalidation(false);
+    setEndDateEmpty(false);
     document.getElementById('endDateError').textContent = '';
     console.log('Form reset.');
   };
@@ -203,7 +211,11 @@ const Form = ({ projectsWithTasks }) => {
     }
 
     if (!endDate || isNaN(startDateObj) || isNaN(endDateObj) || endDateObj <= startDateObj) {
-      dateErrorElement.textContent = endDate ? 'End date must be after the start date.' : 'Please provide an end date.';
+      if (endDateEmpty) {
+        dateErrorElement.textContent = 'Please provide an end date.';
+      } else {
+        dateErrorElement.textContent = endDate ? 'End date must be after the start date.' : 'Please provide an end date.';
+      }
       setEndDateValid(false);
       isValid = false;
     } else {
@@ -253,6 +265,7 @@ const Form = ({ projectsWithTasks }) => {
 
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
+    setEndDateEmpty(e.target.value === '');
     if (needsRevalidation) {
       setFormValid(false);
     }
@@ -286,6 +299,11 @@ const Form = ({ projectsWithTasks }) => {
     return `form-control ${isValid ? 'is-valid' : 'is-invalid'}`;
   };
 
+  // Helper function to decide if an input should display an error state
+  const hasError = (isValid) => {
+    return submitted && !isValid;
+  };
+
   return (
     <div>
       <form id="assignmentDetails" className={`${submitted ? 'was-validated' : ''}`} onSubmit={handleSubmit} noValidate>
@@ -298,7 +316,7 @@ const Form = ({ projectsWithTasks }) => {
           <label htmlFor="assignmentType">
             Assignment type<span className="req">*</span>
           </label>
-          <select className={getSelectClass()} id="assignmentType" required value={assignmentType} onChange={handleAssignmentChange}>
+          <select className={getSelectClass()} id="assignmentType" required value={assignmentType} onChange={handleAssignmentChange} aria-describedby={hasError(assignmentType) ? 'assignmentTypeFeedback' : undefined} aria-invalid={hasError(assignmentType)}>
             <option value="">Select type</option>
             {sortedProjects.map((project) => (
               <option key={project.id} value={project.id}>
@@ -306,7 +324,11 @@ const Form = ({ projectsWithTasks }) => {
               </option>
             ))}
           </select>
-          <div className="invalid-feedback">Please select an assignment type.</div>
+          {submitted && !assignmentType && (
+            <div id="assignmentTypeFeedback" className="invalid-feedback">
+              Please select an assignment type.
+            </div>
+          )}
         </div>
 
         <fieldset className="form-group">
@@ -314,18 +336,22 @@ const Form = ({ projectsWithTasks }) => {
             Is this a group assignment?<span className="req">*</span>
           </legend>
           <div className="form-check form-check-inline">
-            <input className="form-check-input" type="radio" name="groupAssignment" id="groupYes" value="yes" checked={groupAssignment === 'yes'} onChange={handleGroupChange} required />
+            <input className="form-check-input" type="radio" name="groupAssignment" id="groupYes" value="yes" checked={groupAssignment === 'yes'} onChange={handleGroupChange} required aria-invalid={hasError(groupAssignment)} aria-describedby={hasError(groupAssignment) ? 'groupAssignmentFeedback' : undefined} />
             <label className="form-check-label" htmlFor="groupYes">
               Yes
             </label>
           </div>
           <div className="form-check form-check-inline">
-            <input className="form-check-input" type="radio" name="groupAssignment" id="groupNo" value="no" checked={groupAssignment === 'no'} onChange={handleGroupChange} required />
+            <input className="form-check-input" type="radio" name="groupAssignment" id="groupNo" value="no" checked={groupAssignment === 'no'} onChange={handleGroupChange} required aria-invalid={hasError(groupAssignment)} aria-describedby={hasError(groupAssignment) ? 'groupAssignmentFeedback' : undefined} />
             <label className="form-check-label" htmlFor="groupNo">
               No
             </label>
           </div>
-          <div className="invalid-feedback">Please select an option.</div>
+          {submitted && !groupAssignment && (
+            <div id="groupAssignmentFeedback" className="invalid-feedback">
+              Please select an option.
+            </div>
+          )}
         </fieldset>
 
         <div className="dates">
@@ -333,39 +359,41 @@ const Form = ({ projectsWithTasks }) => {
             <label htmlFor="startDate">
               Start date<span className="req">*</span>
             </label>
-            <input type="date" className={getInputClass(startDateValid)} id="startDate" aria-describedby="startDateFormat" value={startDate} onChange={handleStartDateChange} required />
+            <input type="date" className={getInputClass(startDateValid)} id="startDate" aria-invalid={hasError(startDateValid)} aria-describedby={hasError(startDateValid) ? 'startDateFeedback startDateFormat' : 'startDateFormat'} value={startDate} onChange={handleStartDateChange} required />
             <div id="startDateFormat" className="form-text text-muted">
               <span className="visually-hidden">
                 Date format: <span id="startDateFormatDisplay"></span>
               </span>
             </div>
-            <div className="invalid-feedback">Please provide a start date.</div>
+            {hasError(startDateValid) && (
+              <div id="startDateFeedback" className="invalid-feedback">
+                Please provide a start date.
+              </div>
+            )}
           </div>
 
           <div className="form-group">
             <label htmlFor="endDate">
               End date<span className="req">*</span>
             </label>
-            <input type="date" className={getInputClass(endDateValid)} id="endDate" aria-describedby="endDateFormat" value={endDate} onChange={handleEndDateChange} required />
+            <input type="date" className={getInputClass(endDateValid)} id="endDate" aria-invalid={hasError(endDateValid)} aria-describedby={'endDateError endDateFormat'} value={endDate} onChange={handleEndDateChange} required />
             <div id="endDateFormat" className="form-text text-muted">
               <span className="visually-hidden">
                 Date format: <span id="endDateFormatDisplay"></span>
               </span>
             </div>
-            <div className="invalid-feedback" id="endDateError">
-              Please provide an end date.
-            </div>
+            <div id="endDateError" className="invalid-feedback"></div>
           </div>
         </div>
 
         <button type="submit" className="btn btn-primary">
           Create assignment plan
         </button>
-        <button type="reset" className="btn btn-default" onClick={handleReset}>
+        <button type="button" className="btn btn-secondary" onClick={handleReset}>
           Reset
         </button>
       </form>
-      <div id="form-submission-message" class="visually-hidden" aria-live="polite" aria-atomic="false"></div>
+      <div id="form-submission-message" className="visually-hidden" aria-live="polite" aria-atomic="false"></div>
     </div>
   );
 };
