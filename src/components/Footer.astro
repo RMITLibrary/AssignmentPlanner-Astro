@@ -73,7 +73,7 @@ import { Image } from 'astro:assets';
             <!-- START legal -->
             <div class="footer-legal">
               <ul>
-                <li>Copyright © 2024 RMIT University</li>
+                <li>Copyright © <span id="currentYear">2024</span> RMIT University</li>
                 <li>
                   <a href="https://www.rmit.edu.au/utilities/terms"><span class="no-focus" tabindex="-1">Terms</span></a>
                 </li>
@@ -156,3 +156,9 @@ import { Image } from 'astro:assets';
   <!-- END footer -->
 </div>
 <!-- END footer-container -->
+
+<script is:inline>
+  // Get the current year and update the copyright notice
+  const currentYear = new Date().getFullYear();
+  document.getElementById('currentYear').textContent = currentYear;
+</script>
