@@ -91,3 +91,14 @@
   border-color: var(--bs-form-invalid-border-color) !important;
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25) !important;
 }
+@include color-mode(light) {
+  .was-validated .form-control:valid,
+  .form-control.is-valid {
+    border-color: #138761;
+  }
+
+  .was-validated .form-check-input:valid ~ .form-check-label,
+  .form-check-input.is-valid ~ .form-check-label {
+    color: #138761;
+  }
+}

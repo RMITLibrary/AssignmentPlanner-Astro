@@ -75,30 +75,7 @@
 .assignment-card {
   max-width: 47rem;
 }
-@media only screen {
-  [data-bs-theme='dark'] {
-    color-scheme: light;
-    .intro {
-      background-color: var(--bs-secondary-bg);
-    }
-    .toastui-calendar-layout {
-      background-color: var(--bs-secondary-bg) !important;
-    }
 
-    .toastui-calendar-grid-cell-date {
-      color: var(--bs-body-color) !important;
-    }
-    .toastui-calendar-day-name-item {
-      span {
-        color: var(--bs-body-color) !important;
-      }
-
-      .toastui-calendar-holiday-sun {
-        color: var(--bs-danger-text-emphasis) !important;
-      }
-    }
-  }
-}
 
 
 .ask-the-library a h2, .ask-the-library a .h2, .ask-the-library a h3, .ask-the-library a .h3,.ask-the-library a p {
