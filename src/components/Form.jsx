@@ -131,7 +131,7 @@ const Form = ({ projectsWithTasks }) => {
         formType: 'assignment_planner',
         assignmentType: selectedProject.name, // or assignmentType - use the name rather than ID
         isGroupWork: groupAssignment === 'yes',
-        daysToComplete: dayCount,
+        daysToComplete: dayCount+1,
         startDate: startDate,
         endDate: endDate,
       });

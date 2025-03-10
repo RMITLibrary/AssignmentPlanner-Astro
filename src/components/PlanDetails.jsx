@@ -47,6 +47,15 @@ const PlanDetails = () => {
   }, []);
 
   const changeTab = (tab) => {
+    // Data Layer Push for Tab Clicks
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer.push({
+        event: 'tab_click',
+        formType: 'assignment_planner',
+        tabName: tab,
+      });
+      console.log('tab_click dataLayer pushed');
+    }
     activeTabStore.set(tab);
   };
 
@@ -70,6 +79,16 @@ const PlanDetails = () => {
   };
 
   const exportToCalendar = (viewType) => {
+    // Data Layer Push (BEFORE export to calendar)
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer.push({
+        event: 'calendar_export',
+        formType: 'assignment_planner',
+        calendarViewType: viewType,
+      });
+      console.log('calendar_export dataLayer pushed');
+    }
+
     const tasks = details.tasks;
     console.log('Tasks:', tasks);
 
@@ -176,6 +195,31 @@ const PlanDetails = () => {
     setSelectedViewType(event.target.value);
   };
 
+   const scrollToRefinePlan = () => {
+     // Data Layer Push for Switch to Refine plan
+     if (typeof window !== 'undefined' && window.dataLayer) {
+       window.dataLayer.push({
+         event: 'refine_click',
+         formType: 'assignment_planner',
+         viewSwitchName: 'refine-plan',
+       });
+       console.log('refine_click - refine-plan dataLayer pushed');
+     }
+   };
+
+  const handlePrintPDF = () => {
+    // Data Layer Push for PDF Print
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer.push({
+        event: 'pdf_print',
+        formType: 'assignment_planner',
+      });
+      console.log('pdf_print dataLayer pushed');
+    }
+
+    window.print(); // Trigger the print dialog
+  };
+
   if (!isOpen || !details.projectID) return null;
 
   return (
@@ -193,26 +237,30 @@ const PlanDetails = () => {
             <div className="modal-body">
               {/* Form Group */}
               <div className="mb-3">
-                <label htmlFor="calendar-setup-options" className="form-label">
-                  Calendar export options:
-                </label>
-                {/* Radio Group */}
-                <div className="form-check d-flex align-items-top mb-3">
-                  <input className="form-check-input" type="radio" name="calendar-setup-options" id="multiday-radio" value="Multiday" checked={selectedViewType === 'Multiday'} onChange={handleRadioChange} ref={firstFocusableElement} />
-                  <label className="form-check-label" htmlFor="multiday-radio">
-                    <strong>Multiday view</strong>
-                    <br />
-                    Each assignment step will span across several days in your calendar.
+                <fieldset className="form-group">
+                  <legend className="visually-hidden">Calendar export options:</legend>
+                  <label htmlFor="calendar-setup-options" className="form-label">
+                    Calendar export options:
                   </label>
-                </div>
-                <div className="form-check d-flex align-items-top">
-                  <input className="form-check-input" type="radio" name="calendar-setup-options" id="milestone-radio" value="Milestone" checked={selectedViewType === 'Milestone'} onChange={handleRadioChange} />
-                  <label className="form-check-label" htmlFor="milestone-radio">
-                    <strong>Milestone view</strong>
-                    <br />
-                    Each assignment step will only appear on the day that the task begins in your calendar.
-                  </label>
-                </div>
+                  {/* Radio Group */}
+
+                  <div className="form-check d-flex align-items-top mb-3">
+                    <input className="form-check-input" type="radio" name="calendar-setup-options" id="multiday-radio" value="Multiday" checked={selectedViewType === 'Multiday'} onChange={handleRadioChange} ref={firstFocusableElement} />
+                    <label className="form-check-label" htmlFor="multiday-radio">
+                      <strong>Multiday view</strong>
+                      <br />
+                      Each assignment step will span across several days in your calendar.
+                    </label>
+                  </div>
+                  <div className="form-check d-flex align-items-top">
+                    <input className="form-check-input" type="radio" name="calendar-setup-options" id="milestone-radio" value="Milestone" checked={selectedViewType === 'Milestone'} onChange={handleRadioChange} />
+                    <label className="form-check-label" htmlFor="milestone-radio">
+                      <strong>Milestone view</strong>
+                      <br />
+                      Each assignment step will only appear on the day that the task begins in your calendar.
+                    </label>
+                  </div>
+                </fieldset>
               </div>
             </div>
             <div className="modal-footer">
@@ -297,12 +345,17 @@ const PlanDetails = () => {
       </div>
 
       <div className="btn-group-tools">
-        <button className="btn btn-pdf" onClick={() => window.print()} type="button">
+        <button className="btn btn-pdf" onClick={handlePrintPDF} type="button">
           Save to PDF
         </button>
         <button className="btn btn-cal" data-bs-toggle="modal" data-bs-target="#exportModal" onClick={handleExportModal} type="button">
           Export plan to calendar
         </button>
+      </div>
+      <div className="btn-group-reset">
+        <a href="#planner-details" className="btn btn-default" role="button" tabIndex="0" onClick={scrollToRefinePlan}>
+          Refine plan
+        </a>
       </div>
     </section>
   );

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { planDetailsStore, isGroupAssignment } from '../store';
 import { marked } from 'marked';
 import { useStore } from '@nanostores/preact';
+import SwitchToCalendarViewButton from './SwitchToCalendarViewButton';
 
 const TabContentTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -51,21 +52,14 @@ const TabContentTasks = () => {
     return finalContent;
   };
 
-  const switchToCalendarView = () => {
-    const calendarTab = document.querySelector('#calendar-tab');
-    const navTabs = document.querySelector('.nav-tabs');
-    if (calendarTab) {
-      calendarTab.click();
-      if (navTabs) {
-        navTabs.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
+
 
   const formatDate = (date) => {
     const options = { weekday: 'long', month: 'long', day: 'numeric' };
     return new Intl.DateTimeFormat('en-US', options).format(new Date(date));
   };
+
+
 
   return (
     <div>
@@ -93,12 +87,7 @@ const TabContentTasks = () => {
         </table>
       </div>
       <div className="btn-group-nav">
-        <a href="#planner-details" className="btn btn-default" role="button">
-          Refine plan
-        </a>
-        <button className="btn btn-default" type="button" onClick={switchToCalendarView}>
-          Calendar view
-        </button>
+        <SwitchToCalendarViewButton /> 
       </div>
     </div>
   );
