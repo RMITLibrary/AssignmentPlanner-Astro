@@ -238,9 +238,6 @@ const CalendarTabPane = () => {
       <div class="hscroll">
         <div ref={containerRef} style={{ height: `${containerHeight}px` }} className="calendar-container"></div>
       </div>
-      <div className="btn-group-nav">
-        <SwitchToTaskViewButton /> {/* Use the new component here */}
-      </div>
     </div>
   );
 };

@@ -3,6 +3,14 @@ import { planDetailsStore, isOpenResults, activeTabStore } from '../store';
 import TabContentTasks from './TabContentTasks';
 import TabContentCalendar from './TabContentCalendar';
 import clock from '../assets/clock.svg'; // Import the clock image
+import { formatDateShort, calculateDaysBetween, formatDays, fireDataLayerEvent, scrollToView } from '../utils'; // Import the common functions
+import SaveToPdfButton from './SaveToPdfButton'; // Import the new component
+import ExportToCalendarButton from './ExportToCalendarButton'; // Import the new component
+import RefinePlanButton from './RefinePlanButton'; // Import the new component
+import SwitchToTaskViewButton from './SwitchToTaskViewButton';
+import SwitchToCalendarViewButton from './SwitchToCalendarViewButton';
+
+
 
 const PlanDetails = () => {
   const [details, setDetails] = useState(planDetailsStore.get());
@@ -306,16 +314,16 @@ const PlanDetails = () => {
       </h2>
       <div className="plan-dates">
         <p>
-          <strong>Start date:</strong> <span>{formatDate(details.startDate)}</span>
+          <strong>Start date:</strong> <span>{formatDateShort(details.startDate)}</span>
         </p>
         <p>
-          <strong>End date:</strong> <span>{formatDate(details.endDate)}</span>
+          <strong>End date:</strong> <span>{formatDateShort(details.endDate)}</span>
         </p>
       </div>
       <p className="deadline">
         You have{' '}
         <strong>
-          <span>{formatDays(calculateDaysBetween(details.startDate, details.endDate))}</span>
+          <span>{formatDays(calculateDaysBetween(details.startDate, details.endDate) + 1)}</span>
         </strong>{' '}
         to complete your assignment.
       </p>
@@ -345,41 +353,19 @@ const PlanDetails = () => {
       </div>
 
       <div className="btn-group-tools">
-        <button className="btn btn-pdf" onClick={handlePrintPDF} type="button">
-          Save to PDF
-        </button>
-        <button className="btn btn-cal" data-bs-toggle="modal" data-bs-target="#exportModal" onClick={handleExportModal} type="button">
-          Export plan to calendar
-        </button>
+        <SwitchToCalendarViewButton />
+        <SwitchToTaskViewButton />
+        <SaveToPdfButton />
+        <ExportToCalendarButton handleExportModal={handleExportModal} />
       </div>
       <div className="btn-group-reset">
-        <a href="#planner-details" className="btn btn-default" role="button" tabIndex="0" onClick={scrollToRefinePlan}>
-          Refine plan
-        </a>
+        <RefinePlanButton />
       </div>
     </section>
   );
 
-  function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  }
 
-  function calculateDaysBetween(start, end) {
-    if (!start || !end) return 0;
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const differenceInTime = endDate - startDate;
-    return Math.ceil(differenceInTime / (1000 * 3600 * 24)) + 1;
-  }
 
-  function formatDays(days) {
-    return `${days} ${days === 1 ? 'day' : 'days'}`;
-  }
 };
 
 export default PlanDetails;

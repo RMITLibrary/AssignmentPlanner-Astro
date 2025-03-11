@@ -4,6 +4,8 @@ import { planDetailsStore, isGroupAssignment } from '../store';
 import { marked } from 'marked';
 import { useStore } from '@nanostores/preact';
 import SwitchToCalendarViewButton from './SwitchToCalendarViewButton';
+import { formatDate } from '../utils'; // Import the common function
+
 
 const TabContentTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -54,12 +56,6 @@ const TabContentTasks = () => {
 
 
 
-  const formatDate = (date) => {
-    const options = { weekday: 'long', month: 'long', day: 'numeric' };
-    return new Intl.DateTimeFormat('en-US', options).format(new Date(date));
-  };
-
-
 
   return (
     <div>
@@ -86,9 +82,7 @@ const TabContentTasks = () => {
           </tbody>
         </table>
       </div>
-      <div className="btn-group-nav">
-        <SwitchToCalendarViewButton /> 
-      </div>
+
     </div>
   );
 };

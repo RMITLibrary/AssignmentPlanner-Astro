@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { isOpenResults, isTesting, planDetailsStore, isGroupAssignment } from '../store';
+import { calculateDaysBetween } from '../utils';
+
 
 let Calendar; // Declare Calendar outside the component
 const Form = ({ projectsWithTasks }) => {
@@ -257,15 +259,6 @@ const Form = ({ projectsWithTasks }) => {
 
     document.getElementById('startDateFormatDisplay').textContent = dateFormatOrder;
     document.getElementById('endDateFormatDisplay').textContent = dateFormatOrder;
-  };
-
-  const calculateDaysBetween = (start, end) => {
-    const startDateObj = new Date(start);
-    const endDateObj = new Date(end);
-    const differenceInTime = endDateObj - startDateObj;
-    const days = Math.ceil(differenceInTime / (1000 * 3600 * 24));
-    console.log('Calculating days between:', { startDate: start, endDate: end, days });
-    return days;
   };
 
   const handleStartDateChange = (e) => {
