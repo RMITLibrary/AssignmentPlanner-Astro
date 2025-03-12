@@ -46,10 +46,10 @@
     }
 }
 
-.btn-sm {
+.btn-sm, .btn-secondary {
 	position: relative;
 	display: flex;		// useful if icons are added 
-	height: 43px;
+	height: 45px;
 
 	align-items: center;
 	
@@ -198,7 +198,7 @@
         @include carat-dark;
     }
 
-	.btn-sm {
+	.btn-sm, .btn-secondary {
         color: $link-color-dark;
 
         &:hover {
