@@ -1,6 +1,6 @@
 // src/components/SwitchToTaskViewButton.jsx
 import { h } from 'preact';
-import { fireDataLayerEvent } from '../../utils'; // Import the common function
+import { fireDataLayerEvent, scrollToView } from '../../utils'; // Import the common function
 
 
 const SwitchToTaskViewButton = () => {
@@ -19,7 +19,8 @@ const SwitchToTaskViewButton = () => {
       taskTab.click();
       taskTab.focus();
       if (navTabs) {
-        navTabs.scrollIntoView({ behavior: 'smooth' });
+        scrollToView('.nav-tabs');
+        //navTabs.scrollIntoView({ behavior: 'smooth' });
       }
     }
   };

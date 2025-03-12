@@ -1,17 +1,16 @@
 // src/components/SwitchToCalendarViewButton.jsx
 import { h } from 'preact';
+import { fireDataLayerEvent, scrollToView } from '../../utils'; // Import scrollToView
 
 const SwitchToCalendarViewButton = () => {
   const switchToCalendarView = () => {
-    // Data Layer Push for Switch to Task View
-    if (typeof window !== 'undefined' && window.dataLayer) {
-      window.dataLayer.push({
-        event: 'view_switch_click',
-        formType: 'assignment_planner',
-        viewSwitchName: 'calendar-view',
-      });
-      console.log('view_switch_click - calendar_view dataLayer pushed');
-    }
+
+    fireDataLayerEvent({
+      event: 'view_switch_click',
+      formType: 'assignment_planner',
+      viewSwitchName: 'calendar-view',
+    });
+
 
     const calendarTab = document.querySelector('#calendar-tab');
     const navTabs = document.querySelector('.nav-tabs');
@@ -19,7 +18,8 @@ const SwitchToCalendarViewButton = () => {
       calendarTab.click();
       calendarTab.focus();
       if (navTabs) {
-        navTabs.scrollIntoView({ behavior: 'smooth' });
+        scrollToView('.nav-tabs');
+        //navTabs.scrollIntoView({ behavior: 'smooth' });
       }
     }
   };

@@ -31,7 +31,6 @@ export const formatDateFull = (date) => {
   });
 };
 
-
 export const formatDays = (days) => {
   return `${days} ${days === 1 ? 'day' : 'days'}`;
 };
@@ -50,6 +49,9 @@ export const scrollToTop = () => {
 export const scrollToView = (selector) => {
   const element = document.querySelector(selector);
   if (element) {
-    element.scrollIntoView({ behavior: 'smooth' });
+    // Use requestAnimationFrame to ensure the scroll happens after the current frame is rendered.
+    requestAnimationFrame(() => {
+      element.scrollIntoView({ behavior: 'auto' });
+    });
   }
 };
