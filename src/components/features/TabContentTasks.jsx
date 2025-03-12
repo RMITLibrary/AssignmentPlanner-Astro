@@ -1,10 +1,10 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { planDetailsStore, isGroupAssignment } from '../store';
+import { planDetailsStore, isGroupAssignment } from '../../store';
 import { marked } from 'marked';
 import { useStore } from '@nanostores/preact';
-import SwitchToCalendarViewButton from './SwitchToCalendarViewButton';
-import { formatDate } from '../utils'; // Import the common function
+import SwitchToCalendarViewButton from '../ui/SwitchToCalendarViewButton';
+import { formatDate } from '../../utils'; // Import the common function
 
 
 const TabContentTasks = () => {

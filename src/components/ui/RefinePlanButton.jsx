@@ -1,6 +1,6 @@
 // src/components/RefinePlanButton.jsx
 import { h } from 'preact';
-import { scrollToView, fireDataLayerEvent } from '../utils'; // Import the common function
+import { scrollToView, fireDataLayerEvent } from '../../utils'; // Import the common function
 
 const RefinePlanButton = () => {
   const scrollToRefinePlan = () => {
@@ -13,8 +13,8 @@ const RefinePlanButton = () => {
   };
 
   return (
-    <a href="#planner-details" className="btn btn-default" role="button" tabIndex="0" onClick={scrollToRefinePlan}>
-      Refine plan
+    <a href="#planner-details" className="btn btn-primary" role="button" tabIndex="0" onClick={scrollToRefinePlan}>
+      <span className="visually-hidden">Navigate to assignment detail and </span>Refine plan
     </a>
   );
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
-import { isOpenResults, isTesting, planDetailsStore, isGroupAssignment } from '../store';
-import { calculateDaysBetween } from '../utils';
+import { isOpenResults, isTesting, planDetailsStore, isGroupAssignment } from '../../store';
+import { calculateDaysBetween } from '../../utils';
 
 
 let Calendar; // Declare Calendar outside the component
@@ -336,7 +336,7 @@ const Form = ({ projectsWithTasks }) => {
           )}
         </div>
 
-        <fieldset className="form-group">
+        <fieldset className="form-group" role="radiogroup" aria-required="true">
           <legend>
             Is this a group assignment?<span className="req">*</span>
           </legend>
@@ -394,8 +394,8 @@ const Form = ({ projectsWithTasks }) => {
         <button type="submit" className="btn btn-primary">
           Create assignment plan
         </button>
-        <button type="button" className="btn btn-secondary" onClick={handleReset}>
-          Reset
+        <button type="button" className="btn btn-default" onClick={handleReset}>
+          Reset <span className="visually-hidden">form details</span>
         </button>
       </form>
       <div id="form-submission-message" className="visually-hidden" aria-live="polite" aria-atomic="false"></div>

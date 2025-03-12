@@ -1,0 +1,21 @@
+---
+interface Props {
+  href?: string;
+  text: string;
+  analyticsType?: string;
+  analyticsValue?: string;
+}
+
+const { href, text, analyticsType, analyticsValue } = Astro.props;
+---
+{
+  href ? (
+    <li>
+      <a href={href} data-analytics-type={analyticsType} data-analytics-value={analyticsValue}>
+        <span class="no-focus" tabindex="-1">{text}</span>
+      </a>
+    </li>
+  ) : (
+    <li>{text}</li>
+  )
+}

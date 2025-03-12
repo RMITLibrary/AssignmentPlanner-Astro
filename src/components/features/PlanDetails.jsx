@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { planDetailsStore, isOpenResults, activeTabStore } from '../store';
+import { planDetailsStore, isOpenResults, activeTabStore } from '../../store';
 import TabContentTasks from './TabContentTasks';
 import TabContentCalendar from './TabContentCalendar';
-import clock from '../assets/clock.svg'; // Import the clock image
-import { formatDateShort, calculateDaysBetween, formatDays, fireDataLayerEvent, scrollToView } from '../utils'; // Import the common functions
-import SaveToPdfButton from './SaveToPdfButton'; // Import the new component
-import ExportToCalendarButton from './ExportToCalendarButton'; // Import the new component
-import RefinePlanButton from './RefinePlanButton'; // Import the new component
-import SwitchToTaskViewButton from './SwitchToTaskViewButton';
-import SwitchToCalendarViewButton from './SwitchToCalendarViewButton';
+import clock from '../../assets/clock.svg'; // Import the clock image
+import { formatDateShort, calculateDaysBetween, formatDays, fireDataLayerEvent, scrollToView } from '../../utils'; // Import the common functions
+import SaveToPdfButton from '../ui/SaveToPdfButton'; // Import the new component
+import ExportToCalendarButton from '../ui/ExportToCalendarButton'; // Import the new component
+import RefinePlanButton from '../ui/RefinePlanButton'; // Import the new component
+import SwitchToTaskViewButton from '../ui/SwitchToTaskViewButton';
+import SwitchToCalendarViewButton from '../ui/SwitchToCalendarViewButton';
 
 
 
@@ -54,18 +54,15 @@ const PlanDetails = () => {
     };
   }, []);
 
-  const changeTab = (tab) => {
-    // Data Layer Push for Tab Clicks
-    if (typeof window !== 'undefined' && window.dataLayer) {
-      window.dataLayer.push({
-        event: 'tab_click',
-        formType: 'assignment_planner',
-        tabName: tab,
-      });
-      console.log('tab_click dataLayer pushed');
-    }
-    activeTabStore.set(tab);
-  };
+ const changeTab = (tab) => {
+   // Data Layer Push for Tab Clicks
+   fireDataLayerEvent({
+     event: 'tab_click',
+     formType: 'assignment_planner',
+     tabName: tab,
+   });
+   activeTabStore.set(tab);
+ };
 
   const formatTaskBody = (html) => {
     // Replace <a> elements with their text content and capture URLs for resources
@@ -88,14 +85,11 @@ const PlanDetails = () => {
 
   const exportToCalendar = (viewType) => {
     // Data Layer Push (BEFORE export to calendar)
-    if (typeof window !== 'undefined' && window.dataLayer) {
-      window.dataLayer.push({
-        event: 'calendar_export',
-        formType: 'assignment_planner',
-        calendarViewType: viewType,
-      });
-      console.log('calendar_export dataLayer pushed');
-    }
+     fireDataLayerEvent({
+       event: 'calendar_export',
+       formType: 'assignment_planner',
+       calendarViewType: viewType,
+     });
 
     const tasks = details.tasks;
     console.log('Tasks:', tasks);
@@ -195,37 +189,13 @@ const PlanDetails = () => {
   };
 
   const handleExport = (event) => {
+    event.preventDefault(); // Prevent the default form submission behavior
     exportToCalendar(selectedViewType);
     closeModal(event);
   };
 
   const handleRadioChange = (event) => {
     setSelectedViewType(event.target.value);
-  };
-
-   const scrollToRefinePlan = () => {
-     // Data Layer Push for Switch to Refine plan
-     if (typeof window !== 'undefined' && window.dataLayer) {
-       window.dataLayer.push({
-         event: 'refine_click',
-         formType: 'assignment_planner',
-         viewSwitchName: 'refine-plan',
-       });
-       console.log('refine_click - refine-plan dataLayer pushed');
-     }
-   };
-
-  const handlePrintPDF = () => {
-    // Data Layer Push for PDF Print
-    if (typeof window !== 'undefined' && window.dataLayer) {
-      window.dataLayer.push({
-        event: 'pdf_print',
-        formType: 'assignment_planner',
-      });
-      console.log('pdf_print dataLayer pushed');
-    }
-
-    window.print(); // Trigger the print dialog
   };
 
   if (!isOpen || !details.projectID) return null;
@@ -244,46 +214,45 @@ const PlanDetails = () => {
             </div>
             <div className="modal-body">
               {/* Form Group */}
-              <div className="mb-3">
-                <fieldset className="form-group">
-                  <legend className="visually-hidden">Calendar export options:</legend>
-                  <label htmlFor="calendar-setup-options" className="form-label">
-                    Calendar export options:
-                  </label>
-                  {/* Radio Group */}
+              <form onSubmit={handleExport}>
+                <div className="mb-3">
+                  <fieldset className="form-group" role="radiogroup">
+                    <legend className="h5 mt-0">Calendar export options:</legend>
 
-                  <div className="form-check d-flex align-items-top mb-3">
-                    <input className="form-check-input" type="radio" name="calendar-setup-options" id="multiday-radio" value="Multiday" checked={selectedViewType === 'Multiday'} onChange={handleRadioChange} ref={firstFocusableElement} />
-                    <label className="form-check-label" htmlFor="multiday-radio">
-                      <strong>Multiday view</strong>
-                      <br />
-                      Each assignment step will span across several days in your calendar.
-                    </label>
-                  </div>
-                  <div className="form-check d-flex align-items-top">
-                    <input className="form-check-input" type="radio" name="calendar-setup-options" id="milestone-radio" value="Milestone" checked={selectedViewType === 'Milestone'} onChange={handleRadioChange} />
-                    <label className="form-check-label" htmlFor="milestone-radio">
-                      <strong>Milestone view</strong>
-                      <br />
-                      Each assignment step will only appear on the day that the task begins in your calendar.
-                    </label>
-                  </div>
-                </fieldset>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={closeModal}>
-                Cancel
-              </button>
-              <button type="button" className="btn btn-primary" onClick={handleExport}>
-                Export
-              </button>
+                    {/* Radio Group */}
+                    <div className="form-check d-flex align-items-top mb-3">
+                      <input className="form-check-input" type="radio" name="calendar-setup-options" id="multiday-radio" value="Multiday" checked={selectedViewType === 'Multiday'} onChange={handleRadioChange} ref={firstFocusableElement} />
+                      <label className="form-check-label" htmlFor="multiday-radio">
+                        <strong>Multiday view</strong>
+                        <br />
+                        Each assignment step will span across several days in your calendar.
+                      </label>
+                    </div>
+                    <div className="form-check d-flex align-items-top">
+                      <input className="form-check-input" type="radio" name="calendar-setup-options" id="milestone-radio" value="Milestone" checked={selectedViewType === 'Milestone'} onChange={handleRadioChange} />
+                      <label className="form-check-label" htmlFor="milestone-radio">
+                        <strong>Milestone view</strong>
+                        <br />
+                        Each assignment step will only appear on the day that the task begins in your calendar.
+                      </label>
+                    </div>
+                  </fieldset>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={closeModal}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Export
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       </div>
       {showSpecialConsideration && (
-        <div className="container pt-0 pb-5 px-0">
+        <div className="container pt-0 pb-5 px-0 special-consideration">
           <div className="row">
             <div className="col-md-12">
               <div className="card assignment-card p-3">
@@ -353,12 +322,13 @@ const PlanDetails = () => {
       </div>
 
       <div className="btn-group-tools">
-        <SwitchToCalendarViewButton />
-        <SwitchToTaskViewButton />
+        {activeTab === 'calendar' && <SwitchToTaskViewButton />}
+        {activeTab === 'task' && <SwitchToCalendarViewButton />}
         <SaveToPdfButton />
         <ExportToCalendarButton handleExportModal={handleExportModal} />
       </div>
-      <div className="btn-group-reset">
+
+      <div className="btn-group-tools">
         <RefinePlanButton />
       </div>
     </section>

@@ -1,0 +1,13 @@
+---
+import { Image } from 'astro:assets';
+interface Props {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  style?: string;
+
+}
+const { src, alt, width, height, style } = Astro.props;
+---
+<span class="no-focus" tabindex="-1"><Image src={src} alt={alt} width={width} height={height} style={style}/></span>

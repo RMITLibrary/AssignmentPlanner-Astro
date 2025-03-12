@@ -1,0 +1,19 @@
+---
+import { Image } from 'astro:assets';
+interface Props {
+  href: string;
+  platform: string;
+  src: string;
+  alt: string;
+}
+
+const { href, platform, src, alt } = Astro.props;
+---
+
+<li>
+  <a aria-label={`For ${platform}`} href={href}>
+    <span class="no-focus" tabindex="-1">
+      <Image src={src} alt={alt} width={25} height={25} />
+    </span>
+  </a>
+</li>

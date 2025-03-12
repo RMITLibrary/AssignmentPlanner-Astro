@@ -1,7 +1,7 @@
 // src/components/SaveToPdfButton.jsx
 import { h } from 'preact';
-import { activeTabStore } from '../store';
-import { fireDataLayerEvent } from '../utils';
+import { activeTabStore } from '../../store';
+import { fireDataLayerEvent } from '../../utils';
 
 const SaveToPdfButton = () => {
   const changeTab = (tab) => {
@@ -36,7 +36,7 @@ const SaveToPdfButton = () => {
 
   return (
     <button className="btn btn-pdf" onClick={handlePrintPDF} type="button">
-      Save to PDF
+      Save to PDF <span className="visually-hidden">(opens print window)</span>
     </button>
   );
 };

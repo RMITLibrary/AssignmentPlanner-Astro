@@ -1,0 +1,149 @@
+---
+import { Image } from 'astro:assets';
+import SocialLink from '../ui/SocialLink.astro';
+import LegalLink from '../ui/LegalLink.astro';
+import NoFocusImage from '../ui/NoFocusImage.astro';
+import FooterGrid from '../layout/FooterGrid.astro';
+import FlagImages from '../ui/FlagImages.astro';
+import CurrentYear from '../features/CurrentYear.astro';
+
+const socialLinks = [
+  {
+    platform: 'Facebook',
+    href: 'https://www.facebook.com/RMITuniversity/',
+    src: 'https://rmitlibrary.github.io/cdn/image/svg/social/facebook.svg',
+    alt: 'Facebook',
+  },
+  {
+    platform: 'Twitter',
+    href: 'https://twitter.com/rmit',
+    src: 'https://rmitlibrary.github.io/cdn/image/svg/social/twitter.svg',
+    alt: 'Twitter',
+  },
+  {
+    platform: 'Instagram',
+    href: 'https://www.instagram.com/rmituniversity/',
+    src: 'https://rmitlibrary.github.io/cdn/image/svg/social/instagram.svg',
+    alt: 'Instagram',
+  },
+  {
+    platform: 'LinkedIn',
+    href: 'https://www.linkedin.com/school/rmit-university/',
+    src: 'https://rmitlibrary.github.io/cdn/image/svg/social/linkedin.svg',
+    alt: 'LinkedIn',
+  },
+  {
+    platform: 'Youtube',
+    href: 'https://www.youtube.com/user/rmitmedia',
+    src: 'https://rmitlibrary.github.io/cdn/image/svg/social/youtube.svg',
+    alt: 'YouTube',
+  },
+  {
+    platform: 'Weibo',
+    href: 'https://www.weibo.com/rmituni',
+    src: 'https://rmitlibrary.github.io/cdn/image/svg/social/weibo.svg',
+    alt: 'Weibo',
+  },
+];
+
+const legalLinks = [
+  { href: 'https://www.rmit.edu.au/utilities/terms', text: 'Terms', isLink: true },
+  { href: 'https://www.rmit.edu.au/utilities/privacy', text: 'Privacy', isLink: true },
+  { href: 'https://www.rmit.edu.au/utilities/accessibility', text: 'Accessibility', isLink: true },
+  { href: 'https://www.rmit.edu.au/utilities/website-feedback', text: 'Website feedback', analyticsType: 'footerlink', analyticsValue: 'Website feedback', isLink: true },
+  { href: 'https://www.rmit.edu.au/utilities/complaints', text: 'Complaints', analyticsType: 'footerlink', analyticsValue: 'Complaints', isLink: true },
+  { text: 'ABN 49 781 030 034', isLink: false },
+  { text: 'CRICOS provider number: 00122A', isLink: false },
+  { text: 'TEQSA provider number: PRV12145', isLink: false },
+  { text: 'RTO Code: 3046', isLink: false },
+  { href: 'https://www.open.edu.au/online-courses/rmit-university', text: 'Open Universities Australia', isLink: true },
+];
+
+const flagImages = [
+  {
+    src: 'https://www.rmit.edu.au/content/dam/rmit/au/en/news/homepage/flag-red.png',
+    alt: 'Australian Aboriginal Flag',
+    width: 50,
+    height: 30,
+  },
+  {
+    src: 'https://www.rmit.edu.au/content/dam/rmit/au/en/news/homepage/flag-green.png',
+    alt: 'Torres Strait Islander Flag',
+    width: 50,
+    height: 30,
+  },
+];
+---
+
+<!-- START footer -->
+<div class="footer-container">
+  <FooterGrid>
+    <!-- START ask the library -->
+    <div class="ask-container">
+      <section class="ask-the-library">
+        <a href="https://www.rmit.edu.au/library/about-and-contacts/ask-the-library">
+          <Image src="https://rmitlibrary.github.io/cdn/footer/ask-library-icon-round.svg" class="ask-logo" alt="" width={80} height={80} />
+          <div class="ask-text">
+            <h3 class="h3 margin-top-zero">Ask the Library</h3>
+            <p>Study support, one-on-one consultations and peer mentoring at your fingertips!</p>
+          </div>
+        </a>
+      </section>
+    </div>
+    <!-- END ask the library -->
+  </FooterGrid>
+  <!-- START acknowledgement -->
+  <div class="acknowledgement">
+    <FooterGrid>
+      <section class="acknowledgement-container">
+        <div class="content">
+          <FlagImages flags={flagImages} />
+          <h2 class="h4 margin-top-zero">Acknowledgement of Country</h2>
+          <p>
+            RMIT University acknowledges the people of the Woi wurrung and Boon wurrung language groups of the eastern Kulin Nation on whose unceded lands we conduct the business of the University. RMIT University respectfully acknowledges their Ancestors and Elders, past and present. RMIT also acknowledges the Traditional Custodians and their Ancestors of the lands and waters across Australia where we conduct our business <span class="img-credit">- Artwork 'Sentient' by Hollie Johnson, Gunaikurnai and Monero Ngarigo</span>.
+          </p>
+          <a href="https://www.rmit.edu.au/about/our-values/respect-for-australian-indigenous-cultures" class="link-large">More information</a>
+        </div>
+        <div class="acknowledgement-image">
+          <Image src="https://www.rmit.edu.au/content/dam/rmit/images/sentient-hollie-johnson.jpg" aria-describedby="artwork-description" alt="Artwork 'Sentient' by Hollie Johnson" width={400} height={300} />
+          <div id="artwork-description" class="visually-hidden">Abstract artwork titled 'Sentient' by Hollie Johnson, features a complex pattern of intersecting blue, green, and yellow lines over a white background showing the journeys of life starting, finishing and intersecting. The colouring of the line work illustrates the evolution of nature through many First Nations stories: the sun, the giver of life (yellow), the creation of land (green), and the sea (blue). Red and black concentric diamond and semi-circle shapes symbolise men and women respectively, connecting them to Ancestors who gave birth to them. The artwork is also a representation of RMIT and the experience within our community, culture and pathways.</div>
+        </div>
+      </section>
+    </FooterGrid>
+  </div>
+  <!-- END acknowledgement -->
+  <!-- START footer -->
+  <footer>
+    <FooterGrid>
+      <!-- START logo -->
+      <a aria-label="Royal Melbourne Institute of Technology University Logo" href="https://www.rmit.edu.au/">
+        <div aria-hidden="true" class="logo">
+          <NoFocusImage src="https://rmitlibrary.github.io/cdn/image/svg/rmit-logo.svg" style="width: 100px" alt="RMIT logo" width={100} height={30} />
+        </div>
+      </a>
+      <!-- END logo -->
+
+      <!-- START legal-social -->
+      <div class="footerlegalShareItems">
+        <!-- START legal -->
+        <div class="footer-legal">
+          <ul>
+            <li>Copyright © <CurrentYear /> RMIT University</li>
+            {legalLinks.map((link) => (link.isLink ? <LegalLink href={link.href} text={link.text} analyticsType={link.analyticsType} analyticsValue={link.analyticsValue} /> : <li>{link.text}</li>))}
+          </ul>
+        </div>
+        <!-- END legal -->
+        <!-- START social -->
+        <div class="social-nav">
+          <ul>
+            {socialLinks.map((link) => <SocialLink href={link.href} platform={link.platform} src={link.src} alt={link.alt} />)}
+          </ul>
+        </div>
+        <!-- END social -->
+      </div>
+      <!-- END legal-social -->
+    </FooterGrid>
+  </footer>
+  <!-- END footer -->
+</div>
+<!-- END footer-container -->

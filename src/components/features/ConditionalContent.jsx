@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useStore } from '@nanostores/preact';
-import { isGroupAssignment } from '../store'; // Import isGroupAssignment directly
+import { isGroupAssignment } from '../../store'; // Import isGroupAssignment directly
 
 const ConditionalContent = ({ children }) => {
   const groupAssignment = useStore(isGroupAssignment);
