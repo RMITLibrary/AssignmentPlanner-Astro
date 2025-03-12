@@ -14,7 +14,7 @@ const RefinePlanButton = () => {
 
   return (
     <a href="#planner-details" className="btn btn-primary" role="button" tabIndex="0" onClick={scrollToRefinePlan}>
-      <span className="visually-hidden">Navigate to assignment detail and </span>Refine plan
+      <span className="visually-hidden">Navigate back to form and </span>Revise plan
     </a>
   );
 };
