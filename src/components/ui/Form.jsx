@@ -27,7 +27,7 @@ const Form = ({ projectsWithTasks }) => {
     if (isTesting.get()) {
       setAssignmentType('literature-review-project');
       setStartDate('2025-03-05');
-      setEndDate('2025-03-15');
+      setEndDate('2025-03-12');
       console.log('Default testing values set:', { assignmentType, startDate, endDate });
     }
   }, []);

@@ -17,6 +17,7 @@ const SwitchToCalendarViewButton = () => {
     const navTabs = document.querySelector('.nav-tabs');
     if (calendarTab) {
       calendarTab.click();
+      calendarTab.focus();
       if (navTabs) {
         navTabs.scrollIntoView({ behavior: 'smooth' });
       }

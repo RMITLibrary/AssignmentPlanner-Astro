@@ -22,6 +22,15 @@ export const calculateDaysBetween = (start, end) => {
   return Math.ceil(differenceInTime / (1000 * 3600 * 24));
 };
 
+export const formatDateFull = (date) => {
+  return date.toLocaleDateString(undefined, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
 
 export const formatDays = (days) => {
   return `${days} ${days === 1 ? 'day' : 'days'}`;
