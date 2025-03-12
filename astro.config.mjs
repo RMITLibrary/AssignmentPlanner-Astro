@@ -7,31 +7,30 @@ import strip from 'rollup-plugin-strip';
 // Determine the base path based on environment variable
 const isSubdirectoryDeployment = process.env.DEPLOY_SUBDIRECTORY === 'true';
 const basePath = isSubdirectoryDeployment ? '/AssignmentPlanner/' : '/';
+const isProduction = process.env.NODE_ENV === 'production';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://learninglab.rmit.edu.au', // This is your canonical site URL
-  base: basePath, // Use the conditional base path
-
+  site: 'https://learninglab.rmit.edu.au',
+  base: basePath,
   trailingSlash: 'always',
   vite: {
     logLevel: 'error',
     plugins: [
       strip({
-        include: ['**/*.?(js|jsx|ts|tsx|astro)'], // Adjust file extensions as needed
+        include: ['**/*.?(js|jsx|ts|tsx|astro)'],
         exclude: ['node_modules/**/*'],
-        debugger: true,
-        functions: ['console.log', 'console.debug'], // Remove console.log and console.debug
+        debugger: isProduction, // Strip 'debugger' statements only in production
+        functions: isProduction ? ['console.log', 'console.debug'] : [], // Strip console logs only in production
       }),
     ],
     build: {
       terserOptions: {
         compress: {
-          pure_funcs: ['console.log', 'console.debug'],
+          pure_funcs: isProduction ? ['console.log', 'console.debug'] : [], // Pure functions removal only in production
         },
       },
     },
   },
-
   integrations: [sitemap(), preact()],
 });
