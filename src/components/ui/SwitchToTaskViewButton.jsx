@@ -17,6 +17,7 @@ const SwitchToTaskViewButton = () => {
     console.log(taskTab);
     if (taskTab) {
       taskTab.click();
+      taskTab.focus();
       if (navTabs) {
         navTabs.scrollIntoView({ behavior: 'smooth' });
       }

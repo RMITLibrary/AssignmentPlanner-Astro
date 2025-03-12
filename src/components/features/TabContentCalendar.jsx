@@ -4,8 +4,7 @@ import { planDetailsStore, activeTabStore } from '../../store';
 import '@toast-ui/calendar/dist/toastui-calendar.min.css';
 import 'tui-date-picker/dist/tui-date-picker.css';
 import 'tui-time-picker/dist/tui-time-picker.css';
-import SwitchToTaskViewButton from '../ui/SwitchToTaskViewButton'; // Import the new component
-
+import { formatDateFull } from '../../utils';
 
 let Calendar; // Keep this outside for pre-loading
 
@@ -222,7 +221,10 @@ const CalendarTabPane = () => {
   return (
     <div>
       <div className="cv-header">
-        <h3 className="periodLabel">{formatMonthYearRange(dateRange.start, dateRange.end)}</h3>
+        <h3 className="periodLabel">
+          {formatMonthYearRange(dateRange.start, dateRange.end)}
+          <span className="visually-hidden">{` (Dates: ${formatDateFull(dateRange.start)} - ${formatDateFull(dateRange.end)})`}</span>
+        </h3>
         {/*
         <div className="cv-header-nav" style="display:none">
           <button className="btn btn-sm previousPeriod" onClick={handlePreviousMonth}>
