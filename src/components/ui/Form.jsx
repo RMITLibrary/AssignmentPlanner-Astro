@@ -32,28 +32,32 @@ const Form = ({ projectsWithTasks }) => {
     }
   }, []);
 
-  useEffect(() => {
-    if (submitted && formValid) {
-      console.log('Form submitted and valid, scrolling to plan detail');
-      const planDetailElement = document.getElementById('plan-detail');
-      const liveRegion = document.getElementById('form-submission-message');
-      planDetailElement.scrollIntoView({ behavior: 'smooth' });
-      // Set focus to #plan-detail after scrolling is complete
+useEffect(() => {
+  if (submitted && formValid) {
+    console.log('Form submitted and valid, scrolling to plan detail');
+    const planDetailElement = document.getElementById('plan-detail');
+    const liveRegion = document.getElementById('form-submission-message');
+
+    planDetailElement.scrollIntoView({ behavior: 'smooth' });
+
+    setTimeout(() => {
+      // Temporarily set tabindex if needed
+      planDetailElement.setAttribute('tabindex', '-1');
+      planDetailElement.focus({ preventScroll: true });
+      console.log(planDetailElement);
+
+      // Remove the tabindex to clean up
       setTimeout(() => {
-        // Find first element that is tabbable within the plan details, and focus on that.
-        const firstFocusableElement = planDetailElement.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-        if (firstFocusableElement) {
-          firstFocusableElement.focus({ preventScroll: true });
-        } else {
-          planDetailElement.focus({ preventScroll: true });
-        }
+        planDetailElement.removeAttribute('tabindex');
       }, 0);
-      // Update the live region text
-      if (liveRegion) {
-        liveRegion.textContent = 'Assignment plan generated. Please review the details below.';
-      }
+    }, 0);
+
+    // Update the live region text
+    if (liveRegion) {
+      liveRegion.textContent = 'Assignment plan generated. Please review the details below.';
     }
-  }, [submitted, formValid]);
+  }
+}, [submitted, formValid]);
 
   useEffect(() => {
     const preloadCalendar = async () => {

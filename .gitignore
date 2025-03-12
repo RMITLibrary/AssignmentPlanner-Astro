@@ -53,3 +53,13 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+# Packaged files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
