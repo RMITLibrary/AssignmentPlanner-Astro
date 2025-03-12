@@ -1,0 +1,14 @@
+---
+interface Props {
+  columns?: number;
+}
+
+const { columns } = Astro.props;
+const gridColumns = columns ? `grid-cols-${columns}` : 'grid-cols-1';
+---
+
+<div class={`container`}>
+  <div class={`row`}>
+    <div class={`col`}><slot /></div>
+  </div>
+</div>

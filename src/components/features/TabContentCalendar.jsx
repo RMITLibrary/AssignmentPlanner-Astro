@@ -1,10 +1,10 @@
 import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { planDetailsStore, activeTabStore } from '../store';
+import { planDetailsStore, activeTabStore } from '../../store';
 import '@toast-ui/calendar/dist/toastui-calendar.min.css';
 import 'tui-date-picker/dist/tui-date-picker.css';
 import 'tui-time-picker/dist/tui-time-picker.css';
-import SwitchToTaskViewButton from './SwitchToTaskViewButton'; // Import the new component
+import SwitchToTaskViewButton from '../ui/SwitchToTaskViewButton'; // Import the new component
 
 
 let Calendar; // Keep this outside for pre-loading
@@ -223,6 +223,7 @@ const CalendarTabPane = () => {
     <div>
       <div className="cv-header">
         <h3 className="periodLabel">{formatMonthYearRange(dateRange.start, dateRange.end)}</h3>
+        {/*
         <div className="cv-header-nav" style="display:none">
           <button className="btn btn-sm previousPeriod" onClick={handlePreviousMonth}>
             <span className="visually-hidden">Previous month</span>
@@ -234,12 +235,10 @@ const CalendarTabPane = () => {
             <span className="visually-hidden">Next month</span>
           </button>
         </div>
+        */}
       </div>
       <div class="hscroll">
         <div ref={containerRef} style={{ height: `${containerHeight}px` }} className="calendar-container"></div>
-      </div>
-      <div className="btn-group-nav">
-        <SwitchToTaskViewButton /> {/* Use the new component here */}
       </div>
     </div>
   );

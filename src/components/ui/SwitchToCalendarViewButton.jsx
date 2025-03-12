@@ -25,7 +25,7 @@ const SwitchToCalendarViewButton = () => {
 
   return (
     <button className="btn btn-default" onClick={switchToCalendarView} type="button" tabIndex="0">
-      Calendar view
+      <span className="visually-hidden">Switch and navigate to </span>Calendar view
     </button>
   );
 };

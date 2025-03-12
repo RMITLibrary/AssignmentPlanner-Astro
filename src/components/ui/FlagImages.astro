@@ -1,0 +1,19 @@
+---
+import { Image } from 'astro:assets';
+interface Props {
+  flags: {
+    src: string;
+    alt: string;
+    width: number;
+    height: number;
+  }[];
+}
+
+const { flags } = Astro.props;
+---
+
+{
+  flags.map((flag) => (
+    <Image src={flag.src} alt={flag.alt} width={flag.width} height={flag.height} />
+  ))
+}

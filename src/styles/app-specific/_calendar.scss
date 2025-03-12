@@ -239,30 +239,6 @@ $calendar-offset-adjustment: 0.05em;
   cursor: default;
 }
 
-
-@media only screen {
-  [data-bs-theme='dark'] {
-    color-scheme: light;
-    .intro {
-      background-color: var(--bs-secondary-bg);
-    }
-    .toastui-calendar-layout {
-      background-color: var(--bs-secondary-bg) !important;
-    }
-
-    .toastui-calendar-grid-cell-date {
-      color: var(--bs-body-color) !important;
-    }
-    .toastui-calendar-day-name-item {
-      span {
-        color: var(--bs-body-color) !important;
-      }
-
-
-    }
-  }
-}
-
 .calendar-container {
   .toastui-calendar-day-names.toastui-calendar-month {
     padding: 0;
@@ -273,15 +249,10 @@ $calendar-offset-adjustment: 0.05em;
   }
 
   .toastui-calendar-template-monthDayName {
-    @include color-mode(light) {
     color: $dark-grey !important;
-    }
-
   }
   .toastui-calendar-grid-cell-date {
-    @include color-mode(light) {
     color: $dark-grey !important;
-    }
   }
   .toastui-calendar-grid-cell-date .toastui-calendar-weekday-grid-date.toastui-calendar-weekday-grid-date-decorator {
     color: #fff !important;
@@ -294,20 +265,45 @@ $calendar-offset-adjustment: 0.05em;
     letter-spacing: 0.6px;
   }
 
-  .toastui-calendar-daygrid-cell, .toastui-calendar-daygrid-cell+.toastui-calendar-daygrid-cell, .toastui-calendar-weekday-grid {
-    border-color: $interface-grey!important;
-}
-.toastui-calendar-daygrid-cell{
-  border-left: 1px solid;
+  .toastui-calendar-daygrid-cell,
+  .toastui-calendar-daygrid-cell + .toastui-calendar-daygrid-cell,
+  .toastui-calendar-weekday-grid {
+    border-color: $interface-grey !important;
+  }
+  .toastui-calendar-daygrid-cell {
+    border-left: 1px solid;
+  }
 
-}
+  .toastui-calendar-weekday-grid .toastui-calendar-daygrid-cell:last-child {
+    border-right: 1px solid;
+  }
 
-.toastui-calendar-weekday-grid .toastui-calendar-daygrid-cell:last-child {
-      border-right: 1px solid;
-}
-
-.toastui-calendar-month-daygrid .toastui-calendar-month-week-item:last-child .toastui-calendar-daygrid-cell{
+  .toastui-calendar-month-daygrid .toastui-calendar-month-week-item:last-child .toastui-calendar-daygrid-cell {
     border-bottom: 1px solid;
-
+  }
 }
+
+@media only screen {
+  [data-bs-theme='dark'] {
+    color-scheme: light;
+    .intro {
+      background-color: var(--bs-secondary-bg);
+    }
+    .toastui-calendar-layout {
+      background-color: var(--bs-secondary-bg) !important;
+    }
+
+    .toastui-calendar-template-monthDayName {
+      color: var(--bs-body-color) !important;
+    }
+
+    .toastui-calendar-grid-cell-date {
+      color: var(--bs-body-color) !important;
+    }
+    .toastui-calendar-day-name-item {
+      span {
+        color: var(--bs-body-color) !important;
+      }
+    }
+  }
 }

@@ -31,6 +31,7 @@
 //calednar button 
 .btn-cal, .btn-pdf, .previousPeriod, .nextPeriod {
     @extend .btn-icon;
+    
  }
  
  .btn-cal::before {
