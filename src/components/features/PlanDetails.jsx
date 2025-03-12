@@ -265,8 +265,8 @@ const PlanDetails = () => {
                       <p className="card-text">If something unexpected affects your ability to submit an assignment on time, you might qualify for an extension.</p>
                       <p className="card-text">
                         Check out RMIT's{' '}
-                        <a href="https://www.rmit.edu.au/students/student-essentials/assessment-and-results/special-consideration" className="text-primary" target={'_blank'}>
-                          Special consideration<span className="visually-hidden"> (opens in new tab)</span>
+                        <a href="https://www.rmit.edu.au/students/student-essentials/assessment-and-results/special-consideration" className="text-primary">
+                          Special consideration
                         </a>{' '}
                         page to learn more.
                       </p>
