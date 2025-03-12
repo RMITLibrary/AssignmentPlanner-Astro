@@ -3,7 +3,9 @@ import { h } from 'preact';
 import { scrollToView, fireDataLayerEvent } from '../../utils'; // Import the common function
 
 const RefinePlanButton = () => {
-  const scrollToRefinePlan = () => {
+  const scrollToRefinePlan = (event) => {
+    event.preventDefault(); 
+
     fireDataLayerEvent({
       event: 'refine_click',
       formType: 'assignment_planner',

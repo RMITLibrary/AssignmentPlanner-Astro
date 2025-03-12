@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { isOpenResults, isTesting, planDetailsStore, isGroupAssignment } from '../../store';
-import { calculateDaysBetween } from '../../utils';
+import { calculateDaysBetween, scrollToView } from '../../utils';
 
 
 let Calendar; // Declare Calendar outside the component
@@ -38,7 +38,8 @@ useEffect(() => {
     const planDetailElement = document.getElementById('plan-detail');
     const liveRegion = document.getElementById('form-submission-message');
 
-    planDetailElement.scrollIntoView({ behavior: 'smooth' });
+    scrollToView('#plan-detail');
+    //planDetailElement.scrollIntoView({ behavior: 'smooth' });
 
     setTimeout(() => {
       // Temporarily set tabindex if needed
