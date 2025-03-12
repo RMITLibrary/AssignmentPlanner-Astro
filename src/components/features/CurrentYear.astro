@@ -1,0 +1,13 @@
+---
+
+---
+
+<span id="currentYear">2025</span>
+
+<script>
+  const currentYearElement = document.getElementById('currentYear');
+  if (currentYearElement) {
+    const currentYear = new Date().getFullYear();
+    currentYearElement.textContent = currentYear.toString();
+  }
+</script>

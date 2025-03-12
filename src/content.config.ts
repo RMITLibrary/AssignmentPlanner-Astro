@@ -7,11 +7,12 @@ const projectTypes = defineCollection({
   schema: z.object({
     id: z.string(),
     name: z.string(),
-    type: z.string(), // Adjust with all valid types
+    type: z.string(),
     tasks: z.array(
       z.object({
         id: z.string(),
         weight: z.number().optional(),
+        groupWeight: z.number().optional(),
       }),
     ),
   }),
@@ -27,4 +28,3 @@ const tasks = defineCollection({
 });
 
 export const collections = { projectTypes, tasks };
- 

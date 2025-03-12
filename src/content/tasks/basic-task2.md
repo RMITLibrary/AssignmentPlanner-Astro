@@ -1,0 +1,8 @@
+---
+id: 'basic-task2'
+description: 'Research'
+---
+
+- Create a [search strategy](https://learninglab.rmit.edu.au/assessments/getting-started-with-assignments/researching-your-assignment/develop-your-search-strategy/) and select databases to search from. 
+- Read, take notes and collect information. Make sure you are using [reliable sources.](https://learninglab.rmit.edu.au/assessments/getting-started-with-assignments/choose-valid-sources/) 
+- Consult the [Subject Guide](https://rmit.libguides.com/) for your subject area to help with this.

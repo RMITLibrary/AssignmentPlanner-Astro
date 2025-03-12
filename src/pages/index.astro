@@ -1,40 +1,45 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Intro from '../components/Intro.astro';
-import Form from '../components/Form';
-import PlanDetails from '../components/PlanDetails';
-import ThemeSwitcher from '../components/ThemeSwitcher.astro';
+import Intro from '../components/features/Intro.astro';
+import Form from '../components/ui/Form';
+import PlanDetails from '../components/features/PlanDetails';
+import ThemeSwitcher from '../components/features/ThemeSwitcher.astro';
 import { getCollection } from 'astro:content';
 
 const pageTitle = 'Assignment Planner | RMIT University';
 const projectTypes = await getCollection('projectTypes');
 const tasksCollection = await getCollection('tasks');
 
-// Combine projects and tasks based on task ID
+// Combine projects and tasks, including both weight and groupWeight
 const projectsWithTasks = projectTypes.map((project) => {
   const tasks = project.data.tasks
     .map((taskRef) => {
       const taskDetail = tasksCollection.find((task) => task.data.id === taskRef.id);
-      return taskDetail ? { ...taskDetail, weight: taskRef.weight } : null; // Spread taskDetail data
+      if (taskDetail) {
+        return {
+          ...taskDetail,
+          weight: taskRef.weight,
+          groupWeight: taskRef.groupWeight,
+        };
+      }
+      return null;
     })
     .filter(Boolean);
 
   return {
-    ...project.data, // Spread project data
-    tasks, // Add the filtered tasks
+    ...project.data,
+    tasks,
   };
 });
 ---
 
 <Layout title={pageTitle}>
   <div class="row">
-    <!-- START col-xl-12 -->
     <div id="page-columns" class="col-xl-12">
       <Intro />
       <Form projectsWithTasks={projectsWithTasks} client:load />
-      <PlanDetails client:load  />
+      <PlanDetails client:load />
       <ThemeSwitcher />
     </div>
-    <!-- END page-columns -->
   </div>
 </Layout>

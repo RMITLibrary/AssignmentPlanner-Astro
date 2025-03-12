@@ -1,9 +1,11 @@
 import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { planDetailsStore, activeTabStore } from '../store';
+import { planDetailsStore, activeTabStore } from '../../store';
 import '@toast-ui/calendar/dist/toastui-calendar.min.css';
 import 'tui-date-picker/dist/tui-date-picker.css';
 import 'tui-time-picker/dist/tui-time-picker.css';
+import SwitchToTaskViewButton from '../ui/SwitchToTaskViewButton'; // Import the new component
+
 
 let Calendar; // Keep this outside for pre-loading
 
@@ -54,17 +56,8 @@ const CalendarTabPane = () => {
     setWeeksToDisplay(weeksToDisplay);
   };
 
-  const switchToTaskView = () => {
-    const taskTab = document.querySelector('#task-tab');
-    const navTabs = document.querySelector('.nav-tabs');
-    console.log(taskTab);
-    if (taskTab) {
-      taskTab.click();
-      if (navTabs) {
-        navTabs.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
+
+  
 
   const initializeCalendar = async () => {
     if (typeof window === 'undefined' || !containerRef.current) return;
@@ -107,6 +100,8 @@ const CalendarTabPane = () => {
         visibleWeeksCount: weeksToDisplay, // Use the calculated weeks here
       },
     });
+
+
 
     calendarRef.current = calendar;
 
@@ -228,7 +223,8 @@ const CalendarTabPane = () => {
     <div>
       <div className="cv-header">
         <h3 className="periodLabel">{formatMonthYearRange(dateRange.start, dateRange.end)}</h3>
-        <div className="cv-header-nav">
+        {/*
+        <div className="cv-header-nav" style="display:none">
           <button className="btn btn-sm previousPeriod" onClick={handlePreviousMonth}>
             <span className="visually-hidden">Previous month</span>
           </button>
@@ -239,17 +235,10 @@ const CalendarTabPane = () => {
             <span className="visually-hidden">Next month</span>
           </button>
         </div>
+        */}
       </div>
       <div class="hscroll">
         <div ref={containerRef} style={{ height: `${containerHeight}px` }} className="calendar-container"></div>
-      </div>
-      <div className="btn-group-nav">
-        <a href="#planner-details" className="btn btn-default" role="button" tabIndex="0">
-          Refine plan
-        </a>
-        <button className="btn btn-default" onClick={switchToTaskView} type="button" tabIndex="0">
-          Task view
-        </button>
       </div>
     </div>
   );

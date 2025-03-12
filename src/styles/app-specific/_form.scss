@@ -1,60 +1,84 @@
 #assignmentDetails {
-    max-width: 47rem;
+  max-width: 47rem;
 
+  .form-group {
+    @include do-space(margin-top, lg);
+  }
+
+  label {
+    margin-bottom: 0.5rem;
+  }
+
+  legend {
+    @include type-default;
+  }
+
+  .form-check-inline {
+    label {
+      margin: 0rem;
+    }
+  }
+
+  .dates {
     .form-group {
-        @include do-space(margin-top, lg); 
+      @include do-space(margin-top, md);
+      @include do-space(margin-bottom, lg);
+
+      display: flex;
+      align-items: center;
+      // width: 15rem;
+
+      flex-direction: column;
+      align-items: flex-start;
+
+      label {
+        flex-shrink: 0;
+        width: 5.5rem;
+        margin: 0;
+        margin-bottom: 0.5rem;
+      }
+
+      input {
+        // flex-grow: 1;
+        width: 100%;
+      }
     }
-    
-    label { margin-bottom: 0.5rem; }
 
-    legend { @include type-default; }
+    @include media-breakpoint-up(sm) {
+      display: flex;
+      gap: 4rem;
 
-    .form-check-inline { 
-        label { margin: 0rem; }
-    }
+      .form-group {
+        width: auto;
 
-    .dates {
-        .form-group {
-            @include do-space(margin-top, md);
-            @include do-space(margin-bottom, lg);
-
-            display: flex;
-            align-items: center;
-            width: 15rem;
-
-            label { 
-                flex-shrink: 0; 
-                width: 5.5rem; 
-                margin: 0;
-            }
-
-            input { flex-grow: 1;}
+        label {
+          width: 6rem;
+          margin-bottom: 0.5rem;
         }
-
-        @include media-breakpoint-up(md) {
-            display: flex;
-            gap: 4rem;
-
-            .form-group { 
-                width: auto; 
-            
-                label {  
-                    width: 6rem; 
-                }
-            }
+        input {
+          // flex-grow: 1;
+          width: 12rem;
         }
+      }
     }
+  }
 }
 
-.req { color: $accent-color; }
+.req {
+  color: $accent-color;
+}
 
 // Dark mode
 @include color-mode(dark) {
-    .req { color: $accent-color-dark; }
+  .req {
+    color: $accent-color-dark;
+  }
+  input {
+    color-scheme: dark;
+  }
 }
 
-
-// KE hack to show correct visua lvaldiation as was being overwritten by psuedo :valid 
+// KE hack to show correct visua lvaldiation as was being overwritten by psuedo :valid
 .was-validated .form-control.is-invalid {
   border-color: var(--bs-form-invalid-border-color) !important;
   padding-right: calc(1.5em + 0.75rem) !important;
@@ -66,4 +90,15 @@
 .was-validated .form-control.is-invalid:focus {
   border-color: var(--bs-form-invalid-border-color) !important;
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25) !important;
+}
+@include color-mode(light) {
+  .was-validated .form-control:valid,
+  .form-control.is-valid {
+    border-color: #138761;
+  }
+
+  .was-validated .form-check-input:valid ~ .form-check-label,
+  .form-check-input.is-valid ~ .form-check-label {
+    color: #138761;
+  }
 }
