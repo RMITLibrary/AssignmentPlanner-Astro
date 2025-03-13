@@ -14,6 +14,13 @@ footer {
         @include media-breakpoint-down(md) { margin-left: 0.75rem; }
 
     }
+
+    @include color-mode(dark) {
+        img {
+            filter: none;
+            background-color: none;		
+        }
+    }
     
     
     /* These styles differ from RMIT.edu.au to provide more space between items */
@@ -191,19 +198,19 @@ footer * {
 //border at the top
 .ask-container {
 	border-top: 1px solid $interface-grey;
-	
-	a { @include link-feature; }
-	
-	a:hover {
-		p.lead { 
-			@include link-feature-hover;
-		}
-	}
 }
 
 .ask-the-library a {
     @include do-space(margin-top, xl);
 	@include do-space(margin-bottom, xl);
+    @include link-feature;
+    @include default-focus;
+
+    a:hover {
+		p.lead { 
+			@include link-feature-hover;
+		}
+	}
 
     display: flex;
     max-width: 544px;
@@ -238,3 +245,7 @@ footer * {
 	}
 }
 
+@include color-mode(dark) {
+	//focus dark mode
+	.ask-the-library a { @include default-focus('dark'); }
+}

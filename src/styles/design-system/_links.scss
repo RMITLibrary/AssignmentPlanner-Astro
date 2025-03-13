@@ -1,3 +1,7 @@
+@mixin link-focus {
+	outline-color: $input-btn-focus-color;
+}
+
 @mixin link-feature {
 	text-decoration: none;
 }
@@ -29,6 +33,7 @@ a:not([href]):not([class]), a:not([href]):not([class]):hover {
 a:not([href]):not([class]):hover {
   text-decoration: underline;
 }
+
 
 
 /* Visited links - NOT IN USE AT THIS TIME */
@@ -73,37 +78,6 @@ p a:visited:hover {
 .link-large:hover {
     @include link-feature-hover;
 }
-
-
-//
-/*
-.link-large {
-    display: flex;
-    align-items: center;
-    
-    @include type-lead;
-    @include link-feature;
-    margin-top: 1.25rem;
-    
-    padding: 0;
-    border: 0;
-	width: fit-content;
-}
-
-.link-large:hover {
-    background: none; 
-	 @include link-feature-hover;
-}
-
-
-.link-large::after {
-    @include carat;
-    flex-shrink: 0;
-    width: 2rem;
-    height: 2rem;
-    margin-left: 0.25rem;
-    transform: rotate(-90deg);
-}*/
 
 @mixin link-list-base {
     
