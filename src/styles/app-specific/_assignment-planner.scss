@@ -1,77 +1,75 @@
 //footer
 .footer-container {
-  margin: 0;
+	margin: 0;
 }
 
 .ask-container {
-  border-top: 0;
+	border-top: 0;
 }
 
 //plan detail
 #plan-detail {
-  margin-top: 2rem;
-  @include media-breakpoint-up(md) {
-    margin-top: 4rem;
-  }
+	margin-top: 2rem;
+	@include media-breakpoint-up(md) {
+		margin-top: 4rem;
+	}
 
-  h2 {
-    margin-top: 0;
-  }
+	h2 {
+		margin-top: 0;
+	}
 
-  .plan-dates {
-    display: flex;
-    justify-content: space-between;
-    max-width: 24rem;
+	.plan-dates {
+		display: flex;
+		justify-content: space-between;
+		max-width: 24rem;
 
-    p {
-      margin: 0;
-    }
+		p {
+			margin: 0;
+		}
 
-    @include media-breakpoint-up(md) {
-      max-width: 26rem;
-    }
-  }
+		@include media-breakpoint-up(md) {
+			max-width: 26rem;
+		}
+	}
 
-  .deadline {
-    margin-bottom: 2rem;
-  }
+	.deadline {
+		margin-bottom: 2rem;
+	}
 }
 
 //tables
 #table-steps-table {
-  min-width: 768px;
-  margin-top: 0;
+	min-width: 768px;
+	margin-top: 0;
 
-  td:nth-child(2) {
-    width: 9rem;
-    text-wrap: balance;
-    @include media-breakpoint-up(lg) {
-      width: 16rem;
-    }
-  }
+	td:nth-child(2) {
+		width: 9rem;
+		text-wrap: balance;
+		@include media-breakpoint-up(lg) {
+			width: 16rem;
+		}
+	}
 
-  td:nth-child(3) {
-    width: 6rem;
-    @include media-breakpoint-up(lg) {
-      width: 11rem;
-    }
-  }
+	td:nth-child(3) {
+		width: 6rem;
+		@include media-breakpoint-up(lg) {
+			width: 11rem;
+		}
+	}
 }
-
-
 
 .assignment-card {
-  max-width: 47rem;
+	max-width: 47rem;
 }
 
-
-
-.ask-the-library a h2, .ask-the-library a .h2, .ask-the-library a h3, .ask-the-library a .h3,.ask-the-library a p {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+.ask-the-library a h2,
+.ask-the-library a .h2,
+.ask-the-library a h3,
+.ask-the-library a .h3,
+.ask-the-library a p {
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
 }
-
-
 
 /* @include color-mode(dark) {
   .btn,
@@ -81,3 +79,7 @@
     }
   }
 } */
+
+.top-navigation .rmit-logo {
+	margin-right: 0;
+}
