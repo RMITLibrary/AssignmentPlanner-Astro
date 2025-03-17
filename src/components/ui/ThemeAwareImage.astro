@@ -1,0 +1,60 @@
+---
+import { Image } from 'astro:assets';
+
+export interface Props {
+  lightImage: ImageMetadata;
+  darkImage: ImageMetadata;
+  alt: string;
+  class?: string;
+  loading?: 'eager' | 'lazy';
+  // Add any other Image attributes you need to pass through here
+  [key: string]: any;
+}
+
+const { lightImage, darkImage, alt, class: className, loading, ...otherAttributes } = Astro.props;
+---
+
+<Image loading={loading || 'lazy'} id="theme-aware-image" src={lightImage} alt={alt} class={className} data-dark-image={darkImage.src} data-light-image={lightImage.src} {...otherAttributes} />
+
+<script>
+  function updateThemeAwareImage(theme) {
+    console.log('updateThemeAwareImage called with theme:', theme);
+
+    const image = document.getElementById('theme-aware-image');
+    console.log('theme-aware-image element:', image);
+
+    if (!image) {
+      console.error('Theme-aware image element not found.');
+      return;
+    }
+
+    let newSrc;
+    const darkImagePath = image.dataset.darkImage;
+    const lightImagePath = image.dataset.lightImage;
+
+    if (theme === 'dark') {
+      newSrc = darkImagePath;
+    } else if (theme === 'light') {
+      newSrc = lightImagePath;
+    } else {
+      // auto mode
+      newSrc = window.matchMedia('(prefers-color-scheme: dark)').matches ? darkImagePath : lightImagePath;
+    }
+
+    console.log('New image source:', newSrc);
+
+    image.src = newSrc;
+    console.log('theme-aware image source updated.');
+  }
+
+  // Add an event listener to listen for changes in theme
+  document.addEventListener('themeChanged', (event) => {
+    const theme = (event as CustomEvent).detail.theme;
+    console.log('themeChanged event received with theme:', theme);
+    updateThemeAwareImage(theme);
+  });
+
+  console.log('ThemeAwareImage.astro script loaded and event listener added.');
+  // Set the inital image.
+  updateThemeAwareImage(localStorage.getItem('theme') || 'auto');
+</script>

@@ -9,6 +9,7 @@ import ExportToCalendarButton from '../ui/ExportToCalendarButton'; // Import the
 import RefinePlanButton from '../ui/RefinePlanButton'; // Import the new component
 import SwitchToTaskViewButton from '../ui/SwitchToTaskViewButton';
 import SwitchToCalendarViewButton from '../ui/SwitchToCalendarViewButton';
+import Clock from '../ui/Clock'
 
 
 
@@ -258,7 +259,7 @@ const PlanDetails = () => {
               <div className="card assignment-card p-3">
                 <div className="row">
                   <div className="col-md-2 pb-3 pb-md-0 d-flex align-items-center justify-content-center">
-                    <img src={clock.src} alt="Clock Icon" className="img-fluid" />
+                    <Clock />
                   </div>
                   <div className="col-md-10">
                     <div className="card-body  p-0 ">
