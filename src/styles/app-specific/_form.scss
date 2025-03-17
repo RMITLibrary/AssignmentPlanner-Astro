@@ -78,6 +78,21 @@
   }
 }
 
+//difficult to override focus on validation elements.
+//Referering to id directly seems to work
+#assignmentName, #assignmentType, #groupYes, #groupNo, #endDate, #startDate {
+  @include default-focus;
+}
+
+@include color-mode(dark) {
+  #assignmentName, #assignmentType, #groupYes, #groupNo, #endDate, #startDate {
+  @include default-focus('dark'); 
+  }
+}
+
+$form-feedback-valid-color: aqua;
+
+
 // KE hack to show correct visual valdiation as was being overwritten by psuedo :valid
 /* .was-validated .form-control.is-invalid {
   border-color: var(--bs-form-invalid-border-color) !important;
@@ -105,26 +120,3 @@
 }
  */
 
- #assignmentName, #assignmentType, #groupYes, #groupNo, #endDate, #startDate {
-    @include default-focus;
- }
-
- @include color-mode(dark) {
-  #assignmentName, #assignmentType, #groupYes, #groupNo, #endDate, #startDate {
-   @include default-focus('dark'); 
-  }
-}
-
-
-
-/* @include color-mode(light) {
-  .was-validated .form-control:valid,
-  .form-control.is-valid {
-    border-color: #138761;
-  }
-
-  .was-validated .form-check-input:valid ~ .form-check-label,
-  .form-check-input.is-valid ~ .form-check-label {
-    color: #138761;
-  }
-} */
