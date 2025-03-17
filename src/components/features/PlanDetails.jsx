@@ -191,7 +191,7 @@ const PlanDetails = () => {
   const handleExport = (event) => {
     event.preventDefault(); // Prevent the default form submission behavior
     exportToCalendar(selectedViewType);
-    closeModal(event);
+    //closeModal(event);
   };
 
   const handleRadioChange = (event) => {
