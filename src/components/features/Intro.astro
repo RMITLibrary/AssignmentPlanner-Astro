@@ -1,6 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import photo from '../../assets/header-image.png';
+import HeaderImage from '../ui/HeaderImage';
+
 ---
 
 <!-- START intro banner-->
@@ -10,6 +12,7 @@ import photo from '../../assets/header-image.png';
       <Image loading="eager" src={photo} alt="Desk calendar with symbols; mug with pencils and sleeping cat. Clock shows 10:10." class="object-fit-contain" />
     </div>
   </div>
+  <HeaderImage />
   <div id="planner-details" class="intro-text">
     <h1>Assignment planner</h1>
     <p class="lead">Get a step-by-step plan with tips and advice for completing your presentations and written assignments.</p>

@@ -3,9 +3,13 @@
     <path class="clock-background" d="M40.7504 79.89C19.1704 79.89 1.61035 62.33 1.61035 40.75C1.61035 19.17 19.1704 1.60999 40.7504 1.60999C62.3304 1.60999 79.8904 19.17 79.8904 40.75C79.8904 62.33 62.3304 79.89 40.7504 79.89Z" fill="#D8EAFF"/>
     <path class="clock-outer-circle" d="M40.75 3.21C61.48 3.21 78.29 20.02 78.29 40.75C78.29 61.48 61.48 78.29 40.75 78.29C20.02 78.29 3.21 61.48 3.21 40.75C3.21 20.02 20.02 3.21 40.75 3.21ZM40.75 0C18.28 0 0 18.28 0 40.75C0 63.22 18.28 81.5 40.75 81.5C63.22 81.5 81.5 63.22 81.5 40.75C81.5 18.28 63.22 0 40.75 0Z" fill="#333333"/>
     <path class="clock-inner-circle" d="M43.25 78.29C62.602 78.29 78.29 61.9573 78.29 41.81C78.29 21.6626 62.602 5.32996 43.25 5.32996C23.8979 5.32996 8.20996 21.6626 8.20996 41.81C8.20996 61.9573 23.8979 78.29 43.25 78.29Z" fill="white"/>
-    <path class="clock-hand-large" d="M62.4099 17.86L34.1699 47.46" stroke="#00C98A" stroke-width="2.41" stroke-linecap="round" stroke-linejoin="round"/>
-    <path class="clock-hand-small-fill" d="M30.6797 11.3199L40.7497 40.7199L39.3297 20.3899" fill="white"/>
-    <path class="clock-hand-small-stroke" d="M30.6797 11.3199L40.7497 40.7199L39.3297 20.3899" stroke="#333333" stroke-width="3.21" stroke-linecap="round" stroke-linejoin="round"/>
+    <path id="large-hand" class="clock-hand-large" d="M62.4099 17.86L34.1699 47.46" stroke="#00C98A" stroke-width="2.41" stroke-linecap="round" stroke-linejoin="round">
+      <animateTransform attributeName="transform" type="rotate" from="0 40.75 40.75" to="360 40.75 40.75" dur="60s" repeatCount="indefinite" />
+    </path>
+    <path id="small-hand" class="clock-hand-small-fill" d="M30.6797 11.3199L40.7497 40.7199L39.3297 20.3899" fill="white"/>
+    <path class="clock-hand-small-stroke" d="M30.6797 11.3199L40.7497 40.7199L39.3297 20.3899" stroke="#333333" stroke-width="3.21" stroke-linecap="round" stroke-linejoin="round">
+      <animateTransform attributeName="transform" type="rotate" from="0 40.75 40.75" to="360 40.75 40.75" dur="720s" repeatCount="indefinite" />
+    </path>
     <path class="clock-center-dot" d="M40.7498 44.66C42.9093 44.66 44.6598 42.9094 44.6598 40.75C44.6598 38.5905 42.9093 36.84 40.7498 36.84C38.5904 36.84 36.8398 38.5905 36.8398 40.75C36.8398 42.9094 38.5904 44.66 40.7498 44.66Z" fill="#333333"/>
   </g>
   <defs>

@@ -1,0 +1,57 @@
+/* Light Mode (Default) */
+    #icon-clock .clock-background {
+      fill: #D8EAFF; /* Light blue background */
+    }
+
+    #icon-clock .clock-outer-circle {
+      fill: #333333; /* Dark gray */
+    }
+
+    #icon-clock .clock-inner-circle {
+      fill: white; /* White inner circle */
+    }
+
+    #icon-clock .clock-hand-large {
+      stroke: #00C98A; /* Green hand */
+    }
+
+    #icon-clock .clock-hand-small-fill {
+      fill: white; /* White small hand fill */
+    }
+
+    #icon-clock .clock-hand-small-stroke {
+      stroke: #333333; /* Dark gray hand stroke */
+    }
+
+    #icon-clock .clock-center-dot {
+      fill: #333333; /* Dark gray center dot */
+    }
+
+    /* Dark Mode */
+    html[data-bs-theme="dark"] #icon-clock .clock-background {
+      fill: #222; /* Darker background */
+    }
+
+    html[data-bs-theme="dark"] #icon-clock .clock-outer-circle {
+      fill: #ccc; /* lighter */
+    }
+
+    html[data-bs-theme="dark"] #icon-clock .clock-inner-circle {
+      fill: #333; /* Make it dark instead of white */
+    }
+
+    html[data-bs-theme="dark"] #icon-clock .clock-hand-large {
+      stroke: #009966; /* slightly darker, or a different colour */
+    }
+
+    html[data-bs-theme="dark"] #icon-clock .clock-hand-small-fill {
+      fill: #333; /* Make it dark instead of white */
+    }
+
+    html[data-bs-theme="dark"] #icon-clock .clock-hand-small-stroke {
+      stroke: #eee; /* Make it light instead of dark */
+    }
+
+    html[data-bs-theme="dark"] #icon-clock .clock-center-dot {
+      fill: #eee; /* Light color for the center dot */
+    }
