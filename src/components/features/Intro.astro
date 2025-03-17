@@ -1,13 +1,14 @@
 ---
-import { Image } from 'astro:assets';
-import photo from '../../assets/header-image.png';
+import photoDark from '../../assets/header-dark@4x.png';
+import photoLight from '../../assets/header-light@4x.png';
+import ThemeAwareImage from '../ui/ThemeAwareImage.astro';
 ---
 
 <!-- START intro banner-->
 <div class="intro">
   <div class="intro-image">
     <div class="intro-image-inner">
-      <Image loading="eager" src={photo} alt="Desk calendar with symbols; mug with pencils and sleeping cat. Clock shows 10:10." class="object-fit-contain" />
+      <ThemeAwareImage lightImage={photoLight} darkImage={photoDark} alt="Desk calendar with symbols; mug with pencils and sleeping cat. Clock shows 10:10." class="object-fit-contain" loading="eager" />
     </div>
   </div>
   <div id="planner-details" class="intro-text">
