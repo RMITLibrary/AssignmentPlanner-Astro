@@ -265,11 +265,7 @@ const PlanDetails = () => {
                     <div className="card-body  p-0 ">
                       <p className="card-text">If something unexpected affects your ability to submit an assignment on time, you might qualify for an extension.</p>
                       <p className="card-text">
-                        Check out RMIT's{' '}
-                        <a href="https://www.rmit.edu.au/students/student-essentials/assessment-and-results/special-consideration">
-                          Special consideration
-                        </a>{' '}
-                        page to learn more.
+                        Check out RMIT's <a href="https://www.rmit.edu.au/students/student-essentials/assessment-and-results/special-consideration">Special consideration</a> page to learn more.
                       </p>
                     </div>
                   </div>
@@ -300,13 +296,13 @@ const PlanDetails = () => {
 
       <ul className="nav nav-tabs" role="tablist">
         <li className="nav-item" role="presentation">
-          <button className={`nav-link ${activeTab === 'task' ? 'active' : ''}`} id="task-tab" role="tab" onClick={() => changeTab('task')}>
-            Task view
+          <button className={`nav-link ${activeTab === 'task' ? 'active' : ''}`} id="task-tab" role="tab" onClick={() => changeTab('task')} aria-label={`Switch to Task view`}>
+            Task <span>&nbsp;view</span>
           </button>
         </li>
         <li className="nav-item" role="presentation">
-          <button className={`nav-link ${activeTab === 'calendar' ? 'active' : ''}`} id="calendar-tab" role="tab" onClick={() => changeTab('calendar')}>
-            Calendar view
+          <button className={`nav-link ${activeTab === 'calendar' ? 'active' : ''}`} id="calendar-tab" role="tab" onClick={() => changeTab('calendar')} aria-label={`Switch to Calendar view`}>
+            Calendar <span>&nbsp;view</span>
           </button>
         </li>
       </ul>

@@ -396,12 +396,14 @@ useEffect(() => {
           </div>
         </div>
 
-        <button type="submit" className="btn btn-primary">
-          Create assignment plan
-        </button>
-        <button type="button" className="btn btn-default" onClick={handleReset}>
-          Reset <span className="visually-hidden">form details</span>
-        </button>
+        <div className="d-flex flex-wrap gap-3">
+          <button type="submit" className="btn btn-primary mx-0">
+            Create assignment plan
+          </button>
+          <button type="button" className="btn btn-default mx-0" onClick={handleReset}>
+            Reset <span className="visually-hidden">form details</span>
+          </button>
+        </div>
       </form>
       <div id="form-submission-message" className="visually-hidden" aria-live="polite" aria-atomic="false"></div>
     </div>
