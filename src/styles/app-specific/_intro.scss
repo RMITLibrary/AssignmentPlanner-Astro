@@ -39,6 +39,14 @@
   }
 }
 
+@include color-mode(dark) {
+  .intro {
+    .intro-image {
+      background-color: var(--bs-secondary-bg);
+    }
+  }
+}
+
 @include media-breakpoint-up(md) {
   .intro {
     .intro-image {
@@ -107,8 +115,10 @@
 }
 
 @include color-mode(dark) {
-  .intro {
-    background-color: transparent;
+  @include media-breakpoint-down(xl) {
+    .intro {
+      background-color: transparent;
+    }
   }
 }
 
