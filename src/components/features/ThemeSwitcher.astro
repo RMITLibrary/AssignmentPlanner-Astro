@@ -1,41 +1,22 @@
 ---
+
 ---
+
 <!-- Start theme switcher -->
 <form class="theme-switch theme-compact">
   <fieldset>
     <legend>Theme</legend>
     <div class="bg">
       <div class="form-check form-check-inline">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="themeOptions"
-          data-bs-theme-value="auto"
-          aria-label="System"
-          id="theme-auto"
-        />
+        <input class="form-check-input" type="radio" name="themeOptions" data-bs-theme-value="auto" aria-label="System" id="theme-auto" />
         <label class="form-check-label" for="theme-auto">System</label>
       </div>
       <div class="form-check form-check-inline">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="themeOptions"
-          data-bs-theme-value="light"
-          aria-label="Light"
-          id="theme-light"
-        />
+        <input class="form-check-input" type="radio" name="themeOptions" data-bs-theme-value="light" aria-label="Light" id="theme-light" />
         <label class="form-check-label" for="theme-light">Light</label>
       </div>
       <div class="form-check form-check-inline">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="themeOptions"
-          data-bs-theme-value="dark"
-          aria-label="Dark"
-          id="theme-dark"
-        />
+        <input class="form-check-input" type="radio" name="themeOptions" data-bs-theme-value="dark" aria-label="Dark" id="theme-dark" />
         <label class="form-check-label" for="theme-dark">Dark</label>
       </div>
     </div>
@@ -44,19 +25,19 @@
 <!-- End theme switcher -->
 
 <script is:inline>
-
   // Function to get the stored theme from localStorage
-  const getStoredTheme = () => localStorage.getItem("theme");
+  const getStoredTheme = () => localStorage.getItem('theme');
 
   // Function to set the stored theme in localStorage
-  const setStoredTheme = (theme) => localStorage.setItem("theme", theme);
+  const setStoredTheme = (theme) => localStorage.setItem('theme', theme);
 
   // Function to determine the preferred theme
   const getPreferredTheme = () => {
-    const storedTheme = getStoredTheme();
-    if (storedTheme) {
-      return storedTheme;
-    }
+    // const storedTheme = getStoredTheme();
+    // if (storedTheme) {
+    //   return storedTheme;
+    // }
+    // return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   };
 
@@ -64,31 +45,41 @@
   const setTheme = (theme) => {
     const themeToSet = theme === 'auto' ? getPreferredTheme() : theme;
     document.documentElement.setAttribute('data-bs-theme', themeToSet);
+    // Dispatch a custom event to notify other components about the theme change
+    const event = new CustomEvent('themeChanged', { detail: { theme: themeToSet } });
+    document.dispatchEvent(event);
   };
 
   // Function to show the active theme in the UI
   const showActiveTheme = (theme) => {
     document.querySelectorAll('input[name="themeOptions"]').forEach((option) => {
-      option.checked = option.getAttribute('data-bs-theme-value') === theme;
+      const isCurrentTheme = option.getAttribute('data-bs-theme-value') === theme;
+      option.checked = isCurrentTheme;
+      if (isCurrentTheme && option.id === 'theme-auto') {
+        option.checked = getStoredTheme() === null || getStoredTheme() === 'auto';
+      }
     });
   };
 
   // Listen for changes in system theme preference
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     const storedTheme = getStoredTheme();
-    if (storedTheme !== 'light' && storedTheme !== 'dark') {
-      setTheme(getPreferredTheme());
-      showActiveTheme(getPreferredTheme());
+    if (storedTheme === null || storedTheme === 'auto') {
+      // only if auto is selected or nothing is set
+      setTheme('auto');
+      showActiveTheme('auto');
     }
   });
 
-  // Set the initial theme
-  setTheme(getPreferredTheme());
-  showActiveTheme(getPreferredTheme());
+  // **Initial Theme Setup**
+  // Get the stored theme or fallback to 'auto'
+  let initialTheme = getStoredTheme() || 'auto';
+  setTheme(initialTheme);
+  showActiveTheme(initialTheme);
 
   // Add event listeners to theme options for changing themes
   const themeOptions = document.querySelectorAll('input[name="themeOptions"]');
-  themeOptions.forEach(option => {
+  themeOptions.forEach((option) => {
     option.addEventListener('change', () => {
       const selectedTheme = option.getAttribute('data-bs-theme-value');
       setStoredTheme(selectedTheme);
@@ -96,6 +87,4 @@
       showActiveTheme(selectedTheme);
     });
   });
-
 </script>
-

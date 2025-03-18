@@ -9,6 +9,7 @@ import ExportToCalendarButton from '../ui/ExportToCalendarButton'; // Import the
 import RefinePlanButton from '../ui/RefinePlanButton'; // Import the new component
 import SwitchToTaskViewButton from '../ui/SwitchToTaskViewButton';
 import SwitchToCalendarViewButton from '../ui/SwitchToCalendarViewButton';
+import Clock from '../ui/Clock'
 
 
 
@@ -191,7 +192,7 @@ const PlanDetails = () => {
   const handleExport = (event) => {
     event.preventDefault(); // Prevent the default form submission behavior
     exportToCalendar(selectedViewType);
-    closeModal(event);
+    //closeModal(event);
   };
 
   const handleRadioChange = (event) => {
@@ -258,17 +259,13 @@ const PlanDetails = () => {
               <div className="card assignment-card p-3">
                 <div className="row">
                   <div className="col-md-2 pb-3 pb-md-0 d-flex align-items-center justify-content-center">
-                    <img src={clock.src} alt="Clock Icon" className="img-fluid" />
+                    <Clock />
                   </div>
                   <div className="col-md-10">
                     <div className="card-body  p-0 ">
                       <p className="card-text">If something unexpected affects your ability to submit an assignment on time, you might qualify for an extension.</p>
                       <p className="card-text">
-                        Check out RMIT's{' '}
-                        <a href="https://www.rmit.edu.au/students/student-essentials/assessment-and-results/special-consideration" className="text-primary">
-                          Special consideration
-                        </a>{' '}
-                        page to learn more.
+                        Check out RMIT's <a href="https://www.rmit.edu.au/students/student-essentials/assessment-and-results/special-consideration">Special consideration</a> page to learn more.
                       </p>
                     </div>
                   </div>
@@ -299,13 +296,13 @@ const PlanDetails = () => {
 
       <ul className="nav nav-tabs" role="tablist">
         <li className="nav-item" role="presentation">
-          <button className={`nav-link ${activeTab === 'task' ? 'active' : ''}`} id="task-tab" role="tab" onClick={() => changeTab('task')}>
-            Task view
+          <button className={`nav-link ${activeTab === 'task' ? 'active' : ''}`} id="task-tab" role="tab" onClick={() => changeTab('task')} aria-label={`Switch to Task view`}>
+            Task <span>&nbsp;view</span>
           </button>
         </li>
         <li className="nav-item" role="presentation">
-          <button className={`nav-link ${activeTab === 'calendar' ? 'active' : ''}`} id="calendar-tab" role="tab" onClick={() => changeTab('calendar')}>
-            Calendar view
+          <button className={`nav-link ${activeTab === 'calendar' ? 'active' : ''}`} id="calendar-tab" role="tab" onClick={() => changeTab('calendar')} aria-label={`Switch to Calendar view`}>
+            Calendar <span>&nbsp;view</span>
           </button>
         </li>
       </ul>

@@ -4,7 +4,7 @@ import { scrollToView, fireDataLayerEvent } from '../../utils'; // Import the co
 
 const RefinePlanButton = () => {
   const scrollToRefinePlan = (event) => {
-    event.preventDefault(); 
+    event.preventDefault();
 
     fireDataLayerEvent({
       event: 'refine_click',
@@ -12,6 +12,7 @@ const RefinePlanButton = () => {
       viewSwitchName: 'refine-plan',
     });
     scrollToView('#planner-details');
+    document.querySelector('#assignmentName').focus();
   };
 
   return (
