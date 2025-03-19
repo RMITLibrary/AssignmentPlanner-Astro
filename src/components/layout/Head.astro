@@ -5,7 +5,18 @@ import { SEO } from 'astro-seo';
 // Destructure props and provide default values
 const { title = 'Assignment Planner | RMIT University', description = 'Get a step-by-step plan with tips and advice for completing your presentations and written assignments.', ...props } = Astro.props;
 
-const pageUrl = `${Astro.site}${Astro.url.pathname}`; // Dynamically set the current page URL
+let pageUrl;
+if (Astro.site) {
+  const siteHref = Astro.site.href;
+  if (siteHref.endsWith('/') && Astro.url.pathname.startsWith('/')) {
+    pageUrl = `${siteHref.slice(0, -1)}${Astro.url.pathname}`;
+  } else {
+    pageUrl = `${siteHref}${Astro.url.pathname}`;
+  }
+} else {
+  pageUrl = `${Astro.url.pathname}`;
+}
+
 const imageUrl = '/images/share-image.png'; // Your static share image
 ---
 
