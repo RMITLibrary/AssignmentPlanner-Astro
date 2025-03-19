@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { planDetailsStore, isOpenResults, activeTabStore } from '../../store';
+import { planDetailsStore, isOpenResults, activeTabStore, isGroupAssignment } from '../../store';
 import TabContentTasks from './TabContentTasks';
 import TabContentCalendar from './TabContentCalendar';
 import clock from '../../assets/clock.svg'; // Import the clock image
@@ -10,10 +10,12 @@ import RefinePlanButton from '../ui/RefinePlanButton'; // Import the new compone
 import SwitchToTaskViewButton from '../ui/SwitchToTaskViewButton';
 import SwitchToCalendarViewButton from '../ui/SwitchToCalendarViewButton';
 import Clock from '../ui/Clock'
-
+import { useStore } from '@nanostores/preact';
 
 
 const PlanDetails = () => {
+  const groupAssignment = useStore(isGroupAssignment);
+
   const [details, setDetails] = useState(planDetailsStore.get());
   const [isOpen, setIsOpen] = useState(isOpenResults.get());
   const [activeTab, setActiveTab] = useState(activeTabStore.get());
@@ -21,6 +23,7 @@ const PlanDetails = () => {
   const [selectedViewType, setSelectedViewType] = useState('Multiday');
   const [showSpecialConsideration, setShowSpecialConsideration] = useState(false);
   const [dialog, setDialog] = useState(null); // New state for the dialog object
+
 
   // Refs for focus management
   const modalRef = useRef(null);
@@ -55,15 +58,15 @@ const PlanDetails = () => {
     };
   }, []);
 
- const changeTab = (tab) => {
-   // Data Layer Push for Tab Clicks
-   fireDataLayerEvent({
-     event: 'tab_click',
-     formType: 'assignment_planner',
-     tabName: tab,
-   });
-   activeTabStore.set(tab);
- };
+  const changeTab = (tab) => {
+    // Data Layer Push for Tab Clicks
+    fireDataLayerEvent({
+      event: 'tab_click',
+      formType: 'assignment_planner',
+      tabName: tab,
+    });
+    activeTabStore.set(tab);
+  };
 
   const formatTaskBody = (html) => {
     // Replace <a> elements with their text content and capture URLs for resources
@@ -86,11 +89,11 @@ const PlanDetails = () => {
 
   const exportToCalendar = (viewType) => {
     // Data Layer Push (BEFORE export to calendar)
-     fireDataLayerEvent({
-       event: 'calendar_export',
-       formType: 'assignment_planner',
-       calendarViewType: viewType,
-     });
+    fireDataLayerEvent({
+      event: 'calendar_export',
+      formType: 'assignment_planner',
+      calendarViewType: viewType,
+    });
 
     const tasks = details.tasks;
     console.log('Tasks:', tasks);
@@ -119,7 +122,17 @@ const PlanDetails = () => {
 
         const taskStart = taskStartDate.toISOString().replace(/-/g, '').replace(/:/g, '').split('.')[0] + 'Z';
         const taskEnd = taskEndDate.toISOString().replace(/-/g, '').replace(/:/g, '').split('.')[0] + 'Z';
-        const formattedBody = formatTaskBody(task.body);
+        let formattedBody = formatTaskBody(task.body);
+
+        // Handle conditional content
+        if (groupAssignment) {
+          formattedBody = formattedBody.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, '$1'); // Replace with content
+        } else {
+          formattedBody = formattedBody.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, ''); // Remove entire block
+        }
+
+        // Remove any lingering conditional tags if something went wrong
+        formattedBody = formattedBody.replace(/\[\[\/?conditional\]\]/gs, '');
 
         let icsEvent = `BEGIN:VEVENT\nSUMMARY:[Assignment Planner] ${task.data.description}\nDESCRIPTION:${formattedBody.replace(/\n/g, '\\n')}\n`;
 
@@ -330,9 +343,6 @@ const PlanDetails = () => {
       </div>
     </section>
   );
-
-
-
 };
 
 export default PlanDetails;
