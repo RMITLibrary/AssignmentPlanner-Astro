@@ -4,8 +4,10 @@ import sitemap from '@astrojs/sitemap';
 import preact from '@astrojs/preact';
 import strip from 'rollup-plugin-strip';
 
-// Determine the base path based on environment variable
-const isSubdirectoryDeployment = process.env.DEPLOY_SUBDIRECTORY === 'true';
+//
+//  Determine the base path based on environment variable
+const useSubdirectoryDefault = true; // Set the default to true
+const isSubdirectoryDeployment = process.env.DEPLOY_SUBDIRECTORY === 'false' ? false : useSubdirectoryDefault;
 const basePath = isSubdirectoryDeployment ? '/AssignmentPlanner/' : '/';
 const isProduction = process.env.NODE_ENV === 'production';
 
