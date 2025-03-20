@@ -159,22 +159,55 @@ useEffect(() => {
     console.log('totalWeight:', totalWeight);
     let currentStartDate = new Date(startDate);
     let remainingDays = totalDays;
+    const distributedTasks = [];
 
-    return tasks.map((task, index) => {
+    // First pass: Distribute days based on weight, ensuring at least one day per task
+    for (let i = 0; i < tasks.length; i++) {
+      const task = tasks[i];
       const currentWeight = task.groupWeight !== undefined && isGroup ? task.groupWeight : task.weight;
-      const fractionOfDays = (totalDays * currentWeight) / totalWeight;
+      let fractionOfDays = (totalDays * currentWeight) / totalWeight;
+      let roundedDays = Math.round(fractionOfDays);
 
-      let roundedDays;
-      if (index === tasks.length - 1) {
-        roundedDays = remainingDays;
-      } else {
-        roundedDays = Math.round(fractionOfDays);
+      // Ensure each task gets at least one day if there are enough days
+      if (totalDays >= tasks.length) {
         roundedDays = Math.max(roundedDays, 1);
       }
 
+      // Ensure we don't exceed remaining days
       roundedDays = Math.min(roundedDays, remainingDays);
-      remainingDays -= roundedDays;
 
+      // If it's the last task, assign all remaining days
+      if (i === tasks.length - 1) {
+        roundedDays = remainingDays;
+      }
+
+      remainingDays -= roundedDays;
+      distributedTasks.push({ ...task, roundedDays });
+    }
+
+    // Second pass: Redistribute any remaining days
+    if (remainingDays > 0) {
+      let index = 0;
+      while (remainingDays > 0) {
+        distributedTasks[index].roundedDays++;
+        remainingDays--;
+        index = (index + 1) % distributedTasks.length;
+      }
+    } else if (remainingDays < 0) {
+      // Handle the case where we've over-allocated days (unlikely but possible with rounding)
+      let index = 0;
+      while (remainingDays < 0) {
+        if (distributedTasks[index].roundedDays > 1) {
+          distributedTasks[index].roundedDays--;
+          remainingDays++;
+        }
+        index = (index + 1) % distributedTasks.length;
+      }
+    }
+
+    // Third pass: Assign start and end dates
+    return distributedTasks.map((task, index) => {
+      const roundedDays = task.roundedDays;
       const displayTime = roundedDays > 1 ? `${roundedDays} days` : roundedDays === 1 ? '1 day' : 'less than one day';
       console.log(`Task ${index + 1} - roundedDays:`, roundedDays);
 
@@ -195,6 +228,7 @@ useEffect(() => {
       };
     });
   };
+
 
   const handleReset = () => {
     setAssignmentName('');
