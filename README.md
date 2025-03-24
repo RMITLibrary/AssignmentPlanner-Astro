@@ -111,10 +111,9 @@ Inside of the Assignment Planner project, you'll see the following folders and f
 │       └── share-image.png
 ├── src/
 │   ├── components/
-│   │   ├── PlanDetails.tsx
-│   │   ├── Form.tsx
-│   │   ├── TabContentTasks.tsx
-│   │   └── TabContentCalendar.tsx
+│   │   ├── features/
+│   │   ├── layout/
+│   │   └── ui/
 │   ├── content/
 │   │   ├── project-types/
 │   │   │    ├── 020-presentation.md
@@ -146,14 +145,15 @@ Inside of the Assignment Planner project, you'll see the following folders and f
 │   │   ├── bootstrap/
 │   │   └── design-system/
 │   ├── content.config.ts
-│   └── store.js
+│   ├── store.ts
+│   └── utils.js
 └── package.json
 └── astro.config.mjs
 
 ```
 
 - **`public/`**: Contains static assets, such as the share image.
-- **`src/components/`**: Contains Astro & Preact components used throughout the application (e.g., `Calendar.tsx`, `Form.tsx`, `Task.tsx`).
+- **`src/components/`**: Contains Astro & Preact components used throughout the application.
 - **`src/content/`**: Contains markdown files that define the assignment types and tasks.
   - **`src/content/project-types/`**: Contains definitions of assignment project types. Each file defines a project type with an `id`, `name`, a list of `tasks` and their weights, and a description. These include:
     - `020-presentation.md`: Defines tasks for a presentation project.
