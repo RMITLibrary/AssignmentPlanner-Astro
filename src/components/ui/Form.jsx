@@ -206,18 +206,22 @@ useEffect(() => {
     }
 
     // Third pass: Assign start and end dates
+    let dateIterator = new Date(currentStartDate); // Use a separate iterator
     return distributedTasks.map((task, index) => {
       const roundedDays = task.roundedDays;
       const displayTime = roundedDays > 1 ? `${roundedDays} days` : roundedDays === 1 ? '1 day' : 'less than one day';
       console.log(`Task ${index + 1} - roundedDays:`, roundedDays);
 
-      const taskStartDate = new Date(currentStartDate);
+      const taskStartDate = new Date(dateIterator);
       let taskEndDate = new Date(taskStartDate);
 
       if (roundedDays > 1) {
-        taskEndDate = new Date(taskStartDate.getTime() + (roundedDays - 1) * (1000 * 60 * 60 * 24));
+        taskEndDate.setDate(taskStartDate.getDate() + roundedDays - 1);
+      } else {
+        taskEndDate.setDate(taskStartDate.getDate());
       }
-      currentStartDate.setDate(currentStartDate.getDate() + roundedDays);
+
+      dateIterator.setDate(dateIterator.getDate() + roundedDays);
 
       return {
         ...task,
@@ -228,6 +232,7 @@ useEffect(() => {
       };
     });
   };
+
 
 
   const handleReset = () => {

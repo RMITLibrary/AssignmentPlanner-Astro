@@ -1,6 +1,6 @@
 ---
 id: "basic-task6"
-description: "Proofread and format"
+description: "Submit"
 ---
 
 - Submit the final version, ensuring all criteria are met.
