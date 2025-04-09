@@ -17,6 +17,10 @@ export default defineConfig({
   base: basePath,
   trailingSlash: 'always',
   vite: {
+    // Pass basePath to the client-side environment
+    define: {
+      'import.meta.env.BASE_PATH': JSON.stringify(basePath),
+    },
     logLevel: 'error',
     plugins: [
       strip({
