@@ -17,7 +17,10 @@ if (Astro.site) {
   pageUrl = `${Astro.url.pathname}`;
 }
 
-const imageUrl = '/images/share-image.png'; // Your static share image
+// Dynamically construct paths based on basePath
+const basePath = import.meta.env.BASE_PATH || '/';
+const imageUrl = `${basePath}images/share-image.png`;
+const sitemapUrl = `${basePath}sitemap-index.xml`;
 ---
 
 <SEO
@@ -32,7 +35,7 @@ const imageUrl = '/images/share-image.png'; // Your static share image
     },
   }}
   extend={{
-    link: [{ rel: 'sitemap', href: '/sitemap-index.xml' }],
+    link: [{ rel: 'sitemap', href: sitemapUrl }],
     meta: [
       { name: 'author', content: 'RMIT University' },
       { name: 'theme-color', content: '#0057B8' },
