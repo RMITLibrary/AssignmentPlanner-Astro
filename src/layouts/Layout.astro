@@ -7,21 +7,8 @@ export interface Props {
 }
 const { title } = Astro.props;
 
-// Check if this is an embedded view - handle both development and production URLs
-const isEmbedded = () => {
-  // Get the full URL
-  const url = new URL(Astro.request.url);
-  // Check both the direct parameters and any parameters after the base path
-  return (
-    url.searchParams.get('iframe') === 'true' ||
-    url.searchParams.get('embed') === 'true' ||
-    // Check if iframe=true exists anywhere in the URL string
-    url.toString().includes('iframe=true') ||
-    url.toString().includes('embed=true')
-  );
-};
-
-const embedded = isEmbedded();
+// Check if this is an embedded view
+const isEmbedded = Astro.url.searchParams.get('iframe') === 'true' || Astro.url.searchParams.get('embed') === 'true';
 import '/src/styles/main.scss';
 ---
 
@@ -44,19 +31,28 @@ import '/src/styles/main.scss';
       })(window, document, 'script', 'dataLayer', 'GTM-WVWLDBQM');
     </script>
     <!-- End Google Tag Manager -->
+    <style>
+      /* Hide footer elements when in iframe mode */
+      body.embedded-view .footer-container,
+      body.embedded-view footer,
+      body.embedded-view .acknowledgement,
+      body.embedded-view header {
+        display: none !important;
+      }
+    </style>
   </head>
-  <body class={embedded ? 'embedded-view' : ''}>
+  <body class={isEmbedded ? 'embedded-view' : ''}>
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WVWLDBQM" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
-    {!embedded && <Header />}
+    <Header />
     <!-- START container main-content -->
     <div id="page-content" class="container main-content">
       <slot />
     </div>
 
-    {!embedded && <Footer />}
+    <Footer />
     <script>
       // Astro will bundle and process this automatically
       import 'bootstrap/dist/js/bootstrap.bundle.min.js';
