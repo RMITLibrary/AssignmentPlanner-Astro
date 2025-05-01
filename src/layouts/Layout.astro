@@ -7,39 +7,87 @@ export interface Props {
 }
 const { title } = Astro.props;
 
+// Server-side check for iframe/embed mode
+const searchParams = Astro.url.searchParams;
+const isEmbedded = searchParams.has('iframe') || searchParams.has('embed');
+
 //import 'bootstrap/dist/css/bootstrap.css';
 import '/src/styles/main.scss';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-embedded={isEmbedded}>
   <head>
     <meta charset="UTF-8" />
     <Head title={title} />
+
     <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-WVWLDBQM');</script>
+    <script>
+      // Safe GTM initialization
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+        const f = d.getElementsByTagName(s)[0];
+        const j = d.createElement(s);
+        const dl = l !== 'dataLayer' ? '&l=' + l : '';
+        if (j instanceof HTMLScriptElement) {
+          j.async = true;
+          j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+          if (f && f.parentNode) {
+            f.parentNode.insertBefore(j, f);
+          }
+        }
+      })(window, document, 'script', 'dataLayer', 'GTM-WVWLDBQM');
+    </script>
     <!-- End Google Tag Manager -->
+
+    <style is:global>
+      /* Hide elements when in iframe mode */
+      html[data-embedded='true'] .hide-in-iframe {
+        display: none !important;
+      }
+    </style>
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WVWLDBQM"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WVWLDBQM" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    
-    <Header />
+
+    <div class="hide-in-iframe">
+      <Header />
+    </div>
+
     <!-- START container main-content -->
     <div id="page-content" class="container main-content">
       <slot />
     </div>
 
-    <Footer />
+    <div class="hide-in-iframe">
+      <Footer />
+    </div>
+
     <script>
       // Astro will bundle and process this automatically
       import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+      // Client-side check for iframe embedding
+      function checkEmbed() {
+        const isIframe = window.location.search.includes('iframe') || window.location.search.includes('embed') || window.self !== window.top;
+
+        document.documentElement.dataset.embedded = isIframe.toString();
+      }
+
+      // Run on load and when URL changes
+      checkEmbed();
+      window.addEventListener('popstate', checkEmbed);
+    </script>
+
+    <!-- Initialize iframe resize functionality -->
+    <script>
+      import { initializeIframeResize } from '../scripts/iframe-resize';
+
+      // Initialize immediately
+      initializeIframeResize();
     </script>
   </body>
 </html>
