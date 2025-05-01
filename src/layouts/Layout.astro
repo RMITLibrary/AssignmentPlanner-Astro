@@ -7,8 +7,14 @@ export interface Props {
 }
 const { title } = Astro.props;
 
-// Check if this is an embedded view
-const isEmbedded = Astro.url.searchParams.get('iframe') === 'true' || Astro.url.searchParams.get('embed') === 'true';
+// Log the full URL and parameters to see what we're getting
+console.log('Full URL:', Astro.url.toString());
+console.log('Search params:', Astro.url.searchParams.toString());
+console.log('iframe param:', Astro.url.searchParams.get('iframe'));
+
+const isEmbedded = Astro.url.searchParams.get('iframe') === 'true';
+console.log('isEmbedded:', isEmbedded);
+
 import '/src/styles/main.scss';
 ---
 
@@ -31,17 +37,64 @@ import '/src/styles/main.scss';
       })(window, document, 'script', 'dataLayer', 'GTM-WVWLDBQM');
     </script>
     <!-- End Google Tag Manager -->
+    <!-- Styles for iframe mode -->
     <style>
-      /* Hide footer elements when in iframe mode */
-      body.embedded-view .footer-container,
-      body.embedded-view footer,
-      body.embedded-view .acknowledgement,
-      body.embedded-view header {
+      /* Debug styles to make it very obvious when iframe-mode is applied */
+      .iframe-mode {
+        border: 5px solid red !important;
+      }
+
+      .iframe-mode header,
+      .iframe-mode footer,
+      .iframe-mode .footer-container,
+      .iframe-mode .acknowledgement {
         display: none !important;
       }
+
+      .iframe-mode .main-content {
+        padding-top: 0 !important;
+        margin-bottom: 0 !important;
+      }
     </style>
+
+    <!-- Script to detect iframe and set mode -->
+    <script>
+      // Function to check if we're in an iframe
+      function isInIframe() {
+        try {
+          return window.self !== window.top;
+        } catch (e) {
+          return true;
+        }
+      }
+
+      // Function to check URL parameters
+      function hasIframeParam() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('iframe') === 'true' || params.get('embed') === 'true';
+      }
+
+      // Debug logging
+      console.log('Is in iframe?', isInIframe());
+      console.log('Has iframe param?', hasIframeParam());
+      console.log('Current URL:', window.location.href);
+      console.log('Search params:', window.location.search);
+
+      // Apply iframe mode if either condition is true
+      if (isInIframe() || hasIframeParam()) {
+        console.log('Applying iframe mode');
+        document.documentElement.classList.add('iframe-mode');
+        // Also add to body when it's available
+        document.addEventListener('DOMContentLoaded', () => {
+          document.body.classList.add('iframe-mode');
+          console.log('Added iframe-mode class');
+          console.log('HTML classes:', document.documentElement.className);
+          console.log('Body classes:', document.body.className);
+        });
+      }
+    </script>
   </head>
-  <body class={isEmbedded ? 'embedded-view' : ''}>
+  <body>
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WVWLDBQM" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
@@ -57,6 +110,37 @@ import '/src/styles/main.scss';
       // Astro will bundle and process this automatically
       import 'bootstrap/dist/js/bootstrap.bundle.min.js';
     </script>
-    <script src="../assets/scripts/iframe-resize.js"></script>
+
+    <script>
+      (function () {
+        'use strict';
+
+        // Only run if we're in an iframe
+        if (window.self !== window.top) {
+          console.log('Resize script activated - we are in an iframe');
+          const sendResizeMessage = () => {
+            const height = document.documentElement.scrollHeight;
+            window.parent.postMessage(
+              {
+                subject: 'lti.frameResize',
+                height: height,
+              },
+              '*',
+            );
+          };
+
+          // Send height updates
+          window.addEventListener('load', sendResizeMessage);
+          window.addEventListener('resize', sendResizeMessage);
+
+          // Watch for DOM changes
+          const observer = new MutationObserver(sendResizeMessage);
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
