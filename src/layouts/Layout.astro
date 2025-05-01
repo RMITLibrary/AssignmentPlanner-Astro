@@ -7,7 +7,9 @@ export interface Props {
 }
 const { title } = Astro.props;
 
-//import 'bootstrap/dist/css/bootstrap.css';
+// Check if this is an embedded view
+const isEmbedded = Astro.url.searchParams.get('iframe') === 'true' || Astro.url.searchParams.get('embed') === 'true';
+
 import '/src/styles/main.scss';
 ---
 
@@ -36,13 +38,13 @@ import '/src/styles/main.scss';
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WVWLDBQM" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
-    <Header />
+    {!isEmbedded && <Header />}
     <!-- START container main-content -->
     <div id="page-content" class="container main-content">
       <slot />
     </div>
 
-    <Footer />
+    {!isEmbedded && <Footer />}
     <script>
       // Astro will bundle and process this automatically
       import 'bootstrap/dist/js/bootstrap.bundle.min.js';
