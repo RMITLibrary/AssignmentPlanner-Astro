@@ -2,27 +2,31 @@
 
 ---
 
-<!-- Start theme switcher -->
-<form class="theme-switch theme-compact">
-  <fieldset>
-    <legend>Theme</legend>
-    <div class="bg">
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="themeOptions" data-bs-theme-value="auto" aria-label="System" id="theme-auto" />
-        <label class="form-check-label" for="theme-auto">System</label>
+<!-- Start theme switcher and embed button container -->
+<div class="theme-container">
+  <form class="theme-switch theme-compact">
+    <fieldset>
+      <legend>Theme</legend>
+      <div class="bg">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="themeOptions" data-bs-theme-value="auto" aria-label="System" id="theme-auto" />
+          <label class="form-check-label" for="theme-auto">System</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="themeOptions" data-bs-theme-value="light" aria-label="Light" id="theme-light" />
+          <label class="form-check-label" for="theme-light">Light</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="themeOptions" data-bs-theme-value="dark" aria-label="Dark" id="theme-dark" />
+          <label class="form-check-label" for="theme-dark">Dark</label>
+        </div>
       </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="themeOptions" data-bs-theme-value="light" aria-label="Light" id="theme-light" />
-        <label class="form-check-label" for="theme-light">Light</label>
-      </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="themeOptions" data-bs-theme-value="dark" aria-label="Dark" id="theme-dark" />
-        <label class="form-check-label" for="theme-dark">Dark</label>
-      </div>
-    </div>
-  </fieldset>
-</form>
-<!-- End theme switcher -->
+    </fieldset>
+  </form>
+
+  <button class="btn btn-embed" data-bs-toggle="modal" data-bs-target="#embedModal" type="button"> Embed planner </button>
+</div>
+<!-- End theme switcher and embed button container -->
 
 <script is:inline>
   // Function to get the stored theme from localStorage

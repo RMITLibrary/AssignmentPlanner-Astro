@@ -1,0 +1,146 @@
+---
+
+---
+
+<div class="modal fade" id="embedModal" tabindex="-1" aria-labelledby="embedModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="h3 margin-top-zero margin-bot-zero" id="embedModalLabel">Embed this page</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <textarea id="embedCode" class="code-section mt-3" rows="4" readonly aria-label="Embed Code"></textarea>
+        <div class="btn-container">
+          <button id="copy-code" type="button" class="btn btn-primary">Copy code</button>
+          <div id="feedback" class="collapse small"></div>
+        </div>
+        <!-- START accordion item -->
+        <div class="accordion-item transcript margin-top-xs">
+          <p class="accordion-header" id="Transcript-head">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#Transcript-body" aria-expanded="false" aria-controls="Transcript-body"> How to embed in Canvas LMS </button>
+          </p>
+          <div id="Transcript-body" class="accordion-collapse collapse" aria-labelledby="Transcript-head">
+            <div class="accordion-body padding-top-zero">
+              <ol class="small">
+                <li>Copy the iframe code above.</li>
+                <li>Go to the course in Canvas where you want to add the content.</li>
+                <li>Navigate to the page or module where you want to embed the content.</li>
+                <li>In the Rich Content Editor, click on the "HTML Editor" link.</li>
+                <li>Paste the iframe code into the HTML area.</li>
+                <li>Switch back to the Rich Content Editor to see the embedded content.</li>
+                <li>Save the changes to your page or module.</li>
+              </ol>
+              <p class="small">Note: Ensure that your permissions allow embedding external content in your Canvas LMS instance.</p>
+            </div>
+          </div>
+        </div>
+        <!-- END accordion item -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Generate the iframe embed code when the modal is shown
+    const embedModal = document.getElementById('embedModal');
+    if (embedModal) {
+      embedModal.addEventListener('shown.bs.modal', function () {
+        generateEmbedCode();
+      });
+    }
+
+    // Function to generate the embed code
+    function generateEmbedCode() {
+      const currentUrl = window.location.href;
+      const baseUrl = currentUrl.split('?')[0]; // Remove any existing query parameters
+
+      // Add embed parameter to URL
+      const embedUrl = baseUrl + '?embed=1';
+
+      const iframeCode = `<iframe src="${embedUrl}" width="100%" height="800" style="border: none; max-width: 100%;" allow="clipboard-write; fullscreen;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads" loading="lazy" title="Assignment Planner" referrerpolicy="strict-origin"></iframe>`;
+      document.getElementById('embedCode').value = iframeCode;
+    }
+
+    // Copy button functionality
+    const copyButton = document.getElementById('copy-code');
+    if (copyButton) {
+      copyButton.addEventListener('click', function () {
+        const embedCodeElement = document.getElementById('embedCode');
+        embedCodeElement.select();
+
+        try {
+          // Use modern clipboard API if available
+          if (navigator.clipboard) {
+            navigator.clipboard
+              .writeText(embedCodeElement.value)
+              .then(() => {
+                showFeedback('Code copied to clipboard!');
+              })
+              .catch((err) => {
+                console.error('Failed to copy: ', err);
+                // Fallback to execCommand
+                document.execCommand('copy');
+                showFeedback('Code copied to clipboard!');
+              });
+          } else {
+            // Fallback for browsers that don't support clipboard API
+            document.execCommand('copy');
+            showFeedback('Code copied to clipboard!');
+          }
+        } catch (err) {
+          console.error('Failed to copy: ', err);
+          showFeedback('Failed to copy code. Please try selecting and copying manually.', 'error');
+        }
+      });
+    }
+
+    function showFeedback(message, type = 'success') {
+      const feedback = document.getElementById('feedback');
+      if (feedback) {
+        feedback.textContent = message;
+        feedback.className = `collapse small ${type === 'success' ? 'text-success' : 'text-danger'} show`;
+
+        setTimeout(function () {
+          feedback.classList.remove('show');
+        }, 3000);
+      }
+    }
+  });
+</script>
+
+<style>
+  .code-section {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    font-family: monospace;
+  }
+
+  .btn-container {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  #feedback {
+    color: #28a745;
+  }
+
+  .margin-top-xs {
+    margin-top: 0.5rem;
+  }
+
+  .margin-top-zero,
+  .margin-bot-zero {
+    margin: 0;
+  }
+
+  .padding-top-zero {
+    padding-top: 0;
+  }
+</style>
