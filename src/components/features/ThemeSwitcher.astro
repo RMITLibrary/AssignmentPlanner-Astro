@@ -6,8 +6,9 @@ const isEmbedded = searchParams.has('iframe') || searchParams.has('embed') || se
 // Get the base path
 const basePath = import.meta.env.BASE_PATH || '/';
 
-// Full URL for the "Open Full Planner" button
-const fullUrl = Astro.url.origin + basePath;
+// Full URL for the "Open Full Planner" button - preserve all current URL parameters
+const currentSearch = Astro.url.search; // Get the current search params including the ?
+const fullUrl = Astro.url.origin + basePath + currentSearch;
 ---
 
 <!-- Start theme switcher and embed button container -->
@@ -39,6 +40,32 @@ const fullUrl = Astro.url.origin + basePath;
 <!-- End theme switcher and embed button container -->
 
 <script is:inline>
+  // Update the "Open in new tab" button URL whenever the page URL changes
+  document.addEventListener('DOMContentLoaded', () => {
+    const updateOpenButtonUrl = () => {
+      const openButton = document.getElementById('open-full-planner');
+      if (openButton) {
+        // Use the current window.location to ensure all parameters are included
+        const currentUrl = window.location.href;
+        openButton.href = currentUrl;
+      }
+    };
+
+    // Update the URL when the page loads
+    updateOpenButtonUrl();
+
+    // Set up a MutationObserver to watch for changes to the URL
+    // This is useful when form submissions update the URL with parameters
+    let lastUrl = location.href;
+    new MutationObserver(() => {
+      const url = location.href;
+      if (url !== lastUrl) {
+        lastUrl = url;
+        updateOpenButtonUrl();
+      }
+    }).observe(document, { subtree: true, childList: true });
+  });
+
   // Function to get the stored theme from localStorage
   const getStoredTheme = () => localStorage.getItem('theme');
 
