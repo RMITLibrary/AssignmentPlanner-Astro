@@ -1,5 +1,6 @@
 ---
-
+// Get the base path to ensure correct URL generation
+const basePath = import.meta.env.BASE_PATH || '/';
 ---
 
 <div class="modal fade" id="embedModal" tabindex="-1" aria-labelledby="embedModalLabel" aria-hidden="true">
@@ -14,6 +15,9 @@
         <div class="btn-container">
           <button id="copy-code" type="button" class="btn btn-primary">Copy code</button>
           <div id="feedback" class="collapse small"></div>
+        </div>
+        <div class="embed-note alert alert-info margin-top-xs small">
+          <p class="margin-bot-zero"><strong>Note:</strong> The PDF/print functionality is not available when embedded as iframe into a page.</p>
         </div>
         <!-- START accordion item -->
         <div class="accordion-item transcript margin-top-xs">
@@ -41,7 +45,7 @@
   </div>
 </div>
 
-<script is:inline>
+<script define:vars={{ basePath }}>
   document.addEventListener('DOMContentLoaded', function () {
     // Generate the iframe embed code when the modal is shown
     const embedModal = document.getElementById('embedModal');
@@ -53,11 +57,23 @@
 
     // Function to generate the embed code
     function generateEmbedCode() {
-      const currentUrl = window.location.href;
-      const baseUrl = currentUrl.split('?')[0]; // Remove any existing query parameters
+      // Get origin
+      const origin = window.location.origin;
 
-      // Add embed parameter to URL
-      const embedUrl = baseUrl + '?embed=1';
+      // Get the current path without query parameters
+      let path = window.location.pathname;
+
+      // If we're not on the index page, we should link to the index with the base path
+      if (path !== basePath && path !== basePath + 'index/' && path !== basePath + 'index.html') {
+        path = basePath;
+      }
+
+      // Construct full URL with origin and path
+      const baseUrl = origin + path;
+
+      // Add embed parameter to URL (ensuring we handle trailing slashes correctly)
+      const hasTrailingSlash = baseUrl.endsWith('/');
+      const embedUrl = baseUrl + (hasTrailingSlash ? '?embed=1&embedded=true' : '/?embed=1&embedded=true');
 
       const iframeCode = `<iframe src="${embedUrl}" width="100%" height="800" style="border: none; max-width: 100%;" allow="clipboard-write; fullscreen;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads" loading="lazy" title="Assignment Planner" referrerpolicy="strict-origin" scrolling="no"></iframe>`;
       document.getElementById('embedCode').value = iframeCode;

@@ -1,0 +1,167 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Get the base path from environment variable
+const basePath = import.meta.env.BASE_PATH || '/';
+
+// Construct iframe URLs with both params (multiple params sometimes help with certain embedding scenarios)
+const embedUrl = `${basePath}?embed=1&embedded=true`;
+const iframeUrl = `${basePath}?iframe=1&embedded=true`;
+---
+
+<Layout title="Embed Test Page | Assignment Planner">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h1>Assignment Planner Embed Test</h1>
+
+        <div class="alert alert-info">
+          <p>This page allows you to test the iframe embedding functionality of the Assignment Planner. You can observe:</p>
+          <ul>
+            <li>How the UI changes when embedded (some elements should be hidden)</li>
+            <li>The "Embed planner" button should be replaced with an "Open Full Planner" button</li>
+            <li>The "Save to PDF" button should be hidden</li>
+            <li>Clicking the "Open Full Planner" button should open the full planner in a new tab</li>
+          </ul>
+          <p><strong>Current base path:</strong> {basePath}</p>
+          <p><strong>Embed URL:</strong> {embedUrl}</p>
+        </div>
+
+        <div class="test-section mb-5">
+          <h2>Test with embed=1 parameter</h2>
+          <div class="buttons mb-3">
+            <button class="btn btn-primary" id="reload-embed">Reload iframe</button>
+            <button class="btn btn-secondary" id="open-embed">Open in new tab</button>
+          </div>
+          <div class="iframe-container">
+            <iframe id="embed-iframe" src={`${basePath}?embed=1&embedded=true`} width="100%" height="800" style="border: none; max-width: 100%;" allow="clipboard-write; fullscreen" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads" loading="lazy" title="Assignment Planner" referrerpolicy="strict-origin"> </iframe>
+          </div>
+        </div>
+
+        <div class="test-section mb-5">
+          <h2>Test URL Parameters</h2>
+          <div class="alert alert-info">
+            <p>The Assignment Planner now supports URL parameters for sharing and saving form submissions. Try these examples:</p>
+          </div>
+          <div class="list-group mb-4">
+            <a href={`${basePath}?type=essay-project&start=2023-05-20&end=2023-06-10`} class="list-group-item list-group-item-action" target="_blank">
+              Basic Essay Plan
+              <small class="d-block text-muted">?type=essay-project&start=2023-05-20&end=2023-06-10</small>
+            </a>
+            <a href={`${basePath}?type=literature-review-project&start=2023-05-20&end=2023-06-10&name=Research%20Methods&group=yes`} class="list-group-item list-group-item-action" target="_blank">
+              Complete Literature Review (with name and group)
+              <small class="d-block text-muted">?type=literature-review-project&start=2023-05-20&end=2023-06-10&name=Research%20Methods&group=yes</small>
+            </a>
+            <a href={`${basePath}?type=presentation-project&start=2023-06-01&end=2023-06-15&name=Project%20Presentation`} class="list-group-item list-group-item-action" target="_blank">
+              Presentation Assignment (with name)
+              <small class="d-block text-muted">?type=presentation-project&start=2023-06-01&end=2023-06-15&name=Project%20Presentation</small>
+            </a>
+          </div>
+          <p>After submitting a form, users can now copy the URL and share it, allowing others to easily load the same assignment plan.</p>
+        </div>
+
+        <div class="test-section mb-5">
+          <h2>Test with iframe=1 parameter</h2>
+          <div class="buttons mb-3">
+            <button class="btn btn-primary" id="reload-iframe">Reload iframe</button>
+            <button class="btn btn-secondary" id="open-iframe">Open in new tab</button>
+          </div>
+          <div class="iframe-container">
+            <iframe id="iframe-iframe" src={`${basePath}?iframe=1&embedded=true`} width="100%" height="800" style="border: none; max-width: 100%;" allow="clipboard-write; fullscreen" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads" loading="lazy" title="Assignment Planner" referrerpolicy="strict-origin"> </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Helper function to get iframe elements
+  const getIframe = (id: string): HTMLIFrameElement | null => document.getElementById(id) as HTMLIFrameElement | null;
+
+  // Helper function to reload an iframe
+  const reloadIframe = (iframeId: string): void => {
+    const iframe = getIframe(iframeId);
+    if (iframe) {
+      iframe.src = iframe.src;
+    }
+  };
+
+  // Helper function to open iframe URL in new tab
+  const openInNewTab = (iframeId: string): void => {
+    const iframe = getIframe(iframeId);
+    if (iframe && iframe.src) {
+      window.open(iframe.src, '_blank');
+    }
+  };
+
+  // Set up event listeners for embed iframe buttons
+  document.getElementById('reload-embed')?.addEventListener('click', () => reloadIframe('embed-iframe'));
+  document.getElementById('open-embed')?.addEventListener('click', () => openInNewTab('embed-iframe'));
+
+  // Set up event listeners for iframe iframe buttons
+  document.getElementById('reload-iframe')?.addEventListener('click', () => reloadIframe('iframe-iframe'));
+  document.getElementById('open-iframe')?.addEventListener('click', () => openInNewTab('iframe-iframe'));
+</script>
+
+<style>
+  .iframe-container {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  .buttons {
+    margin-bottom: 1rem;
+  }
+
+  .test-section {
+    margin-bottom: 3rem;
+  }
+</style>
+
+<style>
+  .iframe-container {
+    border: 2px dashed #cbd5e0;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #f7fafc;
+  }
+  .test-section {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  .buttons {
+    display: flex;
+    gap: 10px;
+  }
+</style>
+
+<script define:vars={{ basePath }}>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Reload embed iframe
+    document.getElementById('reload-embed').addEventListener('click', function () {
+      const iframe = document.getElementById('embed-iframe');
+      iframe.src = `${basePath}?embed=1&embedded=true&t=${Date.now()}`; // Add timestamp to prevent caching
+    });
+
+    // Open embed in new tab
+    document.getElementById('open-embed').addEventListener('click', function () {
+      window.open(`${basePath}?embed=1&embedded=true`, '_blank');
+    });
+
+    // Reload iframe with iframe parameter
+    document.getElementById('reload-iframe').addEventListener('click', function () {
+      const iframe = document.getElementById('iframe-iframe');
+      iframe.src = `${basePath}?iframe=1&embedded=true&t=${Date.now()}`; // Add timestamp to prevent caching
+    });
+
+    // Open iframe parameter in new tab
+    document.getElementById('open-iframe').addEventListener('click', function () {
+      window.open(`${basePath}?iframe=1&embedded=true`, '_blank');
+    });
+  });
+</script>

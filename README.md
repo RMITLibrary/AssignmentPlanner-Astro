@@ -13,6 +13,7 @@ The Assignment Planner is a web application designed to help students effectivel
 - **Task View:** See a clear list of tasks with their start and end dates.
 - **Export:** Export a task list to a calender application.
 - **PDF Option:** Save the assignment plan as a PDF for easy sharing or printing.
+- **Shareable URLs:** Create and share URLs with assignment details that can be easily reused or shared with others.
 - **Responsive Design:** Ensures the app is usable on various devices, including desktops, tablets, and mobile phones.
 - **Pre-built Assignment Templates:** Includes templates for common assignment types (e.g., Essays, Reports, Presentations, Literature Reviews).
 - **Pre-filled task lists**: Includes pre-filled task lists for common assignement types.
@@ -250,6 +251,39 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Repo Admin: Jack Dunstan ([jack.dunstan@rmit.edu.au](mailto:jack.dunstan@rmit.edu.au))
 - Additional Contact: [digital.learning.library@rmit.edu.au](mailto:digital.learning.library@rmit.edu.au)
+
+## URL Parameter Feature
+
+The Assignment Planner supports URL parameters that allow users to share and save their assignment plans. When a form is submitted, the URL is automatically updated with the parameters that represent the selected options.
+
+### Supported Parameters
+
+- `type` - The assignment type ID (e.g., essay-project, literature-review-project)
+- `start` - The start date in YYYY-MM-DD format
+- `end` - The end date in YYYY-MM-DD format
+- `name` - (Optional) The name of the assignment
+- `group` - (Optional) Set to "yes" if it's a group assignment
+
+### Examples
+
+- Basic URL with required parameters:
+  ```
+  /AssignmentPlanner/?type=essay-project&start=2023-05-20&end=2023-06-10
+  ```
+
+- Complete URL with all parameters:
+  ```
+  /AssignmentPlanner/?type=literature-review-project&start=2023-05-20&end=2023-06-10&name=Research%20Methods&group=yes
+  ```
+
+### Usage
+
+1. Fill out the form and submit it to create an assignment plan
+2. The URL in your browser will update with the parameters
+3. Copy this URL to save or share your assignment plan
+4. When someone visits this URL, the form will be auto-filled with your settings
+
+You can also use the "Copy Shareable Link" button that appears after creating a plan to quickly copy the URL to your clipboard.
 
 ## Resources
 

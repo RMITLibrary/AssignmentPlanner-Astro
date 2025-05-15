@@ -1,5 +1,13 @@
 ---
+// Server-side check for iframe/embed mode
+const searchParams = Astro.url.searchParams;
+const isEmbedded = searchParams.has('iframe') || searchParams.has('embed') || searchParams.has('embedded');
 
+// Get the base path
+const basePath = import.meta.env.BASE_PATH || '/';
+
+// Full URL for the "Open Full Planner" button
+const fullUrl = Astro.url.origin + basePath;
 ---
 
 <!-- Start theme switcher and embed button container -->
@@ -24,7 +32,9 @@
     </fieldset>
   </form>
 
-  <button class="btn btn-embed" data-bs-toggle="modal" data-bs-target="#embedModal" type="button"> Embed planner </button>
+  <a class="btn btn-default btn-open-planner show-in-iframe" href={fullUrl} target="_blank" aria-label="Open Assignment Planner in a new tab" id="open-full-planner"> Open in new tab</a>
+
+  <button class="btn btn-embed hide-in-iframe" data-bs-toggle="modal" data-bs-target="#embedModal" type="button"> Embed planner </button>
 </div>
 <!-- End theme switcher and embed button container -->
 

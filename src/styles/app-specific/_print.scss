@@ -10,6 +10,15 @@
   }
 }
 
+// Disable printing in embedded mode
+html[data-embedded='true'] {
+  @media print {
+    body {
+      display: none !important;
+    }
+  }
+}
+
 @media print {
   :root,
   :root[data-bs-theme='dark'] {
