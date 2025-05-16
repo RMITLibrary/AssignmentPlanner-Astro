@@ -5,8 +5,8 @@ import Layout from '../layouts/Layout.astro';
 const basePath = import.meta.env.BASE_PATH || '/';
 
 // Construct iframe URLs with both params (multiple params sometimes help with certain embedding scenarios)
-const embedUrl = `${basePath}?embed=1&embedded=true`;
-const iframeUrl = `${basePath}?iframe=1&embedded=true`;
+const embedUrl = `${basePath}?embed=1`;
+const iframeUrl = `${basePath}?iframe=1`;
 ---
 
 <Layout title="Embed Test Page | Assignment Planner">
@@ -34,7 +34,7 @@ const iframeUrl = `${basePath}?iframe=1&embedded=true`;
             <button class="btn btn-secondary" id="open-embed">Open in new tab</button>
           </div>
           <div class="iframe-container">
-            <iframe id="embed-iframe" src={`${basePath}?embed=1&embedded=true`} width="100%" height="800" style="border: none; max-width: 100%;" allow="clipboard-write; fullscreen" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads" loading="lazy" title="Assignment Planner" referrerpolicy="strict-origin"> </iframe>
+            <iframe id="embed-iframe" src={`${basePath}?embed=1`} width="100%" height="800" style="border: none; max-width: 100%;" allow="clipboard-write; fullscreen" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads" loading="lazy" title="Assignment Planner" referrerpolicy="strict-origin"> </iframe>
           </div>
         </div>
 
@@ -67,7 +67,7 @@ const iframeUrl = `${basePath}?iframe=1&embedded=true`;
             <button class="btn btn-secondary" id="open-iframe">Open in new tab</button>
           </div>
           <div class="iframe-container">
-            <iframe id="iframe-iframe" src={`${basePath}?iframe=1&embedded=true`} width="100%" height="800" style="border: none; max-width: 100%;" allow="clipboard-write; fullscreen" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads" loading="lazy" title="Assignment Planner" referrerpolicy="strict-origin"> </iframe>
+            <iframe id="iframe-iframe" src={`${basePath}?iframe=1`} width="100%" height="800" style="border: none; max-width: 100%;" allow="clipboard-write; fullscreen" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads" loading="lazy" title="Assignment Planner" referrerpolicy="strict-origin"> </iframe>
           </div>
         </div>
       </div>
