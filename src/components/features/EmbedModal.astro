@@ -73,7 +73,7 @@ const basePath = import.meta.env.BASE_PATH || '/';
 
       // Add embed parameter to URL (ensuring we handle trailing slashes correctly)
       const hasTrailingSlash = baseUrl.endsWith('/');
-      const embedUrl = baseUrl + (hasTrailingSlash ? '?embed=1&embedded=true' : '/?embed=1&embedded=true');
+      const embedUrl = baseUrl + (hasTrailingSlash ? '?embed=1' : '/?embed=1');
 
       const iframeCode = `<iframe src="${embedUrl}" width="100%" height="800" style="border: none; max-width: 100%;" allow="clipboard-write; fullscreen;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads" loading="lazy" title="Assignment Planner" referrerpolicy="strict-origin" scrolling="no"></iframe>`;
       document.getElementById('embedCode').value = iframeCode;

@@ -10,15 +10,6 @@
   }
 }
 
-// Disable printing in embedded mode
-html[data-embedded='true'] {
-  @media print {
-    body {
-      display: none !important;
-    }
-  }
-}
-
 @media print {
   :root,
   :root[data-bs-theme='dark'] {
@@ -251,8 +242,12 @@ html[data-embedded='true'] {
     display: none;
   }
 
-  .special-consideration{
+  .special-consideration {
     display: none;
+  }
+
+  .hide-print {
+    display: none !important;
   }
 
   .calendar-container {

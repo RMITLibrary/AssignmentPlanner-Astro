@@ -145,7 +145,7 @@ const iframeUrl = `${basePath}?iframe=1&embedded=true`;
     // Reload embed iframe
     document.getElementById('reload-embed').addEventListener('click', function () {
       const iframe = document.getElementById('embed-iframe');
-      iframe.src = `${basePath}?embed=1&embedded=true&t=${Date.now()}`; // Add timestamp to prevent caching
+      iframe.src = `${basePath}?embed=1&t=${Date.now()}`; // Add timestamp to prevent caching
     });
 
     // Open embed in new tab
@@ -156,7 +156,7 @@ const iframeUrl = `${basePath}?iframe=1&embedded=true`;
     // Reload iframe with iframe parameter
     document.getElementById('reload-iframe').addEventListener('click', function () {
       const iframe = document.getElementById('iframe-iframe');
-      iframe.src = `${basePath}?iframe=1&embedded=true&t=${Date.now()}`; // Add timestamp to prevent caching
+      iframe.src = `${basePath}?iframe=1&t=${Date.now()}`; // Add timestamp to prevent caching
     });
 
     // Open iframe parameter in new tab

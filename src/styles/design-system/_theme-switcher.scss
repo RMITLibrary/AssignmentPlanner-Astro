@@ -36,17 +36,6 @@
   }
 }
 
-#embedModal .modal-content .accordion-item {
-  border-bottom: 0;
-}
-
-.btn-embed {
-  // Hide completely on small screens (less than 576px)
-  @include media-breakpoint-down(md) {
-    display: none;
-  }
-}
-
 .theme-switch.hamburger-menu {
   margin-top: 2rem;
   margin-bottom: 0.75rem;

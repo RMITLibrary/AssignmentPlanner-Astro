@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Intro from '../components/features/Intro.astro';
 import Form from '../components/ui/Form';
 import PlanDetails from '../components/features/PlanDetails';
-import ThemeSwitcher from '../components/features/ThemeSwitcher.astro';
+import HeaderControls from '../components/features/HeaderControls.astro';
 import { getCollection } from 'astro:content';
 
 const pageTitle = 'Assignment Planner | RMIT University';
@@ -39,7 +39,7 @@ const projectsWithTasks = projectTypes.map((project) => {
       <Intro />
       <Form projectsWithTasks={projectsWithTasks} client:load />
       <PlanDetails client:load />
-      <ThemeSwitcher />
+      <HeaderControls />
     </div>
   </div>
 </Layout>
