@@ -69,23 +69,60 @@ const PlanDetails = () => {
     activeTabStore.set(tab);
   };
 
-  const formatTaskBody = (html) => {
-    // Replace <a> elements with their text content and capture URLs for resources
-    const resourceLinks = [];
-    const withLinks = html.replace(/<a href="(.*?)">(.*?)<\/a>/g, (_, link, text) => {
-      resourceLinks.push(`[${text}](${link})`);
-      return text;
-    });
+  const formatTaskBody = (text, isGroupAssignment = false) => {
+    // Pre-process to handle conditional content before any other formatting
+    let processedText = text;
 
-    // Remove all remaining HTML tags and insert newlines
-    const plainText = withLinks.replace(/<[^>]+>/g, '').replace(/<\/li>/g, '\n');
-
-    // Add resource links at the end
-    if (resourceLinks.length > 0) {
-      return `${plainText.trim()}\n\nResources:\n${resourceLinks.join('\n')}`;
+    // Handle conditional content tags based on whether it's a group assignment
+    if (isGroupAssignment) {
+      processedText = processedText.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, '$1');
+    } else {
+      processedText = processedText.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, '');
     }
 
-    return plainText.trim();
+    // Remove any lingering conditional tags
+    processedText = processedText.replace(/\[\[\/?conditional\]\]/gs, '');
+
+    // Convert HTML links to Markdown format but keep them inline
+    processedText = processedText.replace(/<a href="(.*?)">(.*?)<\/a>/g, (_, link, text) => {
+      return `${text} (${link})`;
+    });
+
+    // Keep Markdown links as they are (already in the right format)
+    // No need to extract them to a separate section
+
+    // Handle both HTML and Markdown bullet points
+    processedText = processedText
+      // Convert HTML list items to bullet points
+      .replace(/<li>(.*?)<\/li>/g, '• $1')
+      // Convert Markdown dashes to bullet points
+      .replace(/^-\s+(.*?)$/gm, '• $1')
+      // Remove other HTML tags
+      .replace(/<[^>]+>/g, '')
+      // Clean up spaces before bullets
+      .replace(/^\s*•/gm, '•');
+
+    // Clean up spacing and format bullet points consistently
+    processedText = processedText
+      // Normalize bullet point spacing - ensure they start at beginning of line
+      .replace(/\n\s+•/g, '\n•')
+      // Ensure bullet points are followed by exactly one space
+      .replace(/•\s+/g, '• ')
+      // Ensure only one newline after each bullet point
+      .replace(/^(• .+)(\n+)/gm, '$1\n')
+      // Make sure consecutive bullet points have no extra newlines between them
+      .replace(/(• .+\n)\n+(• .+)/g, '$1$2');
+
+    // Add a blank line after the last bullet point - identify sections
+    processedText = processedText
+      // Add an extra blank line after the last bullet point in a series
+      .replace(/(^• .+\n)(?!• )/gm, '$1\n');
+
+    // Final cleanup of newlines - ensure at most two consecutive newlines anywhere
+    processedText = processedText
+      .replace(/\n{3,}/g, '\n\n');
+
+    return processedText.trim();
   };
 
   const exportToCalendar = (viewType) => {
@@ -114,6 +151,8 @@ const PlanDetails = () => {
           return;
         }
 
+        console.log(`task: ${task.data.description}`);
+
         // Convert to full-day event format by using DATE format instead of DATETIME
         // Remove time component for full-day events
         const taskStartDate = task.startDate;
@@ -129,24 +168,20 @@ const PlanDetails = () => {
         const taskStart = taskStartDate.replace(/-/g, '');
         const taskEnd = adjustedEndDate;
 
-        let formattedBody = formatTaskBody(task.body);
-
-        // Handle conditional content
-        if (groupAssignment) {
-          formattedBody = formattedBody.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, '$1');
-        } else {
-          formattedBody = formattedBody.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, '');
-        }
-
-        // Remove any lingering conditional tags
-        formattedBody = formattedBody.replace(/\[\[\/?conditional\]\]/gs, '');
+        // Format the body content, handling group conditional content directly in the formatter
+        let formattedBody = formatTaskBody(task.body, groupAssignment);
 
         // Get assignment name to use in summary
         const assignmentTitle = details.assignmentName || details.name || 'Assignment';
 
         // Add task number and assignment name to the summary
         const taskNumber = index + 1;
-        let icsEvent = `BEGIN:VEVENT\nSUMMARY:[${assignmentTitle}] ${taskNumber}. ${task.data.description}\nDESCRIPTION:${formattedBody.replace(/\n/g, '\\n')}\n`;
+
+        // Replace newlines in formatted body with proper ICS line breaks
+        // We need to escape each individual newline character for proper ICS format
+        let icsFormattedBody = formattedBody.replace(/\n/g, '\\n');
+
+        let icsEvent = `BEGIN:VEVENT\nSUMMARY:[${assignmentTitle}] ${taskNumber}. ${task.data.description}\nDESCRIPTION:${icsFormattedBody}\n`;
 
         if (viewType === 'Multiday') {
           // For full-day events we use this format
