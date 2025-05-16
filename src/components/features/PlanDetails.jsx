@@ -104,43 +104,59 @@ const PlanDetails = () => {
       return;
     }
 
-    let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\n';
+    let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Assignment Planner//RMIT//EN\n';
 
-    tasks.forEach((task) => {
+    // Sort tasks first if they have numerical ordering
+    tasks.forEach((task, index) => {
       try {
         if (!task.startDate || !task.endDate) {
           console.warn(`Missing start or end date for task: ${task.data.description}`);
           return;
         }
 
-        const taskStartDate = new Date(`${task.startDate}T09:00:00`);
-        const taskEndDate = new Date(`${task.endDate}T21:00:00`);
+        // Convert to full-day event format by using DATE format instead of DATETIME
+        // Remove time component for full-day events
+        const taskStartDate = task.startDate;
+        const taskEndDate = task.endDate;
 
-        if (isNaN(taskStartDate.getTime()) || isNaN(taskEndDate.getTime())) {
-          console.warn(`Invalid dates for task: ${task.data.description}`);
-          return;
-        }
+        // For full-day events, end date needs to be the day after the actual end
+        // (per iCalendar spec for all-day events)
+        const endDateObj = new Date(taskEndDate);
+        endDateObj.setDate(endDateObj.getDate() + 1);
+        const adjustedEndDate = endDateObj.toISOString().split('T')[0].replace(/-/g, '');
 
-        const taskStart = taskStartDate.toISOString().replace(/-/g, '').replace(/:/g, '').split('.')[0] + 'Z';
-        const taskEnd = taskEndDate.toISOString().replace(/-/g, '').replace(/:/g, '').split('.')[0] + 'Z';
+        // Format dates for all-day events (date only, no time)
+        const taskStart = taskStartDate.replace(/-/g, '');
+        const taskEnd = adjustedEndDate;
+
         let formattedBody = formatTaskBody(task.body);
 
         // Handle conditional content
         if (groupAssignment) {
-          formattedBody = formattedBody.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, '$1'); // Replace with content
+          formattedBody = formattedBody.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, '$1');
         } else {
-          formattedBody = formattedBody.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, ''); // Remove entire block
+          formattedBody = formattedBody.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, '');
         }
 
-        // Remove any lingering conditional tags if something went wrong
+        // Remove any lingering conditional tags
         formattedBody = formattedBody.replace(/\[\[\/?conditional\]\]/gs, '');
 
-        let icsEvent = `BEGIN:VEVENT\nSUMMARY:[Assignment Planner] ${task.data.description}\nDESCRIPTION:${formattedBody.replace(/\n/g, '\\n')}\n`;
+        // Get assignment name to use in summary
+        const assignmentTitle = details.assignmentName || details.name || 'Assignment';
+
+        // Add task number and assignment name to the summary
+        const taskNumber = index + 1;
+        let icsEvent = `BEGIN:VEVENT\nSUMMARY:[${assignmentTitle}] ${taskNumber}. ${task.data.description}\nDESCRIPTION:${formattedBody.replace(/\n/g, '\\n')}\n`;
 
         if (viewType === 'Multiday') {
-          icsEvent += `DTSTART:${taskStart}\nDTEND:${taskEnd}\n`;
+          // For full-day events we use this format
+          icsEvent += `DTSTART;VALUE=DATE:${taskStart}\nDTEND;VALUE=DATE:${taskEnd}\n`;
         } else if (viewType === 'Milestone') {
-          icsEvent += `DTSTART:${taskStart}\nDTEND:${taskStart}\n`;
+          // For milestone, we make it a single day - need to use the day after as end date
+          const nextDay = new Date(taskStartDate);
+          nextDay.setDate(nextDay.getDate() + 1);
+          const nextDayStr = nextDay.toISOString().split('T')[0].replace(/-/g, '');
+          icsEvent += `DTSTART;VALUE=DATE:${taskStart}\nDTEND;VALUE=DATE:${nextDayStr}\n`;
         }
 
         icsEvent += 'END:VEVENT\n';
@@ -168,7 +184,7 @@ const PlanDetails = () => {
       .replace(/[^a-zA-Z0-9-]/g, '-')
       .replace(/--+/g, '-')
       .trim('-');
-    const nameToUse = assignmentName ? assignmentName : assignmentType; // if assignmetnName, use it, otherwise assignment type.
+    const nameToUse = assignmentName ? assignmentName : assignmentType;
     const startDate = details.startDate.replace(/-/g, '');
     const endDate = details.endDate.replace(/-/g, '');
     const filename = `${nameToUse}-${startDate}-${endDate}.ics`;
