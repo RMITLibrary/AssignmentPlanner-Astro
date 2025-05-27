@@ -2,44 +2,239 @@
 import Head from '../components/layout/Head.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
+import EmbedModal from '../components/features/EmbedModal.astro';
 export interface Props {
   title: string;
 }
 const { title } = Astro.props;
+
+// Server-side check for iframe/embed mode
+const searchParams = Astro.url.searchParams;
+const isEmbedded = searchParams.has('iframe') || searchParams.has('embed') || searchParams.has('embedded');
 
 //import 'bootstrap/dist/css/bootstrap.css';
 import '/src/styles/main.scss';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-embedded={isEmbedded}>
   <head>
     <meta charset="UTF-8" />
     <Head title={title} />
+
     <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-WVWLDBQM');</script>
+    <script>
+      // Safe GTM initialization
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+        const f = d.getElementsByTagName(s)[0];
+        const j = d.createElement(s);
+        const dl = l !== 'dataLayer' ? '&l=' + l : '';
+        if (j instanceof HTMLScriptElement) {
+          j.async = true;
+          j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+          if (f && f.parentNode) {
+            f.parentNode.insertBefore(j, f);
+          }
+        }
+      })(window, document, 'script', 'dataLayer', 'GTM-WVWLDBQM');
+    </script>
     <!-- End Google Tag Manager -->
+
+    <style is:global>
+      /* Hide elements when in iframe mode */
+      html[data-embedded='true'] .hide-in-iframe {
+        display: none !important;
+      }
+
+      html[data-embedded='true'] .show-in-iframe {
+        display: block !important;
+      }
+    </style>
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WVWLDBQM"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WVWLDBQM" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    
-    <Header />
+
+    <div class="hide-in-iframe">
+      <Header />
+    </div>
+
     <!-- START container main-content -->
     <div id="page-content" class="container main-content">
       <slot />
     </div>
 
-    <Footer />
+    <div class="hide-in-iframe">
+      <Footer />
+    </div>
+
+    <!-- Embed Modal -->
+    <EmbedModal />
+
     <script>
       // Astro will bundle and process this automatically
       import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+      // Import the store and utils directly for URL parameter handling
+      import { isOpenResults, planDetailsStore, isGroupAssignment, activeTabStore } from '../store';
+      import { calculateDaysBetween } from '../utils';
+
+      // Client-side check for iframe embedding
+      function checkEmbed() {
+        const isIframe = window.location.search.includes('iframe') || window.location.search.includes('embed') || window.self !== window.top;
+        document.documentElement.dataset.embedded = isIframe.toString();
+      }
+
+      // Run on load and when URL changes
+      checkEmbed();
+      window.addEventListener('popstate', checkEmbed);
+
+      // Handle URL parameters
+      document.addEventListener('DOMContentLoaded', () => {
+        // Check for direct URL parameters for printing
+        const params = new URLSearchParams(window.location.search);
+        const typeParam = params.get('type');
+        const startParam = params.get('start');
+        const endParam = params.get('end');
+        const nameParam = params.get('name');
+        const groupParam = params.get('group');
+        const printParam = params.get('print');
+
+        // If we have the required parameters and print=1, bypass the form
+        if (typeParam && startParam && endParam && printParam === '1') {
+          console.log('Required URL parameters found, bypassing form submission...');
+
+          // Fetch the project data for the specified type
+          fetch('/AssignmentPlanner/project-types.json')
+            .then((response) => response.json())
+            .then((data) => {
+              // Find the project with the matching ID
+              const selectedProject = data.find((proj: any) => proj.id === typeParam);
+
+              if (!selectedProject) {
+                console.error('Project type not found:', typeParam);
+                return;
+              }
+
+              console.log('Project found:', selectedProject.name);
+
+              // Calculate days and create plan details
+              const isGroup = groupParam === 'yes';
+              const dayCount = calculateDaysBetween(startParam, endParam);
+
+              // Set up basic task dates (simplified version without task distribution)
+              const tasks = selectedProject.tasks.map((task: any, index: number) => {
+                const startDateObj = new Date(startParam);
+                startDateObj.setDate(startDateObj.getDate() + index);
+
+                const endDateObj = new Date(startDateObj);
+                if (index < selectedProject.tasks.length - 1) {
+                  endDateObj.setDate(endDateObj.getDate() + 1);
+                } else {
+                  endDateObj.setDate(new Date(endParam).getDate());
+                }
+
+                return {
+                  ...task,
+                  startDate: startDateObj.toISOString().split('T')[0],
+                  endDate: endDateObj.toISOString().split('T')[0],
+                };
+              });
+
+              // Calculate weeks to display
+              const startDateObj = new Date(startParam);
+              const endDateObj = new Date(endParam);
+              const weeks = Math.ceil((endDateObj - startDateObj) / (7 * 24 * 60 * 60 * 1000)) + 1;
+
+              // Update the stores
+              isGroupAssignment.set(isGroup);
+              isOpenResults.set(true);
+
+              // Set the plan details
+              planDetailsStore.set({
+                name: selectedProject.name || 'Unnamed Assignment',
+                assignmentName: nameParam || '',
+                projectID: typeParam,
+                startDate: startParam,
+                endDate: endParam,
+                days: dayCount,
+                tasks: tasks,
+                weeksToDisplay: weeks,
+              });
+
+              console.log('Plan details set from URL parameters');
+
+              // Switch to calendar tab for printing
+              activeTabStore.set('calendar');
+
+              // Give time for the UI to update
+              setTimeout(() => {
+                // Try to switch to calendar tab through the UI as well
+                const calendarTab = document.getElementById('calendar-tab');
+                if (calendarTab) {
+                  calendarTab.click();
+                }
+
+                // Wait for the calendar to render and then print
+                setTimeout(() => {
+                  console.log('Triggering print dialog...');
+                  window.print();
+                }, 2000);
+              }, 500);
+            })
+            .catch((error) => {
+              console.error('Error loading project data:', error);
+            });
+        } else if (window.location.search.includes('print=1')) {
+          console.log('Print parameter detected but missing required parameters');
+
+          // Create an interval to check if plan details are visible
+          let checkCount = 0;
+          const maxChecks = 50; // Limit the number of checks to avoid infinite loops
+
+          const checkForPlanDetails = setInterval(() => {
+            checkCount++;
+            const planDetailElement = document.getElementById('plan-detail');
+
+            console.log(`Checking for plan details (${checkCount}/${maxChecks})...`);
+
+            // If the plan detail element exists and is visible
+            if (planDetailElement && window.getComputedStyle(planDetailElement).display !== 'none') {
+              console.log('Plan details found, preparing to print...');
+              clearInterval(checkForPlanDetails);
+
+              // Make sure we're on the calendar tab for printing
+              const calendarTab = document.getElementById('calendar-tab');
+              if (calendarTab) {
+                console.log('Switching to calendar tab...');
+                calendarTab.click();
+
+                // Give time for the calendar to render
+                setTimeout(() => {
+                  console.log('Triggering print dialog...');
+                  window.print();
+                }, 1500);
+              }
+            }
+
+            // Stop checking after reaching the maximum number of attempts
+            if (checkCount >= maxChecks) {
+              console.log('Max check count reached, stopping checks');
+              clearInterval(checkForPlanDetails);
+            }
+          }, 200);
+        }
+      });
+    </script>
+
+    <!-- Initialize iframe resize functionality -->
+    <script>
+      import { initializeIframeResize } from '../scripts/iframe-resize';
+
+      // Initialize immediately
+      initializeIframeResize();
     </script>
   </body>
 </html>

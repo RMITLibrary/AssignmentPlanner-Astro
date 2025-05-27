@@ -7,6 +7,7 @@ import { formatDateShort, calculateDaysBetween, formatDays, fireDataLayerEvent, 
 import SaveToPdfButton from '../ui/SaveToPdfButton'; // Import the new component
 import ExportToCalendarButton from '../ui/ExportToCalendarButton'; // Import the new component
 import RefinePlanButton from '../ui/RefinePlanButton'; // Import the new component
+// import ShareLinkButton from '../ui/ShareLinkButton'; // Shareable link button commented out for now
 import SwitchToTaskViewButton from '../ui/SwitchToTaskViewButton';
 import SwitchToCalendarViewButton from '../ui/SwitchToCalendarViewButton';
 import Clock from '../ui/Clock'
@@ -68,23 +69,60 @@ const PlanDetails = () => {
     activeTabStore.set(tab);
   };
 
-  const formatTaskBody = (html) => {
-    // Replace <a> elements with their text content and capture URLs for resources
-    const resourceLinks = [];
-    const withLinks = html.replace(/<a href="(.*?)">(.*?)<\/a>/g, (_, link, text) => {
-      resourceLinks.push(`[${text}](${link})`);
-      return text;
-    });
+  const formatTaskBody = (text, isGroupAssignment = false) => {
+    // Pre-process to handle conditional content before any other formatting
+    let processedText = text;
 
-    // Remove all remaining HTML tags and insert newlines
-    const plainText = withLinks.replace(/<[^>]+>/g, '').replace(/<\/li>/g, '\n');
-
-    // Add resource links at the end
-    if (resourceLinks.length > 0) {
-      return `${plainText.trim()}\n\nResources:\n${resourceLinks.join('\n')}`;
+    // Handle conditional content tags based on whether it's a group assignment
+    if (isGroupAssignment) {
+      processedText = processedText.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, '$1');
+    } else {
+      processedText = processedText.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, '');
     }
 
-    return plainText.trim();
+    // Remove any lingering conditional tags
+    processedText = processedText.replace(/\[\[\/?conditional\]\]/gs, '');
+
+    // Convert HTML links to Markdown format but keep them inline
+    processedText = processedText.replace(/<a href="(.*?)">(.*?)<\/a>/g, (_, link, text) => {
+      return `${text} (${link})`;
+    });
+
+    // Keep Markdown links as they are (already in the right format)
+    // No need to extract them to a separate section
+
+    // Handle both HTML and Markdown bullet points
+    processedText = processedText
+      // Convert HTML list items to bullet points
+      .replace(/<li>(.*?)<\/li>/g, '• $1')
+      // Convert Markdown dashes to bullet points
+      .replace(/^-\s+(.*?)$/gm, '• $1')
+      // Remove other HTML tags
+      .replace(/<[^>]+>/g, '')
+      // Clean up spaces before bullets
+      .replace(/^\s*•/gm, '•');
+
+    // Clean up spacing and format bullet points consistently
+    processedText = processedText
+      // Normalize bullet point spacing - ensure they start at beginning of line
+      .replace(/\n\s+•/g, '\n•')
+      // Ensure bullet points are followed by exactly one space
+      .replace(/•\s+/g, '• ')
+      // Ensure only one newline after each bullet point
+      .replace(/^(• .+)(\n+)/gm, '$1\n')
+      // Make sure consecutive bullet points have no extra newlines between them
+      .replace(/(• .+\n)\n+(• .+)/g, '$1$2');
+
+    // Add a blank line after the last bullet point - identify sections
+    processedText = processedText
+      // Add an extra blank line after the last bullet point in a series
+      .replace(/(^• .+\n)(?!• )/gm, '$1\n');
+
+    // Final cleanup of newlines - ensure at most two consecutive newlines anywhere
+    processedText = processedText
+      .replace(/\n{3,}/g, '\n\n');
+
+    return processedText.trim();
   };
 
   const exportToCalendar = (viewType) => {
@@ -103,43 +141,57 @@ const PlanDetails = () => {
       return;
     }
 
-    let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\n';
+    let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Assignment Planner//RMIT//EN\n';
 
-    tasks.forEach((task) => {
+    // Sort tasks first if they have numerical ordering
+    tasks.forEach((task, index) => {
       try {
         if (!task.startDate || !task.endDate) {
           console.warn(`Missing start or end date for task: ${task.data.description}`);
           return;
         }
 
-        const taskStartDate = new Date(`${task.startDate}T09:00:00`);
-        const taskEndDate = new Date(`${task.endDate}T21:00:00`);
+        console.log(`task: ${task.data.description}`);
 
-        if (isNaN(taskStartDate.getTime()) || isNaN(taskEndDate.getTime())) {
-          console.warn(`Invalid dates for task: ${task.data.description}`);
-          return;
-        }
+        // Convert to full-day event format by using DATE format instead of DATETIME
+        // Remove time component for full-day events
+        const taskStartDate = task.startDate;
+        const taskEndDate = task.endDate;
 
-        const taskStart = taskStartDate.toISOString().replace(/-/g, '').replace(/:/g, '').split('.')[0] + 'Z';
-        const taskEnd = taskEndDate.toISOString().replace(/-/g, '').replace(/:/g, '').split('.')[0] + 'Z';
-        let formattedBody = formatTaskBody(task.body);
+        // For full-day events, end date needs to be the day after the actual end
+        // (per iCalendar spec for all-day events)
+        const endDateObj = new Date(taskEndDate);
+        endDateObj.setDate(endDateObj.getDate() + 1);
+        const adjustedEndDate = endDateObj.toISOString().split('T')[0].replace(/-/g, '');
 
-        // Handle conditional content
-        if (groupAssignment) {
-          formattedBody = formattedBody.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, '$1'); // Replace with content
-        } else {
-          formattedBody = formattedBody.replace(/\[\[conditional\]\](.*?)\[\[\/conditional\]\]/gs, ''); // Remove entire block
-        }
+        // Format dates for all-day events (date only, no time)
+        const taskStart = taskStartDate.replace(/-/g, '');
+        const taskEnd = adjustedEndDate;
 
-        // Remove any lingering conditional tags if something went wrong
-        formattedBody = formattedBody.replace(/\[\[\/?conditional\]\]/gs, '');
+        // Format the body content, handling group conditional content directly in the formatter
+        let formattedBody = formatTaskBody(task.body, groupAssignment);
 
-        let icsEvent = `BEGIN:VEVENT\nSUMMARY:[Assignment Planner] ${task.data.description}\nDESCRIPTION:${formattedBody.replace(/\n/g, '\\n')}\n`;
+        // Get assignment name to use in summary
+        const assignmentTitle = details.assignmentName || details.name || 'Assignment';
+
+        // Add task number and assignment name to the summary
+        const taskNumber = index + 1;
+
+        // Replace newlines in formatted body with proper ICS line breaks
+        // We need to escape each individual newline character for proper ICS format
+        let icsFormattedBody = formattedBody.replace(/\n/g, '\\n');
+
+        let icsEvent = `BEGIN:VEVENT\nSUMMARY:[${assignmentTitle}] ${taskNumber}. ${task.data.description}\nDESCRIPTION:${icsFormattedBody}\n`;
 
         if (viewType === 'Multiday') {
-          icsEvent += `DTSTART:${taskStart}\nDTEND:${taskEnd}\n`;
+          // For full-day events we use this format
+          icsEvent += `DTSTART;VALUE=DATE:${taskStart}\nDTEND;VALUE=DATE:${taskEnd}\n`;
         } else if (viewType === 'Milestone') {
-          icsEvent += `DTSTART:${taskStart}\nDTEND:${taskStart}\n`;
+          // For milestone, we make it a single day - need to use the day after as end date
+          const nextDay = new Date(taskStartDate);
+          nextDay.setDate(nextDay.getDate() + 1);
+          const nextDayStr = nextDay.toISOString().split('T')[0].replace(/-/g, '');
+          icsEvent += `DTSTART;VALUE=DATE:${taskStart}\nDTEND;VALUE=DATE:${nextDayStr}\n`;
         }
 
         icsEvent += 'END:VEVENT\n';
@@ -167,7 +219,7 @@ const PlanDetails = () => {
       .replace(/[^a-zA-Z0-9-]/g, '-')
       .replace(/--+/g, '-')
       .trim('-');
-    const nameToUse = assignmentName ? assignmentName : assignmentType; // if assignmetnName, use it, otherwise assignment type.
+    const nameToUse = assignmentName ? assignmentName : assignmentType;
     const startDate = details.startDate.replace(/-/g, '');
     const endDate = details.endDate.replace(/-/g, '');
     const filename = `${nameToUse}-${startDate}-${endDate}.ics`;
@@ -340,6 +392,7 @@ const PlanDetails = () => {
 
       <div className="btn-group-tools">
         <RefinePlanButton />
+        {/* <ShareLinkButton planDetails={details} isGroup={groupAssignment} /> */}
       </div>
     </section>
   );

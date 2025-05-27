@@ -1,0 +1,112 @@
+// Share link button styles
+.share-link-container {
+  position: relative;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  .share-link-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    background-color: $white;
+    border-color: $primary;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: rgba($primary, 0.05);
+    }
+
+    .share-icon {
+      font-size: 1.2rem;
+    }
+  }
+
+  .copy-tooltip {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: $success;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    animation: fadeInOut 2s ease-in-out;
+    z-index: 100;
+
+    &:after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 5px;
+      border-style: solid;
+      border-color: $success transparent transparent transparent;
+    }
+  }
+
+  .link-preview-toggle {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    padding: 0;
+    color: $primary;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .link-preview {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background-color: rgba($gray-200, 0.7);
+    border-radius: 4px;
+    max-width: 100%;
+    overflow-x: auto;
+
+    .link-code {
+      font-size: 0.875rem;
+      word-break: break-all;
+      color: $gray-800;
+    }
+  }
+
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+}
+
+// Dark mode adjustments
+@include color-mode(dark) {
+  .share-link-container {
+    .share-link-btn {
+      background-color: $gray-800;
+      border-color: $primary;
+
+      &:hover {
+        background-color: rgba($primary, 0.2);
+      }
+    }
+
+    .link-preview {
+      background-color: rgba($gray-700, 0.7);
+
+      .link-code {
+        color: $gray-200;
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 ---
 id: 'basic-task1'
-description: 'Analyse the assignment instructions and brainstorm (15%) '
+description: 'Analyse the assignment instructions and brainstorm'
 ---
 
 - Read the [assignment instructions](https://learninglab.rmit.edu.au/index.html/assessments/getting-started-with-assignments/understanding-your-assignment/) and rubric carefully. If you have any doubts about what is required, contact the academic staff from your course 

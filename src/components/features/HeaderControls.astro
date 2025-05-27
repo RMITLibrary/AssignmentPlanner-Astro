@@ -1,0 +1,17 @@
+---
+// Server-side check for iframe/embed mode
+const searchParams = Astro.url.searchParams;
+const isEmbedded = searchParams.has('iframe') || searchParams.has('embed') || searchParams.has('embedded');
+
+// Import the UI components
+import ThemeToggle from '../ui/ThemeToggle.astro';
+import OpenPlannerButton from '../ui/OpenPlannerButton.astro';
+import EmbedButton from '../ui/EmbedButton.astro';
+---
+
+<!-- Header utility container -->
+<div class="theme-container">
+  <ThemeToggle />
+  <OpenPlannerButton />
+  <EmbedButton />
+</div>

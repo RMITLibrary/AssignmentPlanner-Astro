@@ -13,6 +13,7 @@ The Assignment Planner is a web application designed to help students effectivel
 - **Task View:** See a clear list of tasks with their start and end dates.
 - **Export:** Export a task list to a calender application.
 - **PDF Option:** Save the assignment plan as a PDF for easy sharing or printing.
+- **Shareable URLs:** Create and share URLs with assignment details that can be easily reused or shared with others.
 - **Responsive Design:** Ensures the app is usable on various devices, including desktops, tablets, and mobile phones.
 - **Pre-built Assignment Templates:** Includes templates for common assignment types (e.g., Essays, Reports, Presentations, Literature Reviews).
 - **Pre-filled task lists**: Includes pre-filled task lists for common assignement types.
@@ -25,6 +26,73 @@ The Assignment Planner is a web application designed to help students effectivel
 - **Toast UI Calendar:** An interactive calendar component for scheduling.
 - **Nanostores:** A compact state management library.
 - **Sass:** A CSS preprocessor for enhanced styling capabilities.
+
+## URL Parameter Feature
+
+The Assignment Planner supports URL parameters that allow users to share and save their assignment plans. When a form is submitted, the URL is automatically updated with the parameters that represent the selected options.
+
+### Supported Parameters
+
+- `type` - The assignment type ID (e.g., essay-project, literature-review-project)
+- `start` - The start date in YYYY-MM-DD format
+- `end` - The end date in YYYY-MM-DD format
+- `name` - (Optional) The name of the assignment
+- `group` - (Optional) Set to "yes" if it's a group assignment
+
+### Examples
+
+- Basic URL with required parameters:
+  ```
+  /AssignmentPlanner/?type=essay-project&start=2023-05-20&end=2023-06-10
+  ```
+
+- Complete URL with all parameters:
+  ```
+  /AssignmentPlanner/?type=literature-review-project&start=2023-05-20&end=2023-06-10&name=Research%20Methods&group=yes
+  ```
+
+### Usage
+
+1. Fill out the form and submit it to create an assignment plan
+2. The URL in your browser will update with the parameters
+3. Copy this URL to save or share your assignment plan
+4. When someone visits this URL, the form will be auto-filled with your settings
+
+You can also use the "Copy Shareable Link" button that appears after creating a plan to quickly copy the URL to your clipboard.
+
+## Calendar Export Feature
+
+The Assignment Planner provides a powerful calendar export functionality that helps students integrate their assignment plan into their preferred calendar application (such as Google Calendar, Apple Calendar, or Microsoft Outlook).
+
+### Calendar Export Features
+
+- **Full-Day Events**: Tasks are exported as full-day calendar events rather than timed events, providing better visibility in calendar applications.
+- **Sequential Task Numbering**: Each task is prefixed with a sequential number (e.g., "1. Analyse the assignment instructions") to maintain the logical order of tasks.
+- **Assignment Context**: The assignment name is included in square brackets at the beginning of each event summary (e.g., "[Literature Review] 1. Research") for easy identification.
+- **Formatted Task Descriptions**: Task descriptions include:
+  - Properly formatted bullet points with links kept inline for better readability
+  - Clean spacing between content sections
+  - Support for both HTML and Markdown formatting
+- **Date Range Flexibility**: Users can choose between two display options:
+  - **Multiday View**: Tasks span their full duration (from start to end date)
+  - **Milestone View**: Tasks appear only on their start date
+
+### How to Use Calendar Export
+
+1. Create an assignment plan by filling out the form and submitting it
+2. In the generated plan view, click on the "Export to Calendar" button
+3. Select your preferred view type (Multiday or Milestone)
+4. Click "Export" to download an ICS file
+5. Open the downloaded ICS file with your preferred calendar application to import the events
+
+### Technical Implementation
+
+The calendar export creates standard ICS (iCalendar) files compatible with most calendar applications. The implementation includes:
+
+- Proper formatting for full-day events using `VALUE=DATE` format
+- Correct handling of date ranges according to the iCalendar specification
+- Intelligent text processing to format task content appropriately
+- Special handling for group assignment content when applicable
 
 ## Getting Started
 
@@ -107,13 +175,43 @@ Inside of the Assignment Planner project, you'll see the following folders and f
 ```text
 /
 ├── public/
-│   └── imagess
+│   └── images/
 │       └── share-image.png
 ├── src/
+│   ├── assets/
 │   ├── components/
 │   │   ├── features/
+│   │   │   ├── ConditionalContent.jsx
+│   │   │   ├── CurrentYear.astro
+│   │   │   ├── EmbedModal.astro
+│   │   │   ├── HeaderControls.astro
+│   │   │   ├── Intro.astro
+│   │   │   ├── PlanDetails.jsx
+│   │   │   ├── TabContentCalendar.jsx
+│   │   │   ├── TabContentTasks.jsx
+│   │   │   └── ThemeSwitcher.astro
 │   │   ├── layout/
+│   │   │   ├── Footer.astro
+│   │   │   ├── FooterGrid.astro
+│   │   │   ├── Head.astro
+│   │   │   └── Header.astro
 │   │   └── ui/
+│   │       ├── Clock.jsx
+│   │       ├── EmbedButton.astro
+│   │       ├── ExportToCalendarButton.jsx
+│   │       ├── FlagImages.astro
+│   │       ├── Form.jsx
+│   │       ├── LegalLink.astro
+│   │       ├── NoFocusImage.astro
+│   │       ├── OpenPlannerButton.astro
+│   │       ├── RefinePlanButton.jsx
+│   │       ├── SaveToPdfButton.jsx
+│   │       ├── ShareLinkButton.jsx
+│   │       ├── SocialLink.astro
+│   │       ├── SwitchToCalendarViewButton.jsx
+│   │       ├── SwitchToTaskViewButton.jsx
+│   │       ├── ThemeAwareImage.astro
+│   │       └── ThemeToggle.astro
 │   ├── content/
 │   │   ├── project-types/
 │   │   │    ├── 020-presentation.md
@@ -139,48 +237,46 @@ Inside of the Assignment Planner project, you'll see the following folders and f
 │   ├── layouts/
 │   │   └── Layout.astro
 │   ├── pages/
+│   │   ├── embed-test.astro
 │   │   └── index.astro
+│   ├── scripts/
+│   │   ├── embed-functionality.js
+│   │   └── iframe-resize.ts
 │   ├── styles/
 │   │   ├── app-specific/
 │   │   ├── bootstrap/
 │   │   └── design-system/
+│   ├── utils/
+│   │   └── url-params.js
 │   ├── content.config.ts
-│   ├── store.ts
+│   ├── store.js
 │   └── utils.js
-└── package.json
-└── astro.config.mjs
-
+├── CONTENT-LICENSE.md
+├── LICENSE
+├── README.md
+├── astro.config.mjs
+├── package.json
+├── robots.txt
+└── tsconfig.json
 ```
 
 - **`public/`**: Contains static assets, such as the share image.
-- **`src/components/`**: Contains Astro & Preact components used throughout the application.
-- **`src/content/`**: Contains markdown files that define the assignment types and tasks.
-  - **`src/content/project-types/`**: Contains definitions of assignment project types. Each file defines a project type with an `id`, `name`, a list of `tasks` and their weights, and a description. These include:
-    - `020-presentation.md`: Defines tasks for a presentation project.
-    - `030-reports.md`: Defines tasks for a report project.
-    - `040-essay.md`: Defines tasks for an essay project.
-    - `040-literature-review.md`: Defines tasks for a literature review project.
-  - **`src/content/tasks/`**: Contains the descriptions and possible links for each task. Each file represents an individual task. These include:
-    - `essay-task1.md`: Analyse the assignment instructions and brainstorm. _Possible links:_ [rubrics](https://learninglab.rmit.edu.au/index.html), [mind maps](https://learninglab.rmit.edu.au/university-essentials/study-essentials/mind-mapping/)
-    - `essay-task2.md`: Research. _Possible links:_ [reading](https://learninglab.rmit.edu.au/university-essentials/study-essentials/reading-skills/), [taking notes](https://learninglab.rmit.edu.au/university-essentials/study-essentials/note-taking/)
-    - `essay-task3.md`: First Draft. _Possible links:_ [paraphrase](https://learninglab.rmit.edu.au/referencing/paraphrasing/), [cite](https://learninglab.rmit.edu.au/referencing/understanding-citations/), [reference](https://learninglab.rmit.edu.au/referencing/)
-    - `essay-task4.md`: Redraft.
-    - `literature-review-task1.md`: Analyse the assignment instructions and brainstorm. _Possible links:_ [rubrics](https://learninglab.rmit.edu.au/index.html), [mind maps](https://learninglab.rmit.edu.au/university-essentials/study-essentials/mind-mapping/)
-    - `literature-review-task2.md`: Research. _Possible links:_ [reading](https://learninglab.rmit.edu.au/university-essentials/study-essentials/reading-skills/), [taking notes](https://learninglab.rmit.edu.au/university-essentials/study-essentials/note-taking/)
-    - `literature-review-task3.md`: First draft.
-    - `literature-review-task4.md`: Redraft.
-    - `presentation-task1.md`: Analyse the assignment instructions and brainstorm. _Possible links:_ [rubrics](https://learninglab.rmit.edu.au/index.html), [mind maps](https://learninglab.rmit.edu.au/university-essentials/study-essentials/mind-mapping/)
-    - `presentation-task2.md`: Research. _Possible links:_ [reading](https://learninglab.rmit.edu.au/university-essentials/study-essentials/reading-skills/), [taking notes](https://learninglab.rmit.edu.au/university-essentials/study-essentials/note-taking/)
-    - `presentation-task3.md`: First draft.
-    - `presentation-task4.md`: Practice and Revise. _Possible links:_ [cohesion](https://learninglab.rmit.edu.au/assessments/presentations/creating-cohesion/)
-    - `presentation-task5.md`: Before Your Presentation. _Possible links:_ [face-to-face presentations](https://learninglab.rmit.edu.au/assessments/presentations/delivery/), [online presentations](https://learninglab.rmit.edu.au/assessments/presentations/online-presentations/)
-    - `report-task1.md`: Analyse the assignment instructions and brainstorm. _Possible links:_ [rubrics](https://learninglab.rmit.edu.au/index.html), [mind maps](https://learninglab.rmit.edu.au/university-essentials/study-essentials/mind-mapping/)
-    - `report-task2.md`: Research. _Possible links:_ [reading](https://learninglab.rmit.edu.au/university-essentials/study-essentials/reading-skills/), [taking notes](https://learninglab.rmit.edu.au/university-essentials/study-essentials/note-taking/)
-    - `report-task3.md`: First Draft. _Possible links:_ [research topic](https://learninglab.rmit.edu.au/assessments/reports/), [citations and references](https://learninglab.rmit.edu.au/referencing/)
-    - `report-task4.md`: Redraft. _Possible links:_ [synthesise information](https://learninglab.rmit.edu.au/writing-fundamentals/academic-style/synthesising/)
-- **`src/layouts/`**: Contains the layouts used in the astro application.
-- **`src/pages/`**: Contains `.astro` files that define the pages of the website.
-- **`src/store/`**: Contains the file that manages the global state of the application using `nanostores`.
+- **`src/assets/`**: Stores project assets like images and icons.
+- **`src/components/`**: Contains Astro & Preact components used throughout the application:
+  - **`features/`**: Feature-specific components like `PlanDetails.jsx` (which contains the calendar export functionality), tab content components, and modals.
+  - **`layout/`**: Layout components such as header, footer, and head elements.
+  - **`ui/`**: User interface components like buttons, toggles, and form elements.
+- **`src/content/`**: Contains markdown files that define the assignment types and tasks:
+  - **`project-types/`**: Contains definitions of assignment project types with their tasks and weights.
+  - **`tasks/`**: Contains detailed descriptions and resources for each specific task.
+- **`src/layouts/`**: Contains the main `Layout.astro` file defining the application's structure.
+- **`src/pages/`**: Contains Astro pages including the main index and embed test pages.
+- **`src/scripts/`**: Contains JavaScript utilities for embedding and iframe functionality.
+- **`src/styles/`**: Contains stylesheets organized into app-specific, bootstrap, and design system categories.
+- **`src/utils/`**: Contains utility functions like URL parameter handling.
+- **`src/content.config.ts`**: Configuration file for content collections.
+- **`src/store.js`**: State management using nanostores.
+- **`src/utils.js`**: General utility functions for the application.
 - **`astro.config.mjs`**: Configuration file for Astro.
 - **`package.json`**: Lists project dependencies and scripts.
 
