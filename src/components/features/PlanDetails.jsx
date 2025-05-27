@@ -233,25 +233,34 @@ const PlanDetails = () => {
   };
 
   const handleExportModal = (event) => {
-    setShowExportModal(true);
-    previousActiveElement.current = document.activeElement; // Store the previously active element
-
-    // Initialize the ARIA dialog when the modal opens
-    const newDialog = new aria.Dialog('exportModal', previousActiveElement.current, firstFocusableElement.current);
-    setDialog(newDialog); // Store the dialog object in state
     event.preventDefault();
+    setShowExportModal(true);
+    previousActiveElement.current = document.activeElement;
+    
+    // Initialize modal using Bootstrap's built-in functionality
+    const modalElement = document.getElementById('exportModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
   };
 
   const closeModal = (event) => {
-    setShowExportModal(false);
-
-    //close the ARIA modal too, by calling the close method.
-    if (dialog) {
-      dialog.close();
-      setDialog(null); // remove it from the state.
+    event?.preventDefault();
+    const modalElement = document.getElementById('exportModal');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      if (modal) {
+        modal.hide();
+      }
     }
-    previousActiveElement.current = null; // Clear the reference
-    event.preventDefault();
+    setShowExportModal(false);
+    
+    // Return focus to the element that opened the modal
+    if (previousActiveElement.current) {
+      previousActiveElement.current.focus();
+      previousActiveElement.current = null;
+    }
   };
 
   const handleExport = (event) => {
@@ -268,26 +277,30 @@ const PlanDetails = () => {
 
   return (
     <section id="plan-detail" className="pt-4">
-      {/* Modal */}
-      <div className={`modal ${showExportModal ? 'show d-block' : 'fade'}`} id="exportModal" tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="exportModalLabel">
-        <div className="modal-dialog modal-dialog-centered" role="document" ref={modalRef}>
+      {/* Export to Calendar Modal */}
+      <div className="modal fade" id="exportModal" tabIndex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title mt-0 mb-0" id="exportModalLabel">
-                Export to calendar file (.ics)
-              </h5>
+              <h2 className="h3 margin-top-zero margin-bot-zero" id="exportModalLabel">Export to calendar file (.ics)</h2>
               <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={closeModal}></button>
             </div>
             <div className="modal-body">
-              {/* Form Group */}
               <form onSubmit={handleExport}>
                 <div className="mb-3">
                   <fieldset className="form-group" role="radiogroup">
                     <legend className="h5 mt-0">Calendar export options:</legend>
-
-                    {/* Radio Group */}
                     <div className="form-check d-flex align-items-top mb-3">
-                      <input className="form-check-input" type="radio" name="calendar-setup-options" id="multiday-radio" value="Multiday" checked={selectedViewType === 'Multiday'} onChange={handleRadioChange} ref={firstFocusableElement} />
+                      <input 
+                        className="form-check-input" 
+                        type="radio" 
+                        name="calendar-setup-options" 
+                        id="multiday-radio" 
+                        value="Multiday" 
+                        checked={selectedViewType === 'Multiday'} 
+                        onChange={handleRadioChange} 
+                        ref={firstFocusableElement} 
+                      />
                       <label className="form-check-label" htmlFor="multiday-radio">
                         <strong>Multiday view</strong>
                         <br />
@@ -295,7 +308,15 @@ const PlanDetails = () => {
                       </label>
                     </div>
                     <div className="form-check d-flex align-items-top">
-                      <input className="form-check-input" type="radio" name="calendar-setup-options" id="milestone-radio" value="Milestone" checked={selectedViewType === 'Milestone'} onChange={handleRadioChange} />
+                      <input 
+                        className="form-check-input" 
+                        type="radio" 
+                        name="calendar-setup-options" 
+                        id="milestone-radio" 
+                        value="Milestone" 
+                        checked={selectedViewType === 'Milestone'} 
+                        onChange={handleRadioChange} 
+                      />
                       <label className="form-check-label" htmlFor="milestone-radio">
                         <strong>Milestone view</strong>
                         <br />
