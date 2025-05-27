@@ -7,7 +7,7 @@ import { formatDateShort, calculateDaysBetween, formatDays, fireDataLayerEvent, 
 import SaveToPdfButton from '../ui/SaveToPdfButton'; // Import the new component
 import ExportToCalendarButton from '../ui/ExportToCalendarButton'; // Import the new component
 import RefinePlanButton from '../ui/RefinePlanButton'; // Import the new component
-import ShareLinkButton from '../ui/ShareLinkButton'; // Import the shareable link button
+// import ShareLinkButton from '../ui/ShareLinkButton'; // Shareable link button commented out for now
 import SwitchToTaskViewButton from '../ui/SwitchToTaskViewButton';
 import SwitchToCalendarViewButton from '../ui/SwitchToCalendarViewButton';
 import Clock from '../ui/Clock'
@@ -392,7 +392,7 @@ const PlanDetails = () => {
 
       <div className="btn-group-tools">
         <RefinePlanButton />
-        <ShareLinkButton planDetails={details} isGroup={groupAssignment} />
+        {/* <ShareLinkButton planDetails={details} isGroup={groupAssignment} /> */}
       </div>
     </section>
   );

@@ -475,11 +475,13 @@ useEffect(() => {
         </div>
       </form>
       <div id="form-submission-message" className="visually-hidden" aria-live="polite" aria-atomic="false"></div>
+      {/* URL parameter tip - commented out for now
       <div className="mt-3 small text-muted url-parameter-tip hide-print">
         <p className="mt-0">
           <strong>Tip:</strong> After submitting the form, you can copy and share the URL to recreate the same plan settings. Use the "Copy shareable link" button after plan generation to quickly share your assignment plan with classmates.
         </p>
       </div>
+      */}
     </div>
   );
 };
