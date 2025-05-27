@@ -80,18 +80,27 @@
 
 //difficult to override focus on validation elements.
 //Referering to id directly seems to work
-#assignmentName, #assignmentType, #groupYes, #groupNo, #endDate, #startDate {
+#assignmentName,
+#assignmentType,
+#groupYes,
+#groupNo,
+#endDate,
+#startDate {
   @include default-focus;
 }
 
 @include color-mode(dark) {
-  #assignmentName, #assignmentType, #groupYes, #groupNo, #endDate, #startDate {
-  @include default-focus('dark'); 
+  #assignmentName,
+  #assignmentType,
+  #groupYes,
+  #groupNo,
+  #endDate,
+  #startDate {
+    @include default-focus('dark');
   }
 }
 
 $form-feedback-valid-color: aqua;
-
 
 // KE hack to show correct visual valdiation as was being overwritten by psuedo :valid
 /* .was-validated .form-control.is-invalid {
@@ -120,3 +129,22 @@ $form-feedback-valid-color: aqua;
 }
  */
 
+// URL parameter tip styling
+.url-parameter-tip {
+  background-color: #f8f9fa;
+  border-left: 3px solid #6c757d;
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
+// Dark mode
+@include color-mode(dark) {
+  .url-parameter-tip {
+    background-color: #2b3035;
+    border-left-color: #adb5bd;
+  }
+}

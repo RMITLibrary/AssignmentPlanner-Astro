@@ -1,0 +1,66 @@
+// Styles for embed-specific functionality
+
+#embedModal .modal-content .accordion-item {
+  border-bottom: 0;
+}
+
+.show-in-iframe {
+  display: none;
+}
+// Hide elements that should be hidden in iframe mode
+html[data-embedded='true'] {
+  .hide-in-iframe {
+    display: none !important;
+  }
+
+  .show-in-iframe {
+    display: block;
+    // Hide completely on small screens (less than 576px)
+    @include media-breakpoint-down(md) {
+      display: none !important;
+    }
+
+    &.btn-open-planner {
+      @include media-breakpoint-down(md) {
+        display: none !important;
+      }
+    }
+  }
+
+  .btn-embed {
+    display: none !important;
+    // Hide completely on small screens (less than 576px)
+  }
+
+  // Special handling for print functionality
+  @media print {
+    // Hide elements that don't make sense in print mode from an iframe
+    .theme-container {
+      display: none !important;
+    }
+  }
+}
+
+// Open Full Planner button styling
+.embedded-action-button {
+  display: inline-block;
+  font-weight: 500;
+}
+
+// Styles for the embed test page
+.iframe-container {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+
+  iframe {
+    display: block;
+    width: 100%;
+    border: 0;
+  }
+}
+
+.test-section {
+  margin-bottom: 3rem;
+}

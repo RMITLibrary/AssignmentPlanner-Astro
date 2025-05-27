@@ -1,0 +1,71 @@
+---
+// Get current URL parameters to ensure they're preserved when opening in new tab
+const searchParams = Astro.url.searchParams;
+const basePath = import.meta.env.BASE_PATH || '/';
+
+// Filter out iframe/embed parameters but keep form parameters
+const filteredParams = new URLSearchParams();
+// Parameters to preserve (form parameters)
+const formParamNames = ['type', 'start', 'end', 'name', 'group'];
+
+// Copy only the form parameters we want to preserve
+formParamNames.forEach((param) => {
+  if (searchParams.has(param)) {
+    filteredParams.set(param, searchParams.get(param));
+  }
+});
+
+// Create the URL with only the desired parameters
+const filteredSearch = filteredParams.toString();
+const fullUrl = Astro.url.origin + basePath + (filteredSearch ? `?${filteredSearch}` : '');
+---
+
+<a class="btn btn-default btn-open-planner show-in-iframe" href={fullUrl} target="_blank" aria-label="Open Assignment Planner in a new tab" id="open-full-planner" data-base-path={basePath}> Open in new tab </a>
+
+<script is:inline>
+  // Update the "Open in new tab" button URL whenever the page URL changes
+  document.addEventListener('DOMContentLoaded', () => {
+    const updateOpenButtonUrl = () => {
+      const openButton = document.getElementById('open-full-planner');
+      if (openButton) {
+        // Get base path from data attribute (set during server-side rendering)
+        const basePath = openButton.getAttribute('data-base-path') || '/';
+
+        // Filter out iframe/embed parameters but keep form parameters
+        const currentParams = new URLSearchParams(window.location.search);
+        const filteredParams = new URLSearchParams();
+
+        // Parameters to preserve (form parameters)
+        const formParamNames = ['type', 'start', 'end', 'name', 'group'];
+
+        // Copy only the form parameters we want to preserve
+        formParamNames.forEach((param) => {
+          if (currentParams.has(param)) {
+            filteredParams.set(param, currentParams.get(param));
+          }
+        });
+
+        // Create the URL with only the desired parameters
+        const origin = window.location.origin;
+        const filteredSearch = filteredParams.toString();
+        const cleanUrl = origin + basePath + (filteredSearch ? `?${filteredSearch}` : '');
+
+        openButton.href = cleanUrl;
+      }
+    };
+
+    // Update the URL when the page loads
+    updateOpenButtonUrl();
+
+    // Set up a MutationObserver to watch for changes to the URL
+    // This is useful when form submissions update the URL with parameters
+    let lastUrl = location.href;
+    new MutationObserver(() => {
+      const url = location.href;
+      if (url !== lastUrl) {
+        lastUrl = url;
+        updateOpenButtonUrl();
+      }
+    }).observe(document, { subtree: true, childList: true });
+  });
+</script>

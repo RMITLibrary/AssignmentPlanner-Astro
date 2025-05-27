@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { isOpenResults, isTesting, planDetailsStore, isGroupAssignment } from '../../store';
 import { calculateDaysBetween, scrollToView } from '../../utils';
+import { updateUrlWithFormData, getFormDataFromUrl, clearUrlParameters, hasRequiredUrlParameters, createShareableLink } from '../../utils/url-params';
 
 
 let Calendar; // Declare Calendar outside the component
@@ -24,12 +25,34 @@ const Form = ({ projectsWithTasks }) => {
   useEffect(() => {
     setDateFormat();
 
+    // Check URL parameters to prefill form if they exist
+    const { typeParam, startParam, endParam, nameParam, groupParam } = getFormDataFromUrl();
+
+    // If parameters exist, prefill the form
+    if (typeParam) setAssignmentType(typeParam);
+    if (startParam) setStartDate(startParam);
+    if (endParam) setEndDate(endParam);
+    if (nameParam) setAssignmentName(nameParam);
+    if (groupParam === 'yes') setGroupAssignment('yes');
+
     if (isTesting.get()) {
       setAssignmentType('literature-review-project');
       setStartDate('2025-03-05');
       setEndDate('2025-03-07');
       console.log('Default testing values set:', { assignmentType, startDate, endDate });
     }
+
+    // Set a timeout to allow the form fields to be populated before auto-submission
+    setTimeout(() => {
+      // Check if we should auto-submit the form based on URL parameters
+      if (hasRequiredUrlParameters()) {
+        console.log('Auto-submitting form based on URL parameters');
+        const form = document.getElementById('assignmentDetails');
+        if (form) {
+          form.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+      }
+    }, 500);
   }, []);
 
 useEffect(() => {
@@ -131,6 +154,9 @@ useEffect(() => {
       tasks: tasksWithDates,
       weeksToDisplay: calculateWeeksToDisplay(startDateObj, endDateObj),
     });
+
+    // Update URL with form parameters for sharing/bookmarking
+    updateUrlWithFormData(selectedProject.name, assignmentType, startDate, endDate, assignmentName, isGroup);
     // Data Layer Push (AFTER successful form submission)
     if (typeof window !== 'undefined' && window.dataLayer) {
       window.dataLayer.push({
@@ -250,6 +276,10 @@ useEffect(() => {
     setNeedsRevalidation(false);
     setEndDateEmpty(false);
     document.getElementById('endDateError').textContent = '';
+
+    // Clear URL parameters when form is reset
+    clearUrlParameters();
+
     console.log('Form reset.');
   };
 
@@ -445,6 +475,13 @@ useEffect(() => {
         </div>
       </form>
       <div id="form-submission-message" className="visually-hidden" aria-live="polite" aria-atomic="false"></div>
+      {/* URL parameter tip - commented out for now
+      <div className="mt-3 small text-muted url-parameter-tip hide-print">
+        <p className="mt-0">
+          <strong>Tip:</strong> After submitting the form, you can copy and share the URL to recreate the same plan settings. Use the "Copy shareable link" button after plan generation to quickly share your assignment plan with classmates.
+        </p>
+      </div>
+      */}
     </div>
   );
 };

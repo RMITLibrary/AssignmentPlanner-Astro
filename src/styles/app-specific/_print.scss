@@ -242,8 +242,12 @@
     display: none;
   }
 
-  .special-consideration{
+  .special-consideration {
     display: none;
+  }
+
+  .hide-print {
+    display: none !important;
   }
 
   .calendar-container {

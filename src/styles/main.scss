@@ -66,6 +66,7 @@ $accordion-border-radius: 0;
 @import 'design-system/layout';
 
 @import 'design-system/theme-switcher';
+@import 'design-system/embed';
 
 // 5. Styles specific to documentation go here (might be worth having a completely seperate stylesheet)
 @import 'app-specific/assignment-planner';
@@ -76,3 +77,6 @@ $accordion-border-radius: 0;
 @import 'app-specific/form';
 @import 'app-specific/clock';
 @import 'app-specific/print';
+@import 'app-specific/sharing';
+@import 'app-specific/open-planner-button';
+@import 'app-specific/embed-button';
