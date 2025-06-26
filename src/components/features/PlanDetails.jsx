@@ -10,9 +10,8 @@ import RefinePlanButton from '../ui/RefinePlanButton'; // Import the new compone
 // import ShareLinkButton from '../ui/ShareLinkButton'; // Shareable link button commented out for now
 import SwitchToTaskViewButton from '../ui/SwitchToTaskViewButton';
 import SwitchToCalendarViewButton from '../ui/SwitchToCalendarViewButton';
-import Clock from '../ui/Clock'
+import Clock from '../ui/Clock';
 import { useStore } from '@nanostores/preact';
-
 
 const PlanDetails = () => {
   const groupAssignment = useStore(isGroupAssignment);
@@ -24,7 +23,6 @@ const PlanDetails = () => {
   const [selectedViewType, setSelectedViewType] = useState('Multiday');
   const [showSpecialConsideration, setShowSpecialConsideration] = useState(false);
   const [dialog, setDialog] = useState(null); // New state for the dialog object
-
 
   // Refs for focus management
   const modalRef = useRef(null);
@@ -119,8 +117,7 @@ const PlanDetails = () => {
       .replace(/(^• .+\n)(?!• )/gm, '$1\n');
 
     // Final cleanup of newlines - ensure at most two consecutive newlines anywhere
-    processedText = processedText
-      .replace(/\n{3,}/g, '\n\n');
+    processedText = processedText.replace(/\n{3,}/g, '\n\n');
 
     return processedText.trim();
   };
@@ -236,7 +233,7 @@ const PlanDetails = () => {
     event.preventDefault();
     setShowExportModal(true);
     previousActiveElement.current = document.activeElement;
-    
+
     // Initialize modal using Bootstrap's built-in functionality
     const modalElement = document.getElementById('exportModal');
     if (modalElement) {
@@ -255,7 +252,7 @@ const PlanDetails = () => {
       }
     }
     setShowExportModal(false);
-    
+
     // Return focus to the element that opened the modal
     if (previousActiveElement.current) {
       previousActiveElement.current.focus();
@@ -282,7 +279,9 @@ const PlanDetails = () => {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
-              <h2 className="h3 margin-top-zero margin-bot-zero" id="exportModalLabel">Export to calendar file (.ics)</h2>
+              <h2 className="h3 margin-top-zero margin-bot-zero" id="exportModalLabel">
+                Export to calendar file (.ics)
+              </h2>
               <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={closeModal}></button>
             </div>
             <div className="modal-body">
@@ -291,16 +290,7 @@ const PlanDetails = () => {
                   <fieldset className="form-group" role="radiogroup">
                     <legend className="h5 mt-0">Calendar export options:</legend>
                     <div className="form-check d-flex align-items-top mb-3">
-                      <input 
-                        className="form-check-input" 
-                        type="radio" 
-                        name="calendar-setup-options" 
-                        id="multiday-radio" 
-                        value="Multiday" 
-                        checked={selectedViewType === 'Multiday'} 
-                        onChange={handleRadioChange} 
-                        ref={firstFocusableElement} 
-                      />
+                      <input className="form-check-input" type="radio" name="calendar-setup-options" id="multiday-radio" value="Multiday" checked={selectedViewType === 'Multiday'} onChange={handleRadioChange} ref={firstFocusableElement} />
                       <label className="form-check-label" htmlFor="multiday-radio">
                         <strong>Multiday view</strong>
                         <br />
@@ -308,15 +298,7 @@ const PlanDetails = () => {
                       </label>
                     </div>
                     <div className="form-check d-flex align-items-top">
-                      <input 
-                        className="form-check-input" 
-                        type="radio" 
-                        name="calendar-setup-options" 
-                        id="milestone-radio" 
-                        value="Milestone" 
-                        checked={selectedViewType === 'Milestone'} 
-                        onChange={handleRadioChange} 
-                      />
+                      <input className="form-check-input" type="radio" name="calendar-setup-options" id="milestone-radio" value="Milestone" checked={selectedViewType === 'Milestone'} onChange={handleRadioChange} />
                       <label className="form-check-label" htmlFor="milestone-radio">
                         <strong>Milestone view</strong>
                         <br />
@@ -325,7 +307,8 @@ const PlanDetails = () => {
                     </div>
                   </fieldset>
                 </div>
-                <div className="modal-footer">
+
+                <div className="modal-footer mt-4">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={closeModal}>
                     Cancel
                   </button>
@@ -333,6 +316,69 @@ const PlanDetails = () => {
                     Export
                   </button>
                 </div>
+
+                {/* Import Instructions Accordion */}
+                <div className="accordion-item transcript margin-top-xs">
+                  <p className="accordion-header" id="import-help-head">
+                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#import-help-body" aria-expanded="false" aria-controls="import-help-body">
+                      How to import into your calendar
+                    </button>
+                  </p>
+                  <div id="import-help-body" className="accordion-collapse collapse" aria-labelledby="import-help-head">
+                    <div className="accordion-body ">
+                      <ul className="small mb-0">
+                        <li>
+                          <strong>Google Calendar:</strong>
+                          <br />
+                          To import the .ics file, open Google Calendar on your computer, click the gear icon to access <em>Settings</em>, then select <em>Import & Export</em> from the left menu. Choose the .ics file and select the calendar to add the events to.
+                          <br />
+                          <a href="https://support.google.com/calendar/answer/37118" target="_blank" rel="noopener noreferrer">
+                            Detailed Google Calendar import instructions<span className="visually-hidden"> (opens in a new tab)</span>
+                          </a>
+                          .
+                        </li>
+
+                        <li className="mt-3">
+                          <strong>Outlook (Desktop):</strong>
+                          <br />
+                          In Outlook, go to <em>File</em> &gt; <em>Open & Export</em> &gt; <em>Import/Export</em>. Choose <em>Import an iCalendar (.ics) or vCalendar file</em>, then select the .ics file to import.
+                          <br />
+                          <a href="https://support.microsoft.com/en-us/office/import-calendars-into-outlook-8e8364e1-400e-4c0f-a573-fe76b5a2d379" target="_blank" rel="noopener noreferrer">
+                            Step-by-step Outlook import guide<span className="visually-hidden"> (opens in a new tab)</span>
+                          </a>
+                          .
+                        </li>
+
+                        <li className="mt-3">
+                          <strong>Outlook on the web:</strong>
+                          <br />
+                          Sign in to Outlook.com, navigate to <em>Calendar</em>, click <em>Add calendar</em>, then choose <em>Upload from file</em>. Browse to select the .ics file and choose the calendar to import into.
+                          <br />
+                          <a href="https://support.microsoft.com/en-us/office/import-or-subscribe-to-a-calendar-in-outlook-com-or-outlook-on-the-web-cff1429c-5af6-41ec-a5b4-74f2c278e98c" target="_blank" rel="noopener noreferrer">
+                            Outlook on the web import instructions<span className="visually-hidden"> (opens in a new tab)</span>
+                          </a>
+                          .
+                        </li>
+
+                        <li className="mt-3">
+                          <strong>Apple Calendar (macOS):</strong>
+                          <br />
+                          Open the Calendar app on your Mac. From the <em>File</em> menu, select <em>Import</em>, choose the .ics file, and select the calendar to add the events to. Alternatively, you can drag and drop the .ics file into the Calendar app.
+                          <br />
+                          <a href="https://support.apple.com/en-au/guide/calendar/icl1023/mac" target="_blank" rel="noopener noreferrer">
+                            Apple Calendar import instructions<span className="visually-hidden"> (opens in a new tab)</span>
+                          </a>
+                          .
+                        </li>
+                      </ul>
+
+                      <p className="small mt-3 mb-0">
+                        Using a different calendar app? Search their help documentation for how to import an <code>.ics</code> file.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {/* End accordion item */}
               </form>
             </div>
           </div>
