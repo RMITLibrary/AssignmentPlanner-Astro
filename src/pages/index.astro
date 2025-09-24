@@ -36,8 +36,13 @@ const projectsWithTasks = projectTypes.map((project) => {
 <Layout title={pageTitle}>
   <div class="row">
     <div id="page-columns" class="col-xl-12">
-      <Intro />
-      <Form projectsWithTasks={projectsWithTasks} client:load />
+      <div class="hero-and-form-section">
+        <Intro />
+        <div class="form-card">
+          <h2>Enter your assignment details</h2>
+          <Form projectsWithTasks={projectsWithTasks} client:load />
+        </div>
+      </div>
       <PlanDetails client:load />
       <HeaderControls />
     </div>

@@ -29,7 +29,13 @@ html[data-embedded='true'] {
 
   .btn-embed {
     display: none !important;
-    // Hide completely on small screens (less than 576px)
+  }
+}
+
+// Hide embed button on mobile screens
+.btn-embed {
+  @include media-breakpoint-down(sm) {
+    display: none !important;
   }
 
   // Special handling for print functionality
