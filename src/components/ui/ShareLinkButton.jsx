@@ -1,13 +1,14 @@
 import { h } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { createShareableLink } from '../../utils/url-params';
 
 /**
  * Button component that creates and copies a shareable link
  */
 const ShareLinkButton = ({ planDetails, isGroup }) => {
-  const [buttonText, setButtonText] = useState('Copy shareable link');
   const [shareableLink, setShareableLink] = useState('');
+  const [confirmationMessage, setConfirmationMessage] = useState('');
+  const messageTimeoutRef = useRef(null);
 
   // Generate the shareable link when component mounts or planDetails changes
   useEffect(() => {
@@ -24,59 +25,82 @@ const ShareLinkButton = ({ planDetails, isGroup }) => {
     }
   }, [planDetails, isGroup]);
 
-  const handleCopyLink = () => {
+  const showConfirmationMessage = (message) => {
+    setConfirmationMessage(message);
+    if (messageTimeoutRef.current) {
+      clearTimeout(messageTimeoutRef.current);
+    }
+    messageTimeoutRef.current = setTimeout(() => {
+      setConfirmationMessage('');
+    }, 3000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleOpenLink = () => {
     try {
-      // Copy to clipboard
-      navigator.clipboard.writeText(shareableLink)
-        .then(() => {
-          // Change button text to indicate success
-          setButtonText('Link copied!');
-
-          // Data layer tracking for analytics
-          if (typeof window !== 'undefined' && window.dataLayer) {
-            window.dataLayer.push({
-              'event': 'share_link_copied',
-              'formType': 'assignment_planner',
-              'assignmentType': planDetails.name
-            });
-          }
-
-          // Reset button text after delay
-          setTimeout(() => {
-            setButtonText('Copy Shareable Link');
-          }, 2000);
-        })
-        .catch(err => {
-          console.error('Failed to copy link: ', err);
-          // If copying fails, offer to open the link
-          handleOpenLink();
-        });
+      if (typeof window !== 'undefined') {
+        window.open(shareableLink, '_blank', 'noopener');
+        showConfirmationMessage('Share link opened in a new tab');
+      }
     } catch (error) {
-      console.error('Error creating shareable link:', error);
+      console.error('Error opening link:', error);
+      showConfirmationMessage('Unable to open share link');
     }
   };
 
-  // Handle opening the link in a new tab
-  const handleOpenLink = () => {
+  const handleCopyLink = async () => {
+    if (!shareableLink) {
+      return;
+    }
+
     try {
-      window.open(shareableLink, '_blank');
-      setButtonText('Link Opened!');
-      setTimeout(() => {
-        setButtonText('Copy Shareable Link');
-      }, 2000);
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareableLink);
+
+        // Data layer tracking for analytics
+        if (typeof window !== 'undefined' && window.dataLayer) {
+          window.dataLayer.push({
+            event: 'share_link_copied',
+            formType: 'assignment_planner',
+            assignmentType: planDetails?.name,
+          });
+        }
+
+        showConfirmationMessage('Share link copied to clipboard');
+        return;
+      }
+
+      throw new Error('Clipboard API not available');
     } catch (error) {
-      console.error('Error opening link:', error);
-      setButtonText('Error - Try Again');
-      setTimeout(() => {
-        setButtonText('Copy Shareable Link');
-      }, 2000);
+      console.error('Failed to copy link: ', error);
+      handleOpenLink();
     }
   };
 
   return (
-    <button className="btn btn-default share-link-btn" onClick={handleCopyLink} aria-label="Copy shareable link to clipboard">
-      {buttonText}
-    </button>
+    <div className="btn-share-wrapper hide-in-iframe">
+      <button
+        className="btn btn-share"
+        onClick={handleCopyLink}
+        aria-label="Copy shareable link to clipboard"
+        type="button"
+        disabled={!shareableLink}
+      >
+        Share
+      </button>
+      {confirmationMessage && (
+        <span className="btn-share-message" role="status" aria-live="polite">
+          {confirmationMessage}
+        </span>
+      )}
+    </div>
   );
 };
 

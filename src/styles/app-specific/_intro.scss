@@ -6,129 +6,169 @@
   }
 }
 
-.intro {
-  .intro-image {
-    position: relative;
-    width: 100%;
+// New hero and form layout
+.hero-and-form-section {
+  margin-bottom: 2rem;
+
+  @include media-breakpoint-up(xl) {
     background-color: #d8eaff;
-    border-radius: 0.5rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.5rem;
+    border-radius: 0.75rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 33.4375rem);
+    grid-template-rows: 1fr;
+    padding: 2rem;
+    gap: 2rem;
+    align-items: stretch;
+  }
+}
+
+.intro-hero-container {
+  @include media-breakpoint-up(xl) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+.intro-hero {
+  background-color: #d8eaff;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+
+  @include media-breakpoint-up(xl) {
+    background-color: transparent;
+    border-radius: 0;
+    margin-bottom: 0;
+    padding: 0;
+    width: 100%;
   }
 
-  .intro-image-inner {
-    width: 300px;
-    height: 155px;
-    margin: 0 auto;
+  .intro-text {
+    margin-bottom: 2rem;
 
-    /*background-image: url('/header-image2.png');*/
-    //background-repeat: no-repeat;
-    // background-size: cover;
+    h1 {
+      font-family: 'Museo', sans-serif;
+      font-weight: 700;
+      font-size: 3rem;
+      line-height: 3rem;
+      color: #000054;
+      margin: 0 0 1rem 0;
+    }
 
-    picture img,
-    img {
-      height: auto;
+    .lead {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-weight: 500;
+      font-size: 1.25rem;
+      line-height: 1.875rem;
+      color: #333333;
+      margin-bottom: 1rem;
+    }
+
+    @include media-breakpoint-up(xl) {
+      max-width: 39.3125rem;
       width: 100%;
+      margin-bottom: 2rem;
+      padding: 1rem 1rem 0 1rem;
+    }
+
+    @include media-breakpoint-down(xl) {
+      padding: 0;
+    }
+  }
+
+  .intro-image {
+    position: relative;
+
+    .intro-image-inner {
+      width: 300px;
+      height: 155px;
+      margin: 0 auto;
+
+      picture img,
+      img {
+        height: auto;
+        width: 100%;
+      }
+
+      @include media-breakpoint-up(md) {
+        width: 590px;
+        height: 306px;
+      }
+
+      @include media-breakpoint-up(xl) {
+        max-width: 38.1625rem;
+        width: 100%;
+        height: auto;
+        margin: 3rem 0 0 0;
+      }
+    }
+  }
+}
+
+.form-card {
+  background: white;
+  border: 1px solid #bfbfbf;
+  border-radius: 0.5rem;
+  padding: 1.5rem 2rem;
+  margin: 0 auto;
+  max-width: 33.4375rem;
+
+  @include media-breakpoint-down(xl) {
+    max-width: 100%;
+    padding: 2rem;
+  }
+
+  @include media-breakpoint-up(xl) {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  h2 {
+    font-family: 'Museo', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    line-height: 2.4rem;
+    color: #000054;
+    margin: 0 0 2rem 0;
+  }
+}
+
+@include color-mode(dark) {
+  .hero-and-form-section {
+    @include media-breakpoint-up(xl) {
+      background-color: var(--bs-secondary-bg);
+    }
+  }
+
+  .intro-hero {
+    background-color: var(--bs-secondary-bg);
+
+    @include media-breakpoint-up(xl) {
+      background-color: transparent;
     }
   }
 
   .intro-text {
     h1 {
-      margin: 1rem 0 0.25rem 0;
+      color: var(--bs-body-color);
+    }
+
+    .lead {
+      color: var(--bs-body-color);
     }
   }
-}
 
-@include color-mode(dark) {
-  .intro {
-    .intro-image {
-      background-color: var(--bs-secondary-bg);
-    }
-  }
-}
+  .form-card {
+    background: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
 
-@include media-breakpoint-up(md) {
-  .intro {
-    .intro-image {
-      padding-top: 1.5rem;
-      padding-bottom: 1rem;
-    }
-
-    .intro-image-inner {
-      width: 590px;
-      height: 306px;
-    }
-  }
-}
-
-@include media-breakpoint-up(xl) {
-  .intro {
-    display: flex;
-    width: 100%;
-    height: 23rem;
-    background-color: #d8eaff;
-    border-radius: 0.5rem;
-
-    padding: 2.5rem 3rem 0 3rem;
-    margin-bottom: 2rem;
-
-    .intro-text {
-      width: 30rem;
-      order: 1;
-      h1 {
-        margin: 1rem 0 0 0;
-      }
-    }
-
-    .intro-image {
-      order: 2;
-      width: auto;
-      padding: 0;
-      background-color: transparent;
-    }
-
-    .intro-image-inner {
-      margin: 0;
-      width: 535px;
-      height: 277px;
-    }
-  }
-}
-
-@include media-breakpoint-up(xxl) {
-  .intro {
-    height: 27rem;
-    padding: 2rem 2.5rem 0 3rem;
-
-    .intro-text {
-      width: 30rem;
-      h1 {
-        margin: 2rem 0 0 0;
-      }
-    }
-
-    .intro-image-inner {
-      width: 717px;
-      height: 371px;
-    }
-  }
-}
-
-@include color-mode(dark) {
-  @include media-breakpoint-down(xl) {
-    .intro {
-      background-color: transparent;
-    }
-  }
-}
-
-@include color-mode(dark) {
-  @include media-breakpoint-down(xl) {
-    #page-content .intro {
-      img {
-        filter: none;
-        background-color: transparent;
-      }
+    h2 {
+      color: var(--bs-body-color);
     }
   }
 }

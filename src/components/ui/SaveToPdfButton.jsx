@@ -36,7 +36,7 @@ const SaveToPdfButton = () => {
 
   return (
     <button className="btn btn-pdf hide-in-iframe" onClick={handlePrintPDF} type="button">
-      Save to PDF <span className="visually-hidden">(opens print window)</span>
+      Save plan to PDF <span className="visually-hidden">(opens print window)</span>
     </button>
   );
 };
