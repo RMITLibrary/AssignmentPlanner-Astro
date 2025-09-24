@@ -4,6 +4,11 @@ import sitemap from '@astrojs/sitemap';
 import preact from '@astrojs/preact';
 import strip from 'rollup-plugin-strip';
 
+// Silence Dart Sass deprecation warnings unless overridden by the environment
+if (!process.env.SASS_SILENCE_DEPRECATIONS) {
+  process.env.SASS_SILENCE_DEPRECATIONS = 'all';
+}
+
 //
 //  Determine the base path based on environment variable
 const useSubdirectoryDefault = true; // Set the default to true
@@ -20,6 +25,13 @@ export default defineConfig({
     // Pass basePath to the client-side environment
     define: {
       'import.meta.env.BASE_PATH': JSON.stringify(basePath),
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          silenceDeprecations: ['import', 'global-builtin', 'mixed-decls', 'color-functions'],
+        },
+      },
     },
     logLevel: 'error',
     plugins: [

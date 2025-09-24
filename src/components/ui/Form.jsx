@@ -97,6 +97,13 @@ useEffect(() => {
     preloadCalendar();
   }, [isCalendarPreloaded]);
 
+  // Re-validate dates whenever they change, but only after form has been submitted
+  useEffect(() => {
+    if (submitted) {
+      validateDates();
+    }
+  }, [startDate, endDate, submitted]);
+
   const calculateWeeksToDisplay = (startDate, endDate) => {
     const totalDays = Math.ceil((endDate - startDate) / (1000 * 3600 * 24)) + 1;
     const visibleWeeksCount = Math.ceil(totalDays / 7);
@@ -337,7 +344,7 @@ useEffect(() => {
 
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
-    if (needsRevalidation) {
+    if (needsRevalidation || submitted) {
       setFormValid(false);
     }
   };
@@ -345,7 +352,7 @@ useEffect(() => {
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
     setEndDateEmpty(e.target.value === '');
-    if (needsRevalidation) {
+    if (needsRevalidation || submitted) {
       setFormValid(false);
     }
   };
@@ -393,7 +400,7 @@ useEffect(() => {
 
         <div className="form-group">
           <label htmlFor="assignmentType">
-            Assignment type<span className="req">*</span>
+            Select an assignment type<span className="req">*</span>
           </label>
           <select className={getSelectClass()} id="assignmentType" required value={assignmentType} onChange={handleAssignmentChange} aria-describedby={hasError(assignmentType) ? 'assignmentTypeFeedback' : undefined} aria-invalid={hasError(assignmentType)}>
             <option value="">Select type</option>

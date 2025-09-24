@@ -1,66 +1,119 @@
 #assignmentDetails {
-  max-width: 47rem;
-
   .form-group {
-    @include do-space(margin-top, lg);
+    margin-bottom: 2rem;
   }
 
-  label {
+  label, legend {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: 400;
+    font-size: 1.125rem;
+    line-height: 1.6875rem;
+    color: #333333;
     margin-bottom: 0.5rem;
+    display: block;
   }
 
-  legend {
-    @include type-default;
+  .form-control, .form-select {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: #333333;
+    background-color: white;
+    border: 1px solid #bfbfbf;
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    height: 2.6875rem;
+
+    &::placeholder {
+      color: #333333;
+    }
+  }
+
+  // Radio button styling - original Bootstrap approach
+  fieldset[role="radiogroup"] {
+    margin-bottom: 2rem;
+
+    legend {
+      margin-bottom: 0.1875rem;
+    }
   }
 
   .form-check-inline {
+    display: inline-block;
+    margin-right: 2rem;
+
     label {
+      display: inline-block;
       margin: 0rem;
     }
   }
 
+  .form-check {
+    min-height: 1.5rem;
+    padding-left: 1.5em;
+    margin-bottom: .125rem;
+  }
+
   .dates {
+    display: flex;
+    gap: 2.25rem;
+    margin-bottom: 2rem;
+
     .form-group {
-      @include do-space(margin-top, md);
-      @include do-space(margin-bottom, lg);
-
-      display: flex;
-      align-items: center;
-      // width: 15rem;
-
-      flex-direction: column;
-      align-items: flex-start;
+      flex: 1;
+      margin-bottom: 0;
+      position: relative;
 
       label {
-        flex-shrink: 0;
-        width: 5.5rem;
-        margin: 0;
         margin-bottom: 0.5rem;
       }
 
-      input {
-        // flex-grow: 1;
+      input[type="date"] {
         width: 100%;
       }
-    }
 
-    @include media-breakpoint-up(sm) {
-      display: flex;
-      gap: 4rem;
-
-      .form-group {
-        width: auto;
-
-        label {
-          width: 6rem;
-          margin-bottom: 0.5rem;
-        }
-        input {
-          // flex-grow: 1;
-          width: 12rem;
-        }
+      input[type="date"].is-valid,
+      input[type="date"].is-invalid {
+        padding-right: 2.5rem;
       }
     }
+  }
+
+  // Button styling to match design
+  .btn {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: 400;
+    font-size: 1.125rem;
+    line-height: 1.6875rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    border: none;
+    text-align: center;
+
+    &.btn-primary {
+      background-color: #000054;
+      color: white;
+
+      &:hover, &:focus {
+        background-color: darken(#000054, 10%);
+      }
+    }
+
+    &.btn-default {
+      background-color: white;
+      color: #000054;
+      border: 1px solid #000054;
+
+      &:hover, &:focus {
+        background-color: #f8f9fa;
+      }
+    }
+  }
+
+  .d-flex {
+    gap: 1.5rem;
+    margin-top: 2.5rem;
   }
 }
 
@@ -116,18 +169,38 @@ $form-feedback-valid-color: aqua;
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25) !important;
 }
 
+*/
+
+// Original validation styling
+.was-validated .form-check-input:valid~.form-check-label,
+.form-check-input.is-valid~.form-check-label {
+  color: var(--bs-form-valid-color);
+}
+
+.was-validated .form-check-input:valid:checked,
+.form-check-input.is-valid:checked {
+  background-color: var(--bs-form-valid-color);
+}
+
+.was-validated .form-check-input:valid,
+.form-check-input.is-valid {
+  border-color: var(--bs-form-valid-border-color);
+}
+
+.form-check-input:checked[type=radio] {
+  --bs-form-check-bg-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e);
+}
+
+label {
+  display: inline-block;
+}
+
 @include color-mode(light) {
   .was-validated .form-control:valid,
   .form-control.is-valid {
     border-color: #138761;
   }
-
-  .was-validated .form-check-input:valid ~ .form-check-label,
-  .form-check-input.is-valid ~ .form-check-label {
-    color: #138761;
-  }
 }
- */
 
 // URL parameter tip styling
 .url-parameter-tip {

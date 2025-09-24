@@ -237,6 +237,7 @@ $calendar-offset-adjustment: 0.05em;
 
 .toastui-calendar-template-allday {
   cursor: default;
+  text-align: center;
 }
 
 .calendar-container {
@@ -308,12 +309,11 @@ $calendar-offset-adjustment: 0.05em;
   }
 }
 
-
 .toastui-calendar-grid-cell-date .toastui-calendar-weekday-grid-date.toastui-calendar-weekday-grid-date-decorator {
-    margin-left: 5px;
-    margin-top: 2px;
+  margin-left: 5px;
+  margin-top: 2px;
 }
 
 .toastui-calendar-daygrid-cell {
-    padding: 0!important;
+  padding: 0 !important;
 }
