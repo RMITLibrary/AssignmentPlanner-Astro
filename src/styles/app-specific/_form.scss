@@ -123,6 +123,55 @@
 
 // Dark mode
 @include color-mode(dark) {
+  #assignmentDetails {
+    label,
+    legend {
+      color: var(--bs-body-color);
+    }
+
+    .form-control,
+    .form-select {
+      color: var(--bs-body-color);
+      background-color: var(--bs-body-bg);
+      border-color: rgba(255, 255, 255, 0.2);
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+
+    .btn {
+      &.btn-primary {
+        background-color: $link-color-dark;
+        color: $body-bg-dark;
+
+        &:hover,
+        &:focus {
+          background-color: $link-color-hover-dark;
+        }
+      }
+
+      &.btn-default {
+        background-color: transparent;
+        color: var(--bs-body-color);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+
+        &:hover,
+        &:focus {
+          background-color: rgba(255, 255, 255, 0.08);
+        }
+      }
+    }
+
+    .dates {
+      .form-group {
+        input[type="date"] {
+          background-color: var(--bs-body-bg);
+        }
+      }
+    }
+  }
+
   .req {
     color: $accent-color-dark;
   }
