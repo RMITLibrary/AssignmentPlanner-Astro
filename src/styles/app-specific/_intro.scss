@@ -43,6 +43,11 @@
     width: 100%;
   }
 
+  @include media-breakpoint-down(sm) {
+    max-width: 100%;
+    padding: 1rem;
+  }
+
   .intro-text {
     margin-bottom: 2rem;
 
@@ -53,6 +58,10 @@
       line-height: 3rem;
       color: #000054;
       margin: 0 0 1rem 0;
+
+      @include media-breakpoint-down(sm) {
+        font-size: 2.5rem;
+      }
     }
 
     .lead {
@@ -126,6 +135,11 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+  }
+
+  @include media-breakpoint-down(sm) {
+    max-width: 100%;
+    padding: 1rem;
   }
 
   h2 {
