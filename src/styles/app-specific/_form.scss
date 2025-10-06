@@ -60,6 +60,15 @@
     gap: 2.25rem;
     margin-bottom: 2rem;
 
+    // Stack date fields on mobile
+    @media (max-width: 575.98px) {
+      display: block;
+
+      .form-group:first-child {
+        margin-bottom: 2rem;
+      }
+    }
+
     .form-group {
       flex: 1;
       margin-bottom: 0;
@@ -111,9 +120,14 @@
     }
   }
 
-  .d-flex {
-    gap: 1.5rem;
+  .d-flex.flex-wrap {
+    gap: 1.5rem !important; // 24px - override Bootstrap gap-3
     margin-top: 2.5rem;
+    justify-content: flex-start;
+
+    .btn {
+      margin: 0 !important;
+    }
   }
 }
 
