@@ -65,6 +65,13 @@ const PlanDetails = () => {
       tabName: tab,
     });
     activeTabStore.set(tab);
+
+    // Announce tab change to screen readers
+    const liveRegion = document.getElementById('tab-change-announcement');
+    if (liveRegion) {
+      const viewName = tab === 'task' ? 'Task view' : 'Calendar view';
+      liveRegion.textContent = `Switched to ${viewName}`;
+    }
   };
 
   const formatTaskBody = (text, isGroupAssignment = false) => {
@@ -227,6 +234,12 @@ const PlanDetails = () => {
     document.body.removeChild(link);
 
     console.log(`Exported to calendar with filename: ${filename}`);
+
+    // Announce export completion to screen readers
+    const liveRegion = document.getElementById('export-status-message');
+    if (liveRegion) {
+      liveRegion.textContent = `Calendar file has been downloaded. You can now import it into your calendar application.`;
+    }
   };
 
   const handleExportModal = (event) => {
@@ -273,7 +286,7 @@ const PlanDetails = () => {
   if (!isOpen || !details.projectID) return null;
 
   return (
-    <section id="plan-detail" className="pt-4">
+    <section id="plan-detail" className="pt-4" aria-labelledby="plan-detail-heading" role="region">
       {/* Export to Calendar Modal */}
       <div className="modal fade" id="exportModal" tabIndex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
@@ -388,7 +401,7 @@ const PlanDetails = () => {
         <div className="container pt-0 pb-5 px-0 special-consideration">
           <div className="row">
             <div className="col-md-12">
-              <div className="card assignment-card p-3">
+              <div className="card assignment-card p-3" role="note" aria-label="Special consideration information">
                 <div className="row">
                   <div className="col-md-2 pb-3 pb-md-0 d-flex align-items-center justify-content-center">
                     <Clock />
@@ -407,7 +420,7 @@ const PlanDetails = () => {
           </div>
         </div>
       )}
-      <h2>
+      <h2 id="plan-detail-heading">
         Assignment plan: <span>{details.assignmentName || details.name || 'N/A'}</span>
       </h2>
       <div className="plan-dates">
@@ -428,12 +441,12 @@ const PlanDetails = () => {
 
       <ul className="nav nav-tabs" role="tablist">
         <li className="nav-item" role="presentation">
-          <button className={`nav-link ${activeTab === 'task' ? 'active' : ''}`} id="task-tab" role="tab" onClick={() => changeTab('task')} aria-label={`Switch to Task view`}>
+          <button className={`nav-link ${activeTab === 'task' ? 'active' : ''}`} id="task-tab" role="tab" onClick={() => changeTab('task')} aria-label={`Switch to Task view`} aria-selected={activeTab === 'task'} aria-controls="task-tab-pane">
             Task <span>&nbsp;view</span>
           </button>
         </li>
         <li className="nav-item" role="presentation">
-          <button className={`nav-link ${activeTab === 'calendar' ? 'active' : ''}`} id="calendar-tab" role="tab" onClick={() => changeTab('calendar')} aria-label={`Switch to Calendar view`}>
+          <button className={`nav-link ${activeTab === 'calendar' ? 'active' : ''}`} id="calendar-tab" role="tab" onClick={() => changeTab('calendar')} aria-label={`Switch to Calendar view`} aria-selected={activeTab === 'calendar'} aria-controls="calendar-tab-pane">
             Calendar <span>&nbsp;view</span>
           </button>
         </li>
@@ -461,6 +474,12 @@ const PlanDetails = () => {
         {activeTab === 'calendar' && <SwitchToTaskViewButton />}
         {activeTab === 'task' && <SwitchToCalendarViewButton />}
       </div>
+
+      {/* Live region for tab change announcements */}
+      <div id="tab-change-announcement" className="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+      {/* Live region for export status announcements */}
+      <div id="export-status-message" className="visually-hidden" aria-live="polite" aria-atomic="true"></div>
     </section>
   );
 };

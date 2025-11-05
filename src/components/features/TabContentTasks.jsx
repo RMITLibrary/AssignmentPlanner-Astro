@@ -59,8 +59,12 @@ const TabContentTasks = () => {
 
   return (
     <div>
+      <div className="visually-hidden" aria-live="off">
+        The following table contains {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}. Navigate by row to review each task's description, completion date, and time allocation.
+      </div>
       <div class="hscroll">
         <table className="table-striped" id="table-steps-table">
+          <caption className="visually-hidden">Assignment tasks breakdown with completion dates and time allocations</caption>
           <thead>
             <tr>
               <th>Task</th>

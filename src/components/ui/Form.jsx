@@ -55,33 +55,88 @@ const Form = ({ projectsWithTasks }) => {
     }, 500);
   }, []);
 
-useEffect(() => {
-  if (submitted && formValid) {
-    console.log('Form submitted and valid, scrolling to plan detail');
-    const planDetailElement = document.getElementById('plan-detail');
+  // Helper function to announce to live region
+  // This function ensures screen readers announce the message by clearing
+  // previous content first, then setting new content after a brief delay
+  const announceToScreenReader = (message) => {
     const liveRegion = document.getElementById('form-submission-message');
-
-    scrollToView('#plan-detail');
-    //planDetailElement.scrollIntoView({ behavior: 'smooth' });
-
-    setTimeout(() => {
-      // Temporarily set tabindex if needed
-      planDetailElement.setAttribute('tabindex', '-1');
-      planDetailElement.focus({ preventScroll: true });
-      console.log(planDetailElement);
-
-      // Remove the tabindex to clean up
-      setTimeout(() => {
-        planDetailElement.removeAttribute('tabindex');
-      }, 0);
-    }, 0);
-
-    // Update the live region text
     if (liveRegion) {
-      liveRegion.textContent = 'Assignment plan generated. Please review the details below.';
+      // Clear previous content to ensure new announcement is read
+      // This pattern forces screen readers to recognize the change
+      liveRegion.textContent = '';
+      // Force a reflow by accessing offsetHeight
+      void liveRegion.offsetHeight;
+      // Use setTimeout to ensure the clear is processed before setting new content
+      setTimeout(() => {
+        liveRegion.textContent = message;
+      }, 100);
     }
-  }
-}, [submitted, formValid]);
+  };
+
+  // Wait for PlanDetails to render and handle success announcement and focus
+  useEffect(() => {
+    if (submitted && formValid) {
+      console.log('Form submitted and valid, waiting for plan detail to render');
+
+      // Get assignment details for the success message
+      const selectedProject = projectsWithTasks.find((proj) => proj.id === assignmentType);
+      const assignmentNameText = assignmentName || selectedProject?.name || 'assignment';
+
+      // Function to handle success announcement and focus
+      let retries = 0;
+      const maxRetries = 50; // Max 5 seconds (50 * 100ms)
+
+      const handleSuccess = () => {
+        // Guard: Stop if results were closed or max retries reached
+        if (!isOpenResults.get() || retries >= maxRetries) {
+          if (retries >= maxRetries) {
+            console.warn('PlanDetails failed to render after max retries');
+          }
+          return;
+        }
+
+        const planDetailElement = document.getElementById('plan-detail');
+
+        if (!planDetailElement) {
+          // PlanDetails hasn't rendered yet, wait and try again
+          retries++;
+          setTimeout(handleSuccess, 100);
+          return;
+        }
+
+        // PlanDetails exists, proceed with announcement and focus
+
+        // Get accurate task count from the store now that it's been updated
+        const currentPlan = planDetailsStore.get();
+        const taskCount = currentPlan.tasks?.length || selectedProject.tasks?.length || 0;
+        const taskText = taskCount === 1 ? 'task' : 'tasks';
+        const successMessage = `Assignment plan generated for ${assignmentNameText} with ${taskCount} ${taskText}. Please review the details below.`;
+
+        // First, scroll to the element (but don't focus yet)
+        scrollToView('#plan-detail');
+
+        // Update the live region with success message using the helper function
+        announceToScreenReader(successMessage);
+
+        // Wait for the announcement to start before moving focus
+        // This delay allows screen readers to begin reading the announcement
+        setTimeout(() => {
+          // Temporarily set tabindex to make the element focusable
+          planDetailElement.setAttribute('tabindex', '-1');
+          planDetailElement.focus({ preventScroll: true });
+          console.log('Focus moved to plan-detail:', planDetailElement);
+
+          // Remove the tabindex to clean up after focus
+          setTimeout(() => {
+            planDetailElement.removeAttribute('tabindex');
+          }, 0);
+        }, 500); // Increased delay to allow announcement to start
+      };
+
+      // Start checking for PlanDetails
+      handleSuccess();
+    }
+  }, [submitted, formValid, assignmentType, assignmentName, projectsWithTasks]);
 
   useEffect(() => {
     const preloadCalendar = async () => {
@@ -120,12 +175,43 @@ useEffect(() => {
     event.preventDefault();
     console.log('Form submission attempt:', { assignmentType, startDate, endDate, formValid });
 
+    // Announce immediate feedback that form is being processed
+    announceToScreenReader('Processing form submission. Please wait.');
+
     const isFormValid = validateForm(); // Validate first
     setFormValid(isFormValid);
     setSubmitted(true); // Always set submitted to indicate the user attempted to submit
 
     if (!isFormValid) {
       console.log('Form validation failed - other values.');
+      
+      // Collect validation errors and announce them
+      const errors = [];
+      if (!assignmentType) {
+        errors.push('Please select an assignment type.');
+      }
+      if (!groupAssignment) {
+        errors.push('Please select whether this is a group assignment.');
+      }
+      if (!startDate) {
+        errors.push('Please provide a start date.');
+      }
+      if (!endDate) {
+        errors.push('Please provide an end date.');
+      } else {
+        const startDateObj = new Date(startDate);
+        const endDateObj = new Date(endDate);
+        if (isNaN(startDateObj) || isNaN(endDateObj) || endDateObj <= startDateObj) {
+          errors.push('End date must be after the start date.');
+        }
+      }
+
+      // Announce validation errors
+      const errorMessage = errors.length > 0 
+        ? `Form validation failed. ${errors.join(' ')} Please correct the errors and try again.`
+        : 'Form validation failed. Please correct the errors and try again.';
+      announceToScreenReader(errorMessage);
+      
       return;
     }
 
@@ -283,6 +369,12 @@ useEffect(() => {
     setNeedsRevalidation(false);
     setEndDateEmpty(false);
     document.getElementById('endDateError').textContent = '';
+
+    // Clear live region announcement
+    const liveRegion = document.getElementById('form-submission-message');
+    if (liveRegion) {
+      liveRegion.textContent = '';
+    }
 
     // Clear URL parameters when form is reset
     clearUrlParameters();
@@ -481,7 +573,7 @@ useEffect(() => {
           </button>
         </div>
       </form>
-      <div id="form-submission-message" className="visually-hidden" aria-live="polite" aria-atomic="false"></div>
+      <div id="form-submission-message" className="visually-hidden" aria-live="polite" aria-atomic="true"></div>
       {/* URL parameter tip - commented out for now
       <div className="mt-3 small text-muted url-parameter-tip hide-print">
         <p className="mt-0">
