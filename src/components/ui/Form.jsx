@@ -18,6 +18,7 @@ const Form = ({ projectsWithTasks }) => {
   const [isCalendarPreloaded, setIsCalendarPreloaded] = useState(false);
   const [needsRevalidation, setNeedsRevalidation] = useState(false);
   const [endDateEmpty, setEndDateEmpty] = useState(false);
+  const [validationErrors, setValidationErrors] = useState([]);
 
   // Sort projects by name alphabetically
   const sortedProjects = [...projectsWithTasks].sort((a, b) => a.name.localeCompare(b.name));
@@ -55,33 +56,61 @@ const Form = ({ projectsWithTasks }) => {
     }, 500);
   }, []);
 
-useEffect(() => {
-  if (submitted && formValid) {
-    console.log('Form submitted and valid, scrolling to plan detail');
-    const planDetailElement = document.getElementById('plan-detail');
-    const liveRegion = document.getElementById('form-submission-message');
+  useEffect(() => {
+    if (submitted && formValid) {
+      console.log('Form submitted and valid, scrolling to plan detail');
+      const liveRegion = document.getElementById('form-submission-message');
+      
+      // Wait for PlanDetails to render before proceeding
+      const waitForPlanDetails = () => {
+        const planDetailElement = document.getElementById('plan-detail');
+        
+        if (!planDetailElement) {
+          // PlanDetails hasn't rendered yet, try again
+          requestAnimationFrame(waitForPlanDetails);
+          return;
+        }
 
-    scrollToView('#plan-detail');
-    //planDetailElement.scrollIntoView({ behavior: 'smooth' });
+        // PlanDetails exists, proceed with announcement and focus
+        const selectedProject = projectsWithTasks.find((proj) => proj.id === assignmentType);
+        const projectName = selectedProject?.name || 'assignment';
+        const assignmentDisplayName = assignmentName || projectName;
+        
+        // Create a more descriptive success message
+        const successMessage = `Assignment plan generated for ${assignmentDisplayName}. Please review the details below.`;
+        
+        // Update the live region text first
+        if (liveRegion) {
+          liveRegion.textContent = '';
+          // Use requestAnimationFrame to ensure the live region is ready
+          requestAnimationFrame(() => {
+            if (liveRegion) {
+              liveRegion.textContent = successMessage;
+            }
+            // Delay focus movement to allow announcement to complete
+            // JAWS typically needs 1-2 seconds for announcements
+            setTimeout(() => {
+              scrollToView('#plan-detail');
+              // Use another requestAnimationFrame to ensure scrolling is complete
+              requestAnimationFrame(() => {
+                if (planDetailElement) {
+                  planDetailElement.setAttribute('tabindex', '-1');
+                  planDetailElement.focus({ preventScroll: true });
+                  // Remove the tabindex after focus
+                  setTimeout(() => {
+                    planDetailElement.removeAttribute('tabindex');
+                  }, 0);
+                }
+              });
+            }, 1500); // Delay focus by 1.5 seconds to allow announcement
+          });
+        }
+      };
 
-    setTimeout(() => {
-      // Temporarily set tabindex if needed
-      planDetailElement.setAttribute('tabindex', '-1');
-      planDetailElement.focus({ preventScroll: true });
-      console.log(planDetailElement);
-
-      // Remove the tabindex to clean up
-      setTimeout(() => {
-        planDetailElement.removeAttribute('tabindex');
-      }, 0);
-    }, 0);
-
-    // Update the live region text
-    if (liveRegion) {
-      liveRegion.textContent = 'Assignment plan generated. Please review the details below.';
+      // Start waiting for PlanDetails
+      requestAnimationFrame(waitForPlanDetails);
     }
-  }
-}, [submitted, formValid]);
+  }, [submitted, formValid, assignmentType, assignmentName, projectsWithTasks]);
 
   useEffect(() => {
     const preloadCalendar = async () => {
@@ -120,14 +149,59 @@ useEffect(() => {
     event.preventDefault();
     console.log('Form submission attempt:', { assignmentType, startDate, endDate, formValid });
 
+    // Announce immediate feedback that form submission is being processed
+    const liveRegion = document.getElementById('form-submission-message');
+    if (liveRegion) {
+      liveRegion.textContent = 'Processing form submission.';
+    }
+
     const isFormValid = validateForm(); // Validate first
     setFormValid(isFormValid);
     setSubmitted(true); // Always set submitted to indicate the user attempted to submit
 
     if (!isFormValid) {
       console.log('Form validation failed - other values.');
+      
+      // Collect validation errors for announcement
+      const errors = [];
+      if (!assignmentType) {
+        errors.push('Assignment type is required');
+      }
+      if (!groupAssignment) {
+        errors.push('Please select whether this is a group assignment');
+      }
+      if (!startDate) {
+        errors.push('Start date is required');
+      }
+      if (!endDate) {
+        errors.push('End date is required');
+      } else {
+        const startDateObj = new Date(startDate);
+        const endDateObj = new Date(endDate);
+        if (isNaN(startDateObj) || isNaN(endDateObj) || endDateObj <= startDateObj) {
+          errors.push('End date must be after the start date');
+        }
+      }
+      
+      setValidationErrors(errors);
+      
+      // Announce validation errors
+      if (liveRegion && errors.length > 0) {
+        const errorMessage = `Form submission failed. ${errors.join('. ')}. Please correct the errors and try again.`;
+        // Clear and set new message to ensure announcement
+        liveRegion.textContent = '';
+        requestAnimationFrame(() => {
+          if (liveRegion) {
+            liveRegion.textContent = errorMessage;
+          }
+        });
+      }
+      
       return;
     }
+    
+    // Clear validation errors if form is valid
+    setValidationErrors([]);
 
     setNeedsRevalidation(true);
 
@@ -282,7 +356,14 @@ useEffect(() => {
     setIsCalendarPreloaded(false);
     setNeedsRevalidation(false);
     setEndDateEmpty(false);
+    setValidationErrors([]);
     document.getElementById('endDateError').textContent = '';
+
+    // Clear live region
+    const liveRegion = document.getElementById('form-submission-message');
+    if (liveRegion) {
+      liveRegion.textContent = '';
+    }
 
     // Clear URL parameters when form is reset
     clearUrlParameters();
@@ -481,7 +562,7 @@ useEffect(() => {
           </button>
         </div>
       </form>
-      <div id="form-submission-message" className="visually-hidden" aria-live="polite" aria-atomic="false"></div>
+      <div id="form-submission-message" className="visually-hidden" aria-live="polite" aria-atomic="true"></div>
       {/* URL parameter tip - commented out for now
       <div className="mt-3 small text-muted url-parameter-tip hide-print">
         <p className="mt-0">
