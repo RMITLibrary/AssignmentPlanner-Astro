@@ -24,17 +24,24 @@ const sendResizeMessage = (): void => {
   }
 
   const height = getContentHeight();
-  window.parent.postMessage(
+  const resizeMessages = [
     {
       subject: 'lti.frameResize',
       height: height,
     },
-    '*'
-  );
+    {
+      subject: 'rmit.iframeResize',
+      height: height,
+    },
+  ];
+
+  resizeMessages.forEach((message) => {
+    window.parent.postMessage(message, '*');
+  });
 };
 
 // Create a debounced version for resize events
-const debouncedSendResize = (function() {
+const debouncedSendResize = (function () {
   let timeout: ReturnType<typeof setTimeout>;
   return () => {
     clearTimeout(timeout);
@@ -67,7 +74,7 @@ export function initializeIframeResize(): void {
   const observer = new MutationObserver(debouncedSendResize);
   observer.observe(document.body, {
     childList: true,
-    subtree: true
+    subtree: true,
   });
 
   // Clean up on page unload
